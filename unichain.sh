@@ -60,7 +60,7 @@ docker-compose up -d
 
 # Команды для проверки после запуска
 echo "-----------------------------------------------------------------------"
-echo "Пробуем curl нашу ноду:"
+echo "Пробуем curl нашей ноды:"
 echo 'curl -d '"'"'{"id":1,"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["latest",false]}'"'"' \'
 echo '  -H "Content-Type: application/json" http://localhost:8545'
 echo "-----------------------------------------------------------------------"
