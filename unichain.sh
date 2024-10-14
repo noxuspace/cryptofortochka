@@ -89,7 +89,7 @@ echo -e "${PURPLE}--------------------------------------------------------------
 echo -e "${YELLOW}Удалить ноду:${NC}"
 echo "cd unichain-node"
 echo "docker-compose down"
-echo "sudo rm -r unichain-node"
+echo "cd && sudo rm -r unichain-node"
 echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
 
 # Заключительное сообщение
