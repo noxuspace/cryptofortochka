@@ -1,11 +1,15 @@
 #!/bin/bash
 
 # Цвета текста
-WHITE='\033[1;37m'
+PURPLE='\033[0;35m' # Фиолетовый цвет
+YELLOW='\033[0;33m'  # Желтый цвет
 NC='\033[0m' # Нет цвета (сброс цвета)
 
 # Выводим заголовок FORTOCHKA белым цветом
 echo -e "${WHITE}FORTOCHKA${NC}"
+
+# Отображение лого CRYPTO FORTO
+curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_forto.sh | bash
 
 # Обновляем систему и пакеты
 sudo apt update && sudo apt upgrade -y
@@ -59,34 +63,34 @@ echo "Запускаем контейнеры с помощью docker-compose..
 docker-compose up -d
 
 # Команды для проверки после запуска
-echo "-----------------------------------------------------------------------"
-echo "Пробуем curl нашей ноды:"
+echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+echo -e "${YELLOW}Пробуем curl нашу ноду:${NC}"
 echo 'curl -d '"'"'{"id":1,"jsonrpc":"2.0","method":"eth_getBlockByNumber","params":["latest",false]}'"'"' \'
 echo '  -H "Content-Type: application/json" http://localhost:8545'
-echo "-----------------------------------------------------------------------"
+echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
 
-echo "Проверяем логи unichain-node-op-node-1:"
+echo -e "${YELLOW}Проверяем логи unichain-node-op-node-1:${NC}"
 echo "docker logs unichain-node-op-node-1"
-echo "-----------------------------------------------------------------------"
+echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
 
-echo "Проверяем логи unichain-node-execution-client-1:"
+echo -e "${YELLOW}Проверяем логи unichain-node-execution-client-1:${NC}"
 echo "docker logs unichain-node-execution-client-1"
-echo "-----------------------------------------------------------------------"
+echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
 
-echo "Остановить ноду:"
+echo -e "${YELLOW}Остановить ноду:${NC}"
 echo "docker-compose down"
-echo "-----------------------------------------------------------------------"
+echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
 
-echo "Сделать рестарт:"
+echo -e "${YELLOW}Сделать рестарт:${NC}"
 echo "docker-compose down"
 echo "docker-compose up -d"
-echo "-----------------------------------------------------------------------"
+echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
 
-echo "Удалить ноду:"
+echo -e "${YELLOW}Удалить ноду:${NC}"
 echo "cd unichain-node"
 echo "docker-compose down"
 echo "sudo rm -r unichain-node"
-echo "-----------------------------------------------------------------------"
+echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
 
 # Заключительное сообщение
-echo -e "${WHITE}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
+echo -e "${YELLOW}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
