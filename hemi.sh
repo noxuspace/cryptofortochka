@@ -140,6 +140,7 @@ EOT'
         # Создание директории и извлечение бинарника
         mkdir -p hemi
         tar --strip-components=1 -xzvf heminetwork_v0.4.5_linux_amd64.tar.gz -C hemi
+        cd hemi
 
         # Запрос приватного ключа и комиссии
         echo -e "${YELLOW}Введите ваш приватный ключ от кошелька:${NC} "
