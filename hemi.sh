@@ -24,7 +24,6 @@ echo -e "${CYAN}1) Установка ноды${NC}"
 echo -e "${CYAN}2) Обновление ноды${NC}"
 echo -e "${CYAN}3) Изменение комиссии${NC}"
 echo -e "${CYAN}4) Удаление ноды${NC}"
-echo -e "${CYAN}5) Полезные команды${NC}"
 
 echo -e "${YELLOW}Введите номер:${NC} "
 read choice
@@ -38,10 +37,7 @@ case $choice in
 
         # Проверка и установка tar, если его нет
         if ! command -v tar &> /dev/null; then
-            echo -e "${BLUE}tar не установлен, выполняем установку...${NC}"
             sudo apt install tar -y
-        else
-            echo -e "${BLUE}tar уже установлен.${NC}"
         fi
 
         # Установка бинарника
@@ -51,7 +47,6 @@ case $choice in
         # Создание директории и извлечение бинарника
         mkdir -p hemi
         tar --strip-components=1 -xzvf heminetwork_v0.4.5_linux_amd64.tar.gz -C hemi
-        cd hemi
 
         # Создание tBTC кошелька
         ./keygen -secp256k1 -json -net="testnet" > ~/popm-address.json
@@ -94,9 +89,17 @@ EOT'
         # Запуск ноды
         sudo systemctl start hemi
 
+        # Заключительный вывод
         echo -e "${GREEN}Установка завершена и нода запущена!${NC}"
-        ;;
 
+        # Завершающий вывод
+        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+        echo -e "${YELLOW}Команда для проверки логов:${NC}" 
+        echo "sudo journalctl -u hemi -f"
+        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+        echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
+        echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
+        ;;
     2)
         echo -e "${BLUE}Обновляем ноду Hemi...${NC}"
 
@@ -110,7 +113,7 @@ EOT'
                 screen -S "$SESSION_ID" -X quit
             done
         else
-            echo -e "${BLUE}Сессии screen для ноды Hemi не найдены.${NC}"
+            echo -e "${BLUE}Сессии screen для ноды Hemi не найдены, начинаем обновление${NC}"
         fi
 
         # Проверка существования сервиса
@@ -119,10 +122,10 @@ EOT'
             sudo systemctl disable hemi.service
             sudo systemctl daemon-reload
         else
-            echo -e "${BLUE}Сервис hemi.service не найден, начинаем обновление.${NC}"
+            echo -e "${BLUE}Сервис hemi.service не найден, продолжаем обновление.${NC}"
         fi
 
-        # Удаление папки с бинарниками, содержащей "hemi" в названии
+        # Удаление папки с бинарниками, содержащими "hemi" в названии
         echo -e "${BLUE}Удаляем старые файлы ноды...${NC}"
         rm -rf *hemi*
 
@@ -172,10 +175,78 @@ EOT'
         # Запуск ноды
         sudo systemctl start hemi
 
+        # Заключительный вывод
         echo -e "${GREEN}Нода обновлена и запущена!${NC}"
+
+        # Завершающий вывод
+        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+        echo -e "${YELLOW}Команда для проверки логов:${NC}" 
+        echo "sudo journalctl -u hemi -f"
+        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+        echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
+        echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
         ;;
-    
-    *)
-        echo -e "${RED}Неверный выбор, попробуйте снова.${NC}"
+    3)
+        echo -e "${YELLOW}Укажите новое значение комиссии (минимум 50):${NC}"
+        read NEW_FEE
+
+        # Проверка, что введенное значение не меньше 50
+        if [ "$NEW_FEE" -ge 50 ]; then
+            # Обновляем значение комиссии в файле popmd.env
+            sed -i "s/^POPM_STATIC_FEE=.*/POPM_STATIC_FEE=$NEW_FEE/" /root/hemi/popmd.env
+
+            # Перезапуск сервиса Hemi
+            sudo systemctl restart hemi
+
+            echo -e "${GREEN}Значение комиссии успешно изменено!${NC}"
+
+            # Завершающий вывод
+            echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+            echo -e "${YELLOW}Команда для проверки логов:${NC}" 
+            echo "sudo journalctl -u hemi -f"
+            echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+            echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
+            echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
+        else
+            echo -e "${RED}Ошибка: комиссия должна быть не меньше 50!${NC}"
+        fi
         ;;
+
+    4)
+        echo -e "${BLUE}Удаление ноды Hemi...${NC}"
+
+        # Находим все сессии screen, содержащие "hemi"
+        SESSION_IDS=$(screen -ls | grep "hemi" | awk '{print $1}' | cut -d '.' -f 1)
+
+        # Если сессии найдены, удаляем их
+        if [ -n "$SESSION_IDS" ]; then
+            echo -e "${BLUE}Завершение сессий screen с идентификаторами: $SESSION_IDS${NC}"
+            for SESSION_ID in $SESSION_IDS; do
+                screen -S "$SESSION_ID" -X quit
+            done
+        else
+            echo -e "${BLUE}Сессии screen для ноды Hemi не найдены, продолжаем удаление${NC}"
+        fi
+
+        # Остановка и удаление сервиса Hemi
+        sudo systemctl stop hemi.service
+        sudo systemctl disable hemi.service
+        sudo rm /etc/systemd/system/hemi.service
+        sudo systemctl daemon-reload
+
+        # Удаление папки с названием, содержащим "hemi"
+        echo -e "${BLUE}Удаляем файлы ноды Hemi...${NC}"
+        rm -rf *hemi*
+
+        echo -e "${GREEN}Нода Hemi успешно удалена!${NC}"
+
+        # Завершающий вывод
+        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+        echo -e "${YELLOW}Команда для проверки логов:${NC}" 
+        echo "sudo journalctl -u hemi -f"
+        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+        echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
+        echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
+        ;;
+        
 esac
