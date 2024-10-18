@@ -31,21 +31,21 @@ read choice
 
 case $choice in
     1)
-        echo -e "${GREEN}Устанавливаем ноду Hemi...${NC}"
+        echo -e "${BLUE}Устанавливаем ноду Hemi...${NC}"
 
         # Обновляем и устанавливаем необходимые пакеты
         sudo apt update && sudo apt upgrade -y
 
         # Проверка и установка tar, если его нет
         if ! command -v tar &> /dev/null; then
-            echo -e "${GREEN}tar не установлен, выполняем установку...${NC}"
+            echo -e "${BLUE}tar не установлен, выполняем установку...${NC}"
             sudo apt install tar -y
         else
-            echo -e "${GREEN}tar уже установлен.${NC}"
+            echo -e "${BLUE}tar уже установлен.${NC}"
         fi
 
         # Установка бинарника
-        echo -e "${GREEN}Загружаем бинарник Hemi...${NC}"
+        echo -e "${BLUE}Загружаем бинарник Hemi...${NC}"
         curl -L -O https://github.com/hemilabs/heminetwork/releases/download/v0.4.5/heminetwork_v0.4.5_linux_amd64.tar.gz
 
         # Создание директории и извлечение бинарника
@@ -59,11 +59,11 @@ case $choice in
         # Вывод содержимого файла popm-address.json
         echo -e "${RED}Сохраните эти данные в надежное место:${NC}"
         cat ~/popm-address.json
-        echo -e "${YELLOW}Ваш pubkey_hash — это ваш tBTC адрес, на который нужно запросить тестовые токены в Discord проекта.${NC}"
+        echo -e "${PURPLE}Ваш pubkey_hash — это ваш tBTC адрес, на который нужно запросить тестовые токены в Discord проекта.${NC}"
 
-        echo -e "${GREEN}Введите ваш приватный ключ от кошелька:${NC} "
+        echo -e "${YELLOW}Введите ваш приватный ключ от кошелька:${NC} "
         read PRIV_KEY
-        echo -e "${GREEN}Укажите желаемый размер комиссии (минимум 50):${NC} "
+        echo -e "${YELLOW}Укажите желаемый размер комиссии (минимум 50):${NC} "
         read FEE
 
         echo "POPM_BTC_PRIVKEY=$PRIV_KEY" > popmd.env
@@ -98,58 +98,49 @@ EOT'
         ;;
 
     2)
-        echo -e "${GREEN}Обновляем ноду Hemi...${NC}"
+        echo -e "${BLUE}Обновляем ноду Hemi...${NC}"
 
         # Находим все сессии screen, содержащие "hemi"
         SESSION_IDS=$(screen -ls | grep "hemi" | awk '{print $1}' | cut -d '.' -f 1)
 
         # Если сессии найдены, удаляем их
         if [ -n "$SESSION_IDS" ]; then
-            echo -e "${GREEN}Завершение сессий screen с идентификаторами: $SESSION_IDS${NC}"
+            echo -e "${BLUE}Завершение сессий screen с идентификаторами: $SESSION_IDS${NC}"
             for SESSION_ID in $SESSION_IDS; do
                 screen -S "$SESSION_ID" -X quit
             done
         else
-            echo -e "${YELLOW}Сессии screen для ноды hemi не найдены.${NC}"
+            echo -e "${BLUE}Сессии screen для ноды Hemi не найдены.${NC}"
         fi
 
         # Проверка существования сервиса
         if systemctl list-units --type=service | grep -q "hemi.service"; then
-            echo -e "${GREEN}Останавливаем сервис hemi.service...${NC}"
             sudo systemctl stop hemi.service
-
-            echo -e "${GREEN}Отключаем сервис hemi.service...${NC}"
             sudo systemctl disable hemi.service
-
-            echo -e "${GREEN}Удаляем сервисный файл hemi.service...${NC}"
-            sudo rm /etc/systemd/system/hemi.service
-
-            echo -e "${GREEN}Перезагружаем конфигурацию systemd...${NC}"
             sudo systemctl daemon-reload
         else
-            echo -e "${YELLOW}Сервис hemi.service не найден, начинаем обновление.${NC}"
+            echo -e "${BLUE}Сервис hemi.service не найден, начинаем обновление.${NC}"
         fi
 
         # Удаление папки с бинарниками, содержащей "hemi" в названии
-        echo -e "${GREEN}Удаляем старые файлы ноды...${NC}"
+        echo -e "${BLUE}Удаляем старые файлы ноды...${NC}"
         rm -rf *hemi*
 
         # Обновляем и устанавливаем необходимые пакеты
         sudo apt update && sudo apt upgrade -y
 
         # Установка бинарника
-        echo -e "${GREEN}Загружаем бинарник Hemi...${NC}"
+        echo -e "${BLUE}Загружаем бинарник Hemi...${NC}"
         curl -L -O https://github.com/hemilabs/heminetwork/releases/download/v0.4.5/heminetwork_v0.4.5_linux_amd64.tar.gz
 
         # Создание директории и извлечение бинарника
         mkdir -p hemi
         tar --strip-components=1 -xzvf heminetwork_v0.4.5_linux_amd64.tar.gz -C hemi
-        cd hemi
 
         # Запрос приватного ключа и комиссии
-        echo -e "${GREEN}Введите ваш приватный ключ от кошелька:${NC} "
+        echo -e "${YELLOW}Введите ваш приватный ключ от кошелька:${NC} "
         read PRIV_KEY
-        echo -e "${GREEN}Укажите желаемый размер комиссии (минимум 50):${NC} "
+        echo -e "${YELLOW}Укажите желаемый размер комиссии (минимум 50):${NC} "
         read FEE
 
         # Создание файла popmd.env
