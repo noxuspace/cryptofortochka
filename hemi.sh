@@ -47,6 +47,7 @@ case $choice in
         # Создание директории и извлечение бинарника
         mkdir -p hemi
         tar --strip-components=1 -xzvf heminetwork_v0.4.5_linux_amd64.tar.gz -C hemi
+        cd hemi
 
         # Создание tBTC кошелька
         ./keygen -secp256k1 -json -net="testnet" > ~/popm-address.json
