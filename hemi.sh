@@ -60,7 +60,7 @@ case $choice in
         # Вывод содержимого файла popm-address.json
         echo -e "${RED}Сохраните эти данные в надежное место:${NC}"
         cat ~/popm-address.json
-        echo -e "${RED}Ваш pubkey_hash — это ваш tBTC адрес, на который нужно запросить тестовые токены в Discord проекта.${NC}"
+        echo -e "${YELLOW}Ваш pubkey_hash — это ваш tBTC адрес, на который нужно запросить тестовые токены в Discord проекта.${NC}"
 
         echo -e "${GREEN}Введите ваш приватный ключ от кошелька:${NC} "
 read PRIV_KEY
