@@ -4,40 +4,37 @@
 curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_forto.sh | bash
 
 if ! command -v curl &> /dev/null; then
-    echo "curl не установлен, выполняем установку..."
     sudo apt update
     sudo apt install curl -y
-else
-    echo "curl уже установлен."
 fi
 
 # Меню
-echo "Выберите действие:"
-echo "1) Установка ноды"
-echo "2) Обновление ноды"
-echo "3) Изменение комиссии"
-echo "4) Удаление ноды"
-echo "5) Полезные команды"
+echo -e "${GREEN}Выберите действие:${NC}"
+echo -e "${GREEN}1) Установка ноды${NC}"
+echo -e "${GREEN}2) Обновление ноды${NC}"
+echo -e "${GREEN}3) Изменение комиссии${NC}"
+echo -e "${GREEN}4) Удаление ноды${NC}"
+echo -e "${GREEN}5) Полезные команды${NC}"
 
 read -p "Введите номер: " choice
 
 case $choice in
     1)
-        echo "Устанавливаем ноду Hemi..."
+        echo -e "${GREEN}Устанавливаем ноду Hemi...${NC}"
 
         # Обновляем и устанавливаем необходимые пакеты
         sudo apt update && sudo apt upgrade -y
 
         # Проверка и установка tar, если его нет
         if ! command -v tar &> /dev/null; then
-            echo "tar не установлен, выполняем установку..."
+            echo -e "${GREEN}tar не установлен, выполняем установку...${NC}"
             sudo apt install tar -y
         else
-            echo "tar уже установлен."
+            echo -e "${GREEN}tar уже установлен.${NC}"
         fi
 
         # Установка бинарника
-        echo "Загружаем бинарник Hemi..."
+        echo -e "${GREEN}Загружаем бинарник Hemi...${NC}"
         curl -L -O https://github.com/hemilabs/heminetwork/releases/download/v0.4.5/heminetwork_v0.4.5_linux_amd64.tar.gz
 
         # Создание директории и извлечение бинарника
@@ -49,9 +46,9 @@ case $choice in
         ./keygen -secp256k1 -json -net="testnet" > ~/popm-address.json
 
         # Вывод содержимого файла popm-address.json
-        echo "Сохраните эти данные в надежное место:"
+        echo -e "${GREEN}Сохраните эти данные в надежное место:${NC}"
         cat ~/popm-address.json
-        echo "Ваш pubkey_hash — это ваш tBTC адрес, на который нужно запросить тестовые токены в Discord проекта."
+        echo -e "${GREEN}Ваш pubkey_hash — это ваш tBTC адрес, на который нужно запросить тестовые токены в Discord проекта.${NC}"
 
         # Создание файла popmd.env
         read -p "Введите ваш приватный ключ от кошелька: " PRIV_KEY
@@ -85,9 +82,9 @@ EOT'
         # Запуск ноды
         sudo systemctl start hemi
 
-        echo "Установка завершена и нода запущена!"
+        echo -e "${GREEN}Установка завершена и нода запущена!${NC}"
         ;;
     *)
-        echo "Неверный выбор, попробуйте снова."
+        echo -e "${GREEN}Неверный выбор, попробуйте снова.${NC}"
         ;;
 esac
