@@ -17,6 +17,7 @@ if ! command -v curl &> /dev/null; then
     sudo apt update
     sudo apt install curl -y
 fi
+sleep 1
 
 # Меню
 echo -e "${YELLOW}Выберите действие:${NC}"
@@ -24,6 +25,7 @@ echo -e "${CYAN}1) Установка ноды${NC}"
 echo -e "${CYAN}2) Обновление ноды${NC}"
 echo -e "${CYAN}3) Изменение комиссии${NC}"
 echo -e "${CYAN}4) Удаление ноды${NC}"
+echo -e "${CYAN}5) Проверка логов (выход из логов CTRL+C)${NC}"
 
 echo -e "${YELLOW}Введите номер:${NC} "
 read choice
@@ -34,6 +36,7 @@ case $choice in
 
         # Обновляем и устанавливаем необходимые пакеты
         sudo apt update && sudo apt upgrade -y
+        sleep 1
 
         # Проверка и установка tar, если его нет
         if ! command -v tar &> /dev/null; then
@@ -65,6 +68,7 @@ case $choice in
         echo "POPM_BTC_PRIVKEY=$PRIV_KEY" > popmd.env
         echo "POPM_STATIC_FEE=$FEE" >> popmd.env
         echo "POPM_BFG_URL=wss://testnet.rpc.hemi.network/v1/ws/public" >> popmd.env
+        sleep 1
 
         # Создание сервисного файла hemi.service
         sudo bash -c 'cat <<EOT > /etc/systemd/system/hemi.service
@@ -86,6 +90,7 @@ EOT'
         # Обновление сервисов и включение hemi
         sudo systemctl daemon-reload
         sudo systemctl enable hemi
+        sleep 1
 
         # Запуск ноды
         sudo systemctl start hemi
@@ -129,7 +134,7 @@ EOT'
         # Удаление папки с бинарниками, содержащими "hemi" в названии
         echo -e "${BLUE}Удаляем старые файлы ноды...${NC}"
         rm -rf *hemi*
-
+        
         # Обновляем и устанавливаем необходимые пакеты
         sudo apt update && sudo apt upgrade -y
 
@@ -152,6 +157,7 @@ EOT'
         echo "POPM_BTC_PRIVKEY=$PRIV_KEY" > popmd.env
         echo "POPM_STATIC_FEE=$FEE" >> popmd.env
         echo "POPM_BFG_URL=wss://testnet.rpc.hemi.network/v1/ws/public" >> popmd.env
+        sleep 1
 
         # Создание сервисного файла hemi.service
         sudo bash -c 'cat <<EOT > /etc/systemd/system/hemi.service
@@ -173,6 +179,7 @@ EOT'
         # Обновление сервисов и включение hemi
         sudo systemctl daemon-reload
         sudo systemctl enable hemi
+        sleep 1
 
         # Запуск ноды
         sudo systemctl start hemi
@@ -196,6 +203,7 @@ EOT'
         if [ "$NEW_FEE" -ge 50 ]; then
             # Обновляем значение комиссии в файле popmd.env
             sed -i "s/^POPM_STATIC_FEE=.*/POPM_STATIC_FEE=$NEW_FEE/" /root/hemi/popmd.env
+            sleep 1
 
             # Перезапуск сервиса Hemi
             sudo systemctl restart hemi
@@ -235,11 +243,12 @@ EOT'
         sudo systemctl disable hemi.service
         sudo rm /etc/systemd/system/hemi.service
         sudo systemctl daemon-reload
+        sleep 1
 
         # Удаление папки с названием, содержащим "hemi"
         echo -e "${BLUE}Удаляем файлы ноды Hemi...${NC}"
         rm -rf *hemi*
-
+        
         echo -e "${GREEN}Нода Hemi успешно удалена!${NC}"
 
         # Завершающий вывод
@@ -249,6 +258,9 @@ EOT'
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
         echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
         echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
+        ;;
+    5)
+        sudo journalctl -u hemi -f
         ;;
         
 esac
