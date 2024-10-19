@@ -125,6 +125,7 @@ EOT'
         if systemctl list-units --type=service | grep -q "hemi.service"; then
             sudo systemctl stop hemi.service
             sudo systemctl disable hemi.service
+            sudo rm /etc/systemd/system/hemi.service
             sudo systemctl daemon-reload
         else
             echo -e "${BLUE}Сервис hemi.service не найден, продолжаем обновление.${NC}"
