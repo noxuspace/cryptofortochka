@@ -77,11 +77,10 @@ Description=PopMD Service
 After=network.target
 
 [Service]
-EnvironmentFile=/root/hemi/popmd.env
-ExecStart=/root/hemi/popmd
-WorkingDirectory=/root/hemi/
+EnvironmentFile=$HOME/hemi/popmd.env
+ExecStart=$HOME/hemi/popmd
+WorkingDirectory=$HOME/hemi/
 Restart=on-failure
-User=root
 
 [Install]
 WantedBy=multi-user.target
@@ -166,11 +165,10 @@ Description=PopMD Service
 After=network.target
 
 [Service]
-EnvironmentFile=/root/hemi/popmd.env
-ExecStart=/root/hemi/popmd
-WorkingDirectory=/root/hemi/
+EnvironmentFile=$HOME/hemi/popmd.env
+ExecStart=$HOME/hemi/popmd
+WorkingDirectory=$HOME/hemi/
 Restart=on-failure
-User=root
 
 [Install]
 WantedBy=multi-user.target
@@ -202,7 +200,7 @@ EOT'
         # Проверка, что введенное значение не меньше 50
         if [ "$NEW_FEE" -ge 50 ]; then
             # Обновляем значение комиссии в файле popmd.env
-            sed -i "s/^POPM_STATIC_FEE=.*/POPM_STATIC_FEE=$NEW_FEE/" /root/hemi/popmd.env
+            sed -i "s/^POPM_STATIC_FEE=.*/POPM_STATIC_FEE=$NEW_FEE/" $HOME/hemi/popmd.env
             sleep 1
 
             # Перезапуск сервиса Hemi
