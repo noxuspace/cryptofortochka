@@ -19,6 +19,15 @@ if ! command -v curl &> /dev/null; then
 fi
 sleep 1
 
+# Проверка версии Ubuntu
+UBUNTU_VERSION=$(lsb_release -rs)
+REQUIRED_VERSION=22.04
+
+if (( $(echo "$UBUNTU_VERSION < $REQUIRED_VERSION" | bc -l) )); then
+    echo -e "${RED}Для этой ноды нужна минимальная версия Ubuntu 22${NC}"
+    exit 1
+fi
+
 # Меню
 echo -e "${YELLOW}Выберите действие:${NC}"
 echo -e "${CYAN}1) Установка ноды${NC}"
