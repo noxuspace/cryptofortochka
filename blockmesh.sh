@@ -24,7 +24,7 @@ UBUNTU_VERSION=$(lsb_release -rs)
 REQUIRED_VERSION=22.04
 
 if (( $(echo "$UBUNTU_VERSION < $REQUIRED_VERSION" | bc -l) )); then
-    echo -e "${RED}Для этой ноды нужна минимальная версия Ubuntu 22${NC}"
+    echo -e "${RED}Для этой ноды нужна минимальная версия Ubuntu 22.04${NC}"
     exit 1
 fi
 
