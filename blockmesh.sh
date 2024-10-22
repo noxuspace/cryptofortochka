@@ -19,12 +19,13 @@ if ! command -v curl &> /dev/null; then
 fi
 sleep 1
 
-echo -e "${BLUE}Проверяем версию вашей OS...${NC}"
 # Проверка наличия bc и установка, если не установлен
+echo -e "${BLUE}Проверяем версию вашей OS...${NC}"
 if ! command -v bc &> /dev/null; then
     sudo apt update
     sudo apt install bc -y
 fi
+sleep 1
 
 # Проверка версии Ubuntu
 UBUNTU_VERSION=$(lsb_release -rs)
