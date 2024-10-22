@@ -9,15 +9,15 @@ PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
 NC='\033[0m' # Нет цвета (сброс цвета)
 
-# Отображаем логотип
-curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_forto.sh | bash
-
 # Проверка наличия curl и установка, если не установлен
 if ! command -v curl &> /dev/null; then
     sudo apt update
     sudo apt install curl -y
     sleep 1
 fi
+
+# Отображаем логотип
+curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_forto.sh | bash
 
 # Проверка наличия bc и установка, если не установлен
 echo -e "${BLUE}Проверяем версию вашей OS...${NC}"
