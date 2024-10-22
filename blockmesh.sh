@@ -16,16 +16,16 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_fo
 if ! command -v curl &> /dev/null; then
     sudo apt update
     sudo apt install curl -y
+    sleep 1
 fi
-sleep 1
 
 # Проверка наличия bc и установка, если не установлен
 echo -e "${BLUE}Проверяем версию вашей OS...${NC}"
 if ! command -v bc &> /dev/null; then
     sudo apt update
     sudo apt install bc -y
+    sleep 1
 fi
-sleep 1
 
 # Проверка версии Ubuntu
 UBUNTU_VERSION=$(lsb_release -rs)
@@ -52,9 +52,9 @@ case $choice in
         # Проверка наличия tar и установка, если не установлен
         if ! command -v tar &> /dev/null; then
             sudo apt install tar -y
+            sleep 1
         fi
-        sleep 1
-
+        
         # Скачиваем бинарник BlockMesh
         wget https://github.com/block-mesh/block-mesh-monorepo/releases/download/v0.0.307/blockmesh-cli-x86_64-unknown-linux-gnu.tar.gz
 
