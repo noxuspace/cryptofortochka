@@ -19,6 +19,13 @@ if ! command -v curl &> /dev/null; then
 fi
 sleep 1
 
+echo -e "${BLUE}Проверяем версию вашей OS...${NC}"
+# Проверка наличия bc и установка, если не установлен
+if ! command -v bc &> /dev/null; then
+    sudo apt update
+    sudo apt install bc -y
+fi
+
 # Проверка версии Ubuntu
 UBUNTU_VERSION=$(lsb_release -rs)
 REQUIRED_VERSION=22.04
