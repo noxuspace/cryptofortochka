@@ -67,6 +67,9 @@ case $choice in
         # Удаляем архив
         rm blockmesh-cli-x86_64-unknown-linux-gnu.tar.gz
 
+        #Переходим в папку
+        cd target/x86_64-unknown-linux-gnu/release/
+
         # Запрашиваем данные у пользователя
         echo -e "${YELLOW}Введите ваш email для BlockMesh:${NC} "
         read EMAIL
@@ -144,6 +147,9 @@ EOT"
         # Удаляем архив
         rm blockmesh-cli-x86_64-unknown-linux-gnu.tar.gz
 
+        #Переходим в папку
+        cd target/x86_64-unknown-linux-gnu/release/
+
         # Запрашиваем данные у пользователя для обновления переменных
         echo -e "${YELLOW}Введите ваш email для BlockMesh:${NC} "
         read EMAIL
@@ -193,6 +199,9 @@ EOT"
 
         # Останавливаем сервис
         sudo systemctl stop blockmesh
+
+        #Переходим в папку
+        cd target/x86_64-unknown-linux-gnu/release/
 
         # Запрашиваем данные у пользователя
         echo -e "${YELLOW}Введите ваш email для BlockMesh:${NC} "
