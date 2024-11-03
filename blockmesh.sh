@@ -96,8 +96,8 @@ After=network.target
 [Service]
 User=$USERNAME
 EnvironmentFile=$HOME_DIR/.env_blockmesh
-ExecStart=$HOME_DIR/target/release/blockmesh-cli login --email \${BLOCKMESH_EMAIL} --password \${BLOCKMESH_PASSWORD}
-WorkingDirectory=$HOME_DIR/target/release
+ExecStart=$HOME_DIR/target/x86_64-unknown-linux-gnu/release/blockmesh-cli login --email \${BLOCKMESH_EMAIL} --password \${BLOCKMESH_PASSWORD}
+WorkingDirectory=$HOME_DIR/target/x86_64-unknown-linux-gnu/release
 Restart=on-failure
 
 [Install]
@@ -136,9 +136,14 @@ EOT"
 
         # Останавливаем сервис
         sudo systemctl stop blockmesh
+        sudo systemctl disable blockmesh
+        sudo rm /etc/systemd/system/blockmesh.service
+        sudo systemctl daemon-reload
+        sleep 1
 
         # Удаляем старые файлы ноды
         rm -rf target
+        sleep 1
 
         # Скачиваем новый бинарник BlockMesh
         wget https://github.com/block-mesh/block-mesh-monorepo/releases/download/v0.0.331/blockmesh-cli-x86_64-unknown-linux-gnu.tar.gz
@@ -162,8 +167,27 @@ EOT"
         echo "export BLOCKMESH_PASSWORD=\"$USER_PASSWORD\"" >> ~/.env_blockmesh
         source ~/.env_blockmesh
 
+        # Создаем или обновляем файл сервиса с использованием переменных окружения
+        sudo bash -c "cat <<EOT > /etc/systemd/system/blockmesh.service
+[Unit]
+Description=BlockMesh CLI Service
+After=network.target
+
+[Service]
+User=$USERNAME
+EnvironmentFile=$HOME_DIR/.env_blockmesh
+ExecStart=$HOME_DIR/target/x86_64-unknown-linux-gnu/release/blockmesh-cli login --email \${BLOCKMESH_EMAIL} --password \${BLOCKMESH_PASSWORD}
+WorkingDirectory=$HOME_DIR/target/release
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOT"
+
         # Перезапускаем сервис
         sudo systemctl daemon-reload
+        sleep 1
+        sudo systemctl enable blockmesh
         sudo systemctl restart blockmesh
 
         # Заключительный вывод
