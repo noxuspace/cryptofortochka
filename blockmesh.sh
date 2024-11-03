@@ -74,9 +74,8 @@ case $choice in
         read USER_PASSWORD
 
         # Сохраняем переменные в системе
-        echo "export BLOCKMESH_EMAIL=\"$USER_EMAIL\"" > ~/.env_blockmesh
-        echo "export BLOCKMESH_PASSWORD=\"$USER_PASSWORD\"" >> ~/.env_blockmesh
-        source ~/.env_blockmesh
+        sudo bash -c "echo 'BLOCKMESH_EMAIL=\"$USER_EMAIL\"' > /etc/default/blockmesh"
+        sudo bash -c "echo 'BLOCKMESH_PASSWORD=\"$USER_PASSWORD\"' >> /etc/default/blockmesh"
 
         # Определяем имя текущего пользователя и его домашнюю директорию
         USERNAME=$(whoami)
@@ -95,7 +94,7 @@ After=network.target
 
 [Service]
 User=$USERNAME
-EnvironmentFile=$HOME_DIR/.env_blockmesh
+EnvironmentFile=/etc/default/blockmesh
 ExecStart=$HOME_DIR/target/x86_64-unknown-linux-gnu/release/blockmesh-cli login --email \${BLOCKMESH_EMAIL} --password \${BLOCKMESH_PASSWORD}
 WorkingDirectory=$HOME_DIR/target/x86_64-unknown-linux-gnu/release
 Restart=on-failure
@@ -163,9 +162,8 @@ EOT"
         read USER_PASSWORD
 
         # Обновляем переменные окружения
-        echo "export BLOCKMESH_EMAIL=\"$USER_EMAIL\"" > ~/.env_blockmesh
-        echo "export BLOCKMESH_PASSWORD=\"$USER_PASSWORD\"" >> ~/.env_blockmesh
-        source ~/.env_blockmesh
+        sudo bash -c "echo 'BLOCKMESH_EMAIL=\"$USER_EMAIL\"' > /etc/default/blockmesh"
+        sudo bash -c "echo 'BLOCKMESH_PASSWORD=\"$USER_PASSWORD\"' >> /etc/default/blockmesh"
 
         # Создаем или обновляем файл сервиса с использованием переменных окружения
         sudo bash -c "cat <<EOT > /etc/systemd/system/blockmesh.service
@@ -175,9 +173,9 @@ After=network.target
 
 [Service]
 User=$USERNAME
-EnvironmentFile=$HOME_DIR/.env_blockmesh
+EnvironmentFile=/etc/default/blockmesh
 ExecStart=$HOME_DIR/target/x86_64-unknown-linux-gnu/release/blockmesh-cli login --email \${BLOCKMESH_EMAIL} --password \${BLOCKMESH_PASSWORD}
-WorkingDirectory=$HOME_DIR/target/release
+WorkingDirectory=$HOME_DIR/target/x86_64-unknown-linux-gnu/release
 Restart=on-failure
 
 [Install]
