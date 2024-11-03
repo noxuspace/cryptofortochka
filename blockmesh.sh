@@ -156,6 +156,10 @@ EOT"
         echo -e "${YELLOW}Введите ваш пароль для BlockMesh:${NC} "
         read PASSWORD
 
+        # Определяем имя текущего пользователя и его домашнюю директорию
+        USERNAME=$(whoami)
+        HOME_DIR=$(eval echo ~$USERNAME)
+
         # Создаем или обновляем файл сервиса
         sudo bash -c "cat <<EOT > /etc/systemd/system/blockmesh.service
 [Unit]
@@ -208,6 +212,10 @@ EOT"
         read EMAIL
         echo -e "${YELLOW}Введите ваш пароль для BlockMesh:${NC} "
         read PASSWORD
+
+        # Определяем имя текущего пользователя и его домашнюю директорию
+        USERNAME=$(whoami)
+        HOME_DIR=$(eval echo ~$USERNAME)
 
         # Обновляем файл сервиса
         sudo bash -c "cat <<EOT > /etc/systemd/system/blockmesh.service
