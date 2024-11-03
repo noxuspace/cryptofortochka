@@ -98,8 +98,8 @@ After=network.target
 [Service]
 User=$USERNAME
 EnvironmentFile=$HOME_DIR/.bashrc
-ExecStart=$HOME_DIR/target/release/blockmesh-cli login --email \$BLOCKMESH_EMAIL --password \$BLOCKMESH_PASSWORD
-WorkingDirectory=$HOME_DIR/target/release
+ExecStart=$HOME_DIR/target/x86_64-unknown-linux-gnu/release/blockmesh-cli login --email \$BLOCKMESH_EMAIL --password \$BLOCKMESH_PASSWORD
+WorkingDirectory=$HOME_DIR/target/x86_64-unknown-linux-gnu/release
 Restart=on-failure
 
 [Install]
@@ -189,8 +189,8 @@ After=network.target
 [Service]
 User=$USERNAME
 EnvironmentFile=$HOME_DIR/.bashrc
-ExecStart=$HOME_DIR/target/release/blockmesh-cli login --email \$BLOCKMESH_EMAIL --password \$BLOCKMESH_PASSWORD
-WorkingDirectory=$HOME_DIR/target/release
+ExecStart=$HOME_DIR/target/x86_64-unknown-linux-gnu/release/blockmesh-cli login --email \$BLOCKMESH_EMAIL --password \$BLOCKMESH_PASSWORD
+WorkingDirectory=$HOME_DIR/target/x86_64-unknown-linux-gnu/release
 Restart=on-failure
 
 [Install]
