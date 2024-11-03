@@ -40,7 +40,8 @@ fi
 echo -e "${YELLOW}Выберите действие:${NC}"
 echo -e "${CYAN}1) Установка ноды${NC}"
 echo -e "${CYAN}2) Проверка логов (выход из логов CTRL+C)${NC}"
-echo -e "${CYAN}3) Удаление ноды${NC}"
+echo -e "${CYAN}3) Обновление ноды${NC}"
+echo -e "${CYAN}4) Удаление ноды${NC}"
 
 echo -e "${YELLOW}Введите номер:${NC} "
 read choice
@@ -56,7 +57,7 @@ case $choice in
         sleep 1
         
         # Скачиваем бинарник BlockMesh
-        wget https://github.com/block-mesh/block-mesh-monorepo/releases/download/v0.0.307/blockmesh-cli-x86_64-unknown-linux-gnu.tar.gz
+        wget https://github.com/block-mesh/block-mesh-monorepo/releases/download/v0.0.331/blockmesh-cli-x86_64-unknown-linux-gnu.tar.gz
 
         # Распаковываем архив
         tar -xzvf blockmesh-cli-x86_64-unknown-linux-gnu.tar.gz
@@ -75,6 +76,13 @@ case $choice in
         echo -e "${YELLOW}Введите ваш пароль:${NC}"
         read USER_PASSWORD
 
+        # Сохраняем переменные в системе
+        export BLOCKMESH_EMAIL="$USER_EMAIL"
+        export BLOCKMESH_PASSWORD="$USER_PASSWORD"
+        echo 'export BLOCKMESH_EMAIL="$USER_EMAIL"' >> ~/.bashrc
+        echo 'export BLOCKMESH_PASSWORD="$USER_PASSWORD"' >> ~/.bashrc
+        source ~/.bashrc
+
         # Определяем имя текущего пользователя и его домашнюю директорию
         USERNAME=$(whoami)
 
@@ -92,7 +100,8 @@ After=network.target
 
 [Service]
 User=$USERNAME
-ExecStart=$HOME_DIR/target/release/blockmesh-cli login --email $USER_EMAIL --password $USER_PASSWORD
+EnvironmentFile=$HOME_DIR/.bashrc
+ExecStart=$HOME_DIR/target/release/blockmesh-cli login --email \$BLOCKMESH_EMAIL --password \$BLOCKMESH_PASSWORD
 WorkingDirectory=$HOME_DIR/target/release
 Restart=on-failure
 
@@ -128,6 +137,95 @@ EOT"
         ;;
 
     3)
+        echo -e "${BLUE}Обновляем ноду BlockMesh...${NC}"
+
+        # Остановка и отключение сервиса
+        sudo systemctl stop blockmesh
+        sudo systemctl disable blockmesh
+        sudo rm /etc/systemd/system/blockmesh.service
+        sudo systemctl daemon-reload
+        sleep 1
+
+        # Удаление старой папки
+        rm -rf target
+        sleep 1
+
+        # Скачиваем новый бинарник BlockMesh
+        wget https://github.com/block-mesh/block-mesh-monorepo/releases/download/v0.0.331/blockmesh-cli-x86_64-unknown-linux-gnu.tar.gz
+
+        # Распаковываем архив
+        tar -xzvf blockmesh-cli-x86_64-unknown-linux-gnu.tar.gz
+        sleep 1
+
+        # Удаляем архив
+        rm blockmesh-cli-x86_64-unknown-linux-gnu.tar.gz
+
+        # Переходим в папку ноды
+        cd target/release
+
+        # Запрашиваем данные у пользователя
+        echo -e "${YELLOW}Введите ваш email:${NC}"
+        read USER_EMAIL
+
+        echo -e "${YELLOW}Введите ваш пароль:${NC}"
+        read USER_PASSWORD
+
+        # Сохраняем переменные в системе
+        export BLOCKMESH_EMAIL="$USER_EMAIL"
+        export BLOCKMESH_PASSWORD="$USER_PASSWORD"
+        echo 'export BLOCKMESH_EMAIL="$USER_EMAIL"' >> ~/.bashrc
+        echo 'export BLOCKMESH_PASSWORD="$USER_PASSWORD"' >> ~/.bashrc
+        source ~/.bashrc
+
+        # Определяем имя текущего пользователя и его домашнюю директорию
+        USERNAME=$(whoami)
+
+        if [ "$USERNAME" == "root" ]; then
+            HOME_DIR="/root"
+        else
+            HOME_DIR="/home/$USERNAME"
+        fi
+
+        # Создаем или обновляем файл сервиса с использованием определенного имени пользователя и домашней директории
+        sudo bash -c "cat <<EOT > /etc/systemd/system/blockmesh.service
+[Unit]
+Description=BlockMesh CLI Service
+After=network.target
+
+[Service]
+User=$USERNAME
+EnvironmentFile=$HOME_DIR/.bashrc
+ExecStart=$HOME_DIR/target/release/blockmesh-cli login --email \$BLOCKMESH_EMAIL --password \$BLOCKMESH_PASSWORD
+WorkingDirectory=$HOME_DIR/target/release
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOT"
+
+        # Обновляем сервисы и включаем BlockMesh
+        sudo systemctl daemon-reload
+        sleep 1
+        sudo systemctl enable blockmesh
+        sudo systemctl start blockmesh
+
+        # Заключительный вывод
+        echo -e "${GREEN}Обновление завершено и нода запущена!${NC}"
+
+        # Завершающий вывод
+        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+        echo -e "${YELLOW}Команда для проверки логов:${NC}" 
+        echo "sudo journalctl -u blockmesh -f"
+        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+        echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
+        echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
+        sleep 2
+
+        # Проверка логов
+        sudo journalctl -u blockmesh -f
+        ;;
+
+    4)
         echo -e "${BLUE}Удаление ноды BlockMesh...${NC}"
 
         # Остановка и отключение сервиса
@@ -144,9 +242,4 @@ EOT"
 
         # Завершающий вывод
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-        echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
-        echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
-        sleep 1
-        ;;
-        
-esac
+        echo -e "${GREEN}CRYPTO FORTO
