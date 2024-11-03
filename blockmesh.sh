@@ -87,16 +87,16 @@ case $choice in
         fi
 
         # Создаем или обновляем файл сервиса с использованием переменных окружения
-        sudo bash -c "cat <<EOT > /etc/systemd/system/blockmesh.service
+sudo bash -c "cat <<EOT > /etc/systemd/system/blockmesh.service
 [Unit]
 Description=BlockMesh CLI Service
 After=network.target
 
 [Service]
 User=$USERNAME
-EnvironmentFile=/etc/default/blockmesh
-ExecStart=$HOME_DIR/target/x86_64-unknown-linux-gnu/release/blockmesh-cli login --email \${BLOCKMESH_EMAIL} --password \${BLOCKMESH_PASSWORD}
-WorkingDirectory=$HOME_DIR/target/x86_64-unknown-linux-gnu/release
+EnvironmentFile=$HOME_DIR/.env_blockmesh
+ExecStart=/root/target/x86_64-unknown-linux-gnu/release/blockmesh-cli login --email \${BLOCKMESH_EMAIL} --password \${BLOCKMESH_PASSWORD}
+WorkingDirectory=/root/target/x86_64-unknown-linux-gnu/release
 Restart=on-failure
 
 [Install]
@@ -166,16 +166,16 @@ EOT"
         sudo bash -c "echo 'BLOCKMESH_PASSWORD=\"$USER_PASSWORD\"' >> /etc/default/blockmesh"
 
         # Создаем или обновляем файл сервиса с использованием переменных окружения
-        sudo bash -c "cat <<EOT > /etc/systemd/system/blockmesh.service
+sudo bash -c "cat <<EOT > /etc/systemd/system/blockmesh.service
 [Unit]
 Description=BlockMesh CLI Service
 After=network.target
 
 [Service]
 User=$USERNAME
-EnvironmentFile=/etc/default/blockmesh
-ExecStart=$HOME_DIR/target/x86_64-unknown-linux-gnu/release/blockmesh-cli login --email \${BLOCKMESH_EMAIL} --password \${BLOCKMESH_PASSWORD}
-WorkingDirectory=$HOME_DIR/target/x86_64-unknown-linux-gnu/release
+EnvironmentFile=$HOME_DIR/.env_blockmesh
+ExecStart=/root/target/x86_64-unknown-linux-gnu/release/blockmesh-cli login --email \${BLOCKMESH_EMAIL} --password \${BLOCKMESH_PASSWORD}
+WorkingDirectory=/root/target/x86_64-unknown-linux-gnu/release
 Restart=on-failure
 
 [Install]
