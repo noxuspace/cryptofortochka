@@ -66,9 +66,6 @@ case $choice in
         # Удаляем архив
         rm blockmesh-cli-x86_64-unknown-linux-gnu.tar.gz
 
-        # Переходим в папку ноды
-        cd target/release
-
         # Запрашиваем данные у пользователя
         echo -e "${YELLOW}Введите ваш email:${NC}"
         read USER_EMAIL
