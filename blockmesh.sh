@@ -41,7 +41,8 @@ echo -e "${YELLOW}Выберите действие:${NC}"
 echo -e "${CYAN}1) Установка ноды${NC}"
 echo -e "${CYAN}2) Проверка логов (выход из логов CTRL+C)${NC}"
 echo -e "${CYAN}3) Обновление ноды${NC}"
-echo -e "${CYAN}4) Удаление ноды${NC}"
+echo -e "${CYAN}4) Рестарт ноды${NC}"
+echo -e "${CYAN}5) Удаление ноды${NC}"
 
 echo -e "${YELLOW}Введите номер:${NC} "
 read choice
@@ -67,36 +68,25 @@ case $choice in
         rm blockmesh-cli-x86_64-unknown-linux-gnu.tar.gz
 
         # Запрашиваем данные у пользователя
-        echo -e "${YELLOW}Введите ваш email:${NC}"
-        read USER_EMAIL
-
-        echo -e "${YELLOW}Введите ваш пароль:${NC}"
-        read USER_PASSWORD
-
-        # Сохраняем переменные в системе
-        sudo bash -c "echo 'BLOCKMESH_EMAIL=\"$USER_EMAIL\"' > /etc/default/blockmesh"
-        sudo bash -c "echo 'BLOCKMESH_PASSWORD=\"$USER_PASSWORD\"' >> /etc/default/blockmesh"
+        echo -e "${YELLOW}Введите ваш email для BlockMesh:${NC} "
+        read EMAIL
+        echo -e "${YELLOW}Введите ваш пароль для BlockMesh:${NC} "
+        read -s PASSWORD
 
         # Определяем имя текущего пользователя и его домашнюю директорию
         USERNAME=$(whoami)
+        HOME_DIR=$(eval echo ~$USERNAME)
 
-        if [ "$USERNAME" == "root" ]; then
-            HOME_DIR="/root"
-        else
-            HOME_DIR="/home/$USERNAME"
-        fi
-
-        # Создаем или обновляем файл сервиса с использованием переменных окружения
-sudo bash -c "cat <<EOT > /etc/systemd/system/blockmesh.service
+        # Создаем или обновляем файл сервиса
+        sudo bash -c "cat <<EOT > /etc/systemd/system/blockmesh.service
 [Unit]
 Description=BlockMesh CLI Service
 After=network.target
 
 [Service]
 User=$USERNAME
-EnvironmentFile=$HOME_DIR/.env_blockmesh
-ExecStart=/root/target/x86_64-unknown-linux-gnu/release/blockmesh-cli login --email \${BLOCKMESH_EMAIL} --password \${BLOCKMESH_PASSWORD}
-WorkingDirectory=/root/target/x86_64-unknown-linux-gnu/release
+ExecStart=$HOME_DIR/target/x86_64-unknown-linux-gnu/release/blockmesh-cli login --email $EMAIL --password $PASSWORD
+WorkingDirectory=$HOME_DIR/target/x86_64-unknown-linux-gnu/release
 Restart=on-failure
 
 [Install]
@@ -155,27 +145,21 @@ EOT"
         rm blockmesh-cli-x86_64-unknown-linux-gnu.tar.gz
 
         # Запрашиваем данные у пользователя для обновления переменных
-        echo -e "${YELLOW}Введите ваш email:${NC}"
-        read USER_EMAIL
+        echo -e "${YELLOW}Введите ваш email для BlockMesh:${NC} "
+        read EMAIL
+        echo -e "${YELLOW}Введите ваш пароль для BlockMesh:${NC} "
+        read -s PASSWORD
 
-        echo -e "${YELLOW}Введите ваш пароль:${NC}"
-        read USER_PASSWORD
-
-        # Обновляем переменные окружения
-        sudo bash -c "echo 'BLOCKMESH_EMAIL=\"$USER_EMAIL\"' > /etc/default/blockmesh"
-        sudo bash -c "echo 'BLOCKMESH_PASSWORD=\"$USER_PASSWORD\"' >> /etc/default/blockmesh"
-
-        # Создаем или обновляем файл сервиса с использованием переменных окружения
-sudo bash -c "cat <<EOT > /etc/systemd/system/blockmesh.service
+        # Создаем или обновляем файл сервиса
+        sudo bash -c "cat <<EOT > /etc/systemd/system/blockmesh.service
 [Unit]
 Description=BlockMesh CLI Service
 After=network.target
 
 [Service]
 User=$USERNAME
-EnvironmentFile=$HOME_DIR/.env_blockmesh
-ExecStart=/root/target/x86_64-unknown-linux-gnu/release/blockmesh-cli login --email \${BLOCKMESH_EMAIL} --password \${BLOCKMESH_PASSWORD}
-WorkingDirectory=/root/target/x86_64-unknown-linux-gnu/release
+ExecStart=$HOME_DIR/target/x86_64-unknown-linux-gnu/release/blockmesh-cli login --email $EMAIL --password $PASSWORD
+WorkingDirectory=$HOME_DIR/target/x86_64-unknown-linux-gnu/release
 Restart=on-failure
 
 [Install]
@@ -205,6 +189,55 @@ EOT"
         ;;
 
     4)
+        echo -e "${BLUE}Перезапуск ноды BlockMesh...${NC}"
+
+        # Останавливаем сервис
+        sudo systemctl stop blockmesh
+
+        # Запрашиваем данные у пользователя
+        echo -e "${YELLOW}Введите ваш email для BlockMesh:${NC} "
+        read EMAIL
+        echo -e "${YELLOW}Введите ваш пароль для BlockMesh:${NC} "
+        read -s PASSWORD
+
+        # Обновляем файл сервиса
+        sudo bash -c "cat <<EOT > /etc/systemd/system/blockmesh.service
+[Unit]
+Description=BlockMesh CLI Service
+After=network.target
+
+[Service]
+User=$USERNAME
+ExecStart=$HOME_DIR/target/x86_64-unknown-linux-gnu/release/blockmesh-cli login --email $EMAIL --password $PASSWORD
+WorkingDirectory=$HOME_DIR/target/x86_64-unknown-linux-gnu/release
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOT"
+
+        # Перезапускаем сервис с новыми данными
+        sudo systemctl daemon-reload
+        sleep 1
+        sudo systemctl restart blockmesh
+
+        # Заключительный вывод
+        echo -e "${GREEN}Рестарт завершен и нода запущена с новыми данными!${NC}"
+
+        # Завершающий вывод
+        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+        echo -e "${YELLOW}Команда для проверки логов:${NC}" 
+        echo "sudo journalctl -u blockmesh -f"
+        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+        echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
+        echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
+        sleep 2
+
+        # Проверка логов
+        sudo journalctl -u blockmesh -f
+        ;;
+
+    5)
         echo -e "${BLUE}Удаление ноды BlockMesh...${NC}"
 
         # Остановка и отключение сервиса
