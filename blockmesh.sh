@@ -71,7 +71,7 @@ case $choice in
         echo -e "${YELLOW}Введите ваш email для BlockMesh:${NC} "
         read EMAIL
         echo -e "${YELLOW}Введите ваш пароль для BlockMesh:${NC} "
-        read -s PASSWORD
+        read PASSWORD
 
         # Определяем имя текущего пользователя и его домашнюю директорию
         USERNAME=$(whoami)
@@ -148,7 +148,7 @@ EOT"
         echo -e "${YELLOW}Введите ваш email для BlockMesh:${NC} "
         read EMAIL
         echo -e "${YELLOW}Введите ваш пароль для BlockMesh:${NC} "
-        read -s PASSWORD
+        read PASSWORD
 
         # Создаем или обновляем файл сервиса
         sudo bash -c "cat <<EOT > /etc/systemd/system/blockmesh.service
@@ -198,7 +198,7 @@ EOT"
         echo -e "${YELLOW}Введите ваш email для BlockMesh:${NC} "
         read EMAIL
         echo -e "${YELLOW}Введите ваш пароль для BlockMesh:${NC} "
-        read -s PASSWORD
+        read PASSWORD
 
         # Обновляем файл сервиса
         sudo bash -c "cat <<EOT > /etc/systemd/system/blockmesh.service
