@@ -76,8 +76,8 @@ case $choice in
         # Сохраняем переменные в системе
         export BLOCKMESH_EMAIL="$USER_EMAIL"
         export BLOCKMESH_PASSWORD="$USER_PASSWORD"
-        echo 'export BLOCKMESH_EMAIL="$USER_EMAIL"' >> ~/.bashrc
-        echo 'export BLOCKMESH_PASSWORD="$USER_PASSWORD"' >> ~/.bashrc
+        echo "export BLOCKMESH_EMAIL=\"$USER_EMAIL\"" >> ~/.bashrc
+        echo "export BLOCKMESH_PASSWORD=\"$USER_PASSWORD\"" >> ~/.bashrc
         source ~/.bashrc
 
         # Определяем имя текущего пользователя и его домашнюю директорию
@@ -167,8 +167,8 @@ EOT"
         # Сохраняем переменные в системе
         export BLOCKMESH_EMAIL="$USER_EMAIL"
         export BLOCKMESH_PASSWORD="$USER_PASSWORD"
-        echo 'export BLOCKMESH_EMAIL="$USER_EMAIL"' >> ~/.bashrc
-        echo 'export BLOCKMESH_PASSWORD="$USER_PASSWORD"' >> ~/.bashrc
+        echo "export BLOCKMESH_EMAIL=\"$USER_EMAIL\"" >> ~/.bashrc
+        echo "export BLOCKMESH_PASSWORD=\"$USER_PASSWORD\"" >> ~/.bashrc
         source ~/.bashrc
 
         # Определяем имя текущего пользователя и его домашнюю директорию
