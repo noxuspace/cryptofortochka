@@ -58,7 +58,7 @@ case $choice in
         sleep 1
         
         # Скачиваем бинарник BlockMesh
-        wget https://github.com/block-mesh/block-mesh-monorepo/releases/download/v0.0.331/blockmesh-cli-x86_64-unknown-linux-gnu.tar.gz
+        wget https://github.com/block-mesh/block-mesh-monorepo/releases/download/v0.0.339/blockmesh-cli-x86_64-unknown-linux-gnu.tar.gz
 
         # Распаковываем архив
         tar -xzvf blockmesh-cli-x86_64-unknown-linux-gnu.tar.gz
@@ -138,7 +138,7 @@ EOT"
         sleep 1
 
         # Скачиваем новый бинарник BlockMesh
-        wget https://github.com/block-mesh/block-mesh-monorepo/releases/download/v0.0.331/blockmesh-cli-x86_64-unknown-linux-gnu.tar.gz
+        wget https://github.com/block-mesh/block-mesh-monorepo/releases/download/v0.0.339/blockmesh-cli-x86_64-unknown-linux-gnu.tar.gz
 
         # Распаковываем архив
         tar -xzvf blockmesh-cli-x86_64-unknown-linux-gnu.tar.gz
