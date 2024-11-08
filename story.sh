@@ -168,7 +168,7 @@ EOT"
         done
         ;;
     5)
-        echo -e "${BLUE}Удаление ноды...${NC}"
+        echo -e "${BLUE}Удаление ноды, подождите...${NC}"
 
         # Остановка и удаление сервисов
         sudo systemctl stop story-geth
@@ -183,6 +183,8 @@ EOT"
         # Удаление папок проекта
         rm -rf $HOME/go/bin/story-geth
         rm -rf $HOME/go/bin/story
+        rm -rf $HOME/.story
+        rm $HOME/story-linux-amd64
 
         echo -e "${GREEN}Нода успешно удалена!${NC}"
 
