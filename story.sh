@@ -44,7 +44,7 @@ echo -e "${CYAN}3) Проверка логов story${NC}"
 echo -e "${CYAN}4) Проверка синхронизации блоков${NC}"
 echo -e "${CYAN}5) Удаление ноды${NC}"
 
-echo -e "${YELLOW}Введите номер:${NC} "
+echo -e "${YELLOW}Введите номер: ${NC}"
 read choice
 
 case $choice in
@@ -83,7 +83,8 @@ case $choice in
         sleep 2
 
         # Запрос ввода "Введите название (моникер) для вашей ноды"
-        read -p "${YELLOW}Введите название (моникер) для вашей ноды: ${NC}" MONIKER
+        echo -e "${YELLOW}Введите название (моникер) для вашей ноды: ${NC}"
+        read MONIKER
 
         # Инициализация Iliad ноды
         story init --network odyssey --moniker "$MONIKER"
@@ -131,14 +132,14 @@ EOT"
         sleep 1
         sudo systemctl start story-geth
         sudo systemctl enable story-geth
-        sleep 1
+        sleep 2
 
         # Перезагрузка и старт story
         sudo systemctl daemon-reload
         sleep 1
         sudo systemctl start story
         sudo systemctl enable story
-        sleep 1
+        sleep 2
 
         # Заключительный вывод
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
