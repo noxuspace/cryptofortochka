@@ -27,7 +27,8 @@ echo -e "${CYAN}3) Проверка логов story${NC}"
 echo -e "${CYAN}4) Проверка синхронизации блоков${NC}"
 echo -e "${CYAN}5) Удаление ноды${NC}"
 
-read -p "${YELLOW}Введите номер: ${NC}" choice
+echo -e "${YELLOW}Введите номер:${NC}"
+read choice
 
 case $choice in
     1)
@@ -65,7 +66,8 @@ case $choice in
         sleep 2
 
         # Запрос ввода "Введите название (моникер) для вашей ноды"
-        read -p "${YELLOW}Введите название (моникер) для вашей ноды: ${NC}" MONIKER
+        echo -e "${YELLOW}Введите название (моникер) для вашей ноды: ${NC}"
+        read MONIKER
 
         # Инициализация Iliad ноды
         story init --network odyssey --moniker "$MONIKER"
