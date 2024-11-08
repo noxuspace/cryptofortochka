@@ -19,6 +19,23 @@ sleep 1
 # Отображаем логотип
 curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_forto.sh | bash
 
+# Проверка наличия bc и установка, если не установлен
+echo -e "${BLUE}Проверяем версию вашей OS...${NC}"
+if ! command -v bc &> /dev/null; then
+    sudo apt update
+    sudo apt install bc -y
+fi
+sleep 1
+
+# Проверка версии Ubuntu
+UBUNTU_VERSION=$(lsb_release -rs)
+REQUIRED_VERSION=22.04
+
+if (( $(echo "$UBUNTU_VERSION < $REQUIRED_VERSION" | bc -l) )); then
+    echo -e "${RED}Для этой ноды нужна минимальная версия Ubuntu 22.04${NC}"
+    exit 1
+fi
+
 # Меню
 echo -e "${YELLOW}Выберите действие:${NC}"
 echo -e "${CYAN}1) Установка ноды${NC}"
@@ -27,7 +44,8 @@ echo -e "${CYAN}3) Проверка логов story${NC}"
 echo -e "${CYAN}4) Проверка синхронизации блоков${NC}"
 echo -e "${CYAN}5) Удаление ноды${NC}"
 
-read -p "${YELLOW}Введите номер: ${NC}" choice
+echo -e "${YELLOW}Введите номер:${NC} "
+read choice
 
 case $choice in
     1)
@@ -113,12 +131,14 @@ EOT"
         sleep 1
         sudo systemctl start story-geth
         sudo systemctl enable story-geth
+        sleep 1
 
         # Перезагрузка и старт story
         sudo systemctl daemon-reload
         sleep 1
         sudo systemctl start story
         sudo systemctl enable story
+        sleep 1
 
         # Заключительный вывод
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
