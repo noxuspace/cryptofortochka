@@ -39,9 +39,9 @@ fi
 # Меню
 echo -e "${YELLOW}Выберите действие:${NC}"
 echo -e "${CYAN}1) Установка ноды${NC}"
-echo -e "${CYAN}2) Проверка логов story-geth${NC}"
-echo -e "${CYAN}3) Проверка логов story${NC}"
-echo -e "${CYAN}4) Проверка синхронизации блоков${NC}"
+echo -e "${CYAN}2) Проверка логов story-geth (CTRL+C для выхода из логов)${NC}"
+echo -e "${CYAN}3) Проверка логов story (CTRL+C для выхода из логов)${NC}"
+echo -e "${CYAN}4) Проверка синхронизации блоков (CTRL+C для выхода из логов)${NC}"
 echo -e "${CYAN}5) Удаление ноды${NC}"
 
 echo -e "${YELLOW}Введите номер: ${NC}"
