@@ -21,15 +21,12 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_fo
 
 # Меню
 menu() {
-    echo -e "\n${YELLOW}┌─────────────────────────────────────────────────────┐${NC}"
-    echo -e "${YELLOW}│              Параметры Меню Скрипта                 │${NC}"
-    echo -e "${YELLOW}├─────────────────────────────────────────────────────┤${NC}"
+    echo -e "${YELLOW}Выберите действие:${NC}"
     echo -e "${CYAN}1) Установка зависимостей${NC}"
     echo -e "${CYAN}2) Ввод необходимых данных${NC}"
     echo -e "${CYAN}3) Развертывание контракта(ов)${NC}"
     echo -e "${CYAN}4) Выход${NC}"
-    echo -e "${YELLOW}└─────────────────────────────────────────────────────┘${NC}"
-
+    
     echo -e "${YELLOW}Введите номер: ${NC}"
     read CHOICE
 
@@ -95,9 +92,9 @@ input_required_details() {
 
     echo -e "${YELLOW}Введите ваш приватный ключ: ${NC}"
     read PRIVATE_KEY
-    echo -e "${YELLOW}Введите имя токена (например, Zun Token): ${NC}"
+    echo -e "${YELLOW}Введите имя токена (например, Fortochka): ${NC}"
     read TOKEN_NAME
-    echo -e "${YELLOW}Введите символ токена (например, ZUN): ${NC}"
+    echo -e "${YELLOW}Введите символ токена (например, FORT): ${NC}"
     read TOKEN_SYMBOL
     echo -e "${YELLOW}Введите URL RPC сети: ${NC}"
     read RPC_URL
