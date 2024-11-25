@@ -45,11 +45,11 @@ case $choice in
 
         # Установка бинарника
         echo -e "${BLUE}Загружаем бинарник Hemi...${NC}"
-        curl -L -O https://github.com/hemilabs/heminetwork/releases/download/v0.5.0/heminetwork_v0.5.0_linux_amd64.tar.gz
+        curl -L -O https://github.com/hemilabs/heminetwork/releases/download/v0.6.0/heminetwork_v0.6.0_linux_amd64.tar.gz
 
         # Создание директории и извлечение бинарника
         mkdir -p hemi
-        tar --strip-components=1 -xzvf heminetwork_v0.5.0_linux_amd64.tar.gz -C hemi
+        tar --strip-components=1 -xzvf heminetwork_v0.6.0_linux_amd64.tar.gz -C hemi
         cd hemi
 
         # Создание tBTC кошелька
@@ -151,11 +151,11 @@ EOT
 
         # Установка бинарника
         echo -e "${BLUE}Загружаем бинарник Hemi...${NC}"
-        curl -L -O https://github.com/hemilabs/heminetwork/releases/download/v0.5.0/heminetwork_v0.5.0_linux_amd64.tar.gz
+        curl -L -O https://github.com/hemilabs/heminetwork/releases/download/v0.6.0/heminetwork_v0.6.0_linux_amd64.tar.gz
 
         # Создание директории и извлечение бинарника
         mkdir -p hemi
-        tar --strip-components=1 -xzvf heminetwork_v0.5.0_linux_amd64.tar.gz -C hemi
+        tar --strip-components=1 -xzvf heminetwork_v0.6.0_linux_amd64.tar.gz -C hemi
         cd hemi
 
         # Запрос приватного ключа и комиссии
