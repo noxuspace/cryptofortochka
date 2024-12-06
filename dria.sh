@@ -103,7 +103,7 @@ EOT"
         echo -e "${GREEN}Установлена актуальная версия${NC}"
         ;;
     4)
-        echo -e "${YELLOW}Изменение порта...${NC}"
+        echo -e "${BLUE}Изменение порта...${NC}"
 
         # Остановка сервиса
         sudo systemctl stop dria
