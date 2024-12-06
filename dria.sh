@@ -90,14 +90,14 @@ EOT"
         # Заключительный вывод
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
         echo -e "${YELLOW}Команда для проверки логов:${NC}"
-        echo "sudo journalctl -u dria -f"
+        echo "sudo journalctl -u dria -f --no-hostname -o cat"
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
         echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
         echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
         sleep 2
 
         # Проверка логов
-        sudo journalctl -u dria -f
+        sudo journalctl -u dria -f --no-hostname -o cat
         ;;
     3)
         echo -e "${GREEN}Установлена актуальная версия${NC}"
@@ -125,18 +125,18 @@ EOT"
         # Заключительный вывод
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
         echo -e "${YELLOW}Команда для проверки логов:${NC}"
-        echo "sudo journalctl -u dria -f"
+        echo "sudo journalctl -u dria -f --no-hostname -o cat"
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
         echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
         echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
         sleep 2
 
         # Проверка логов
-        sudo journalctl -u dria -f
+        sudo journalctl -u dria -f --no-hostname -o cat
         ;;
     5)
         # Проверка логов
-        sudo journalctl -u dria -f
+        sudo journalctl -u dria -f --no-hostname -o cat
         ;;
     6)
         echo -e "${BLUE}Удаление ноды Dria...${NC}"
