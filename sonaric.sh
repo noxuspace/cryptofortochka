@@ -129,8 +129,6 @@ case $choice in
         echo -e "${BLUE}Удаление ноды Sonaric...${NC}"
 
         sudo systemctl stop sonaricd
-        sudo systemctl disable sonaricd
-        sudo rm -rf $(which sonaricd)
         sudo rm -rf $HOME/.sonaric
 
         echo -e "${GREEN}Нода Sonaric успешно удалена!${NC}"
