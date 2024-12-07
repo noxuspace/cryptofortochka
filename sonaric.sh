@@ -43,7 +43,8 @@ echo -e "${CYAN}2) Обновление ноды${NC}"
 echo -e "${CYAN}3) Проверка работы ноды${NC}"
 echo -e "${CYAN}4) Проверка поинтов${NC}"
 echo -e "${CYAN}5) Бекап ноды${NC}"
-echo -e "${CYAN}6) Удаление ноды${NC}"
+echo -e "${CYAN}6) Бекап ноды${NC}"
+echo -e "${CYAN}7) Регистрация ноды${NC}"
 
 echo -e "${YELLOW}Введите номер:${NC} "
 read choice
@@ -111,6 +112,12 @@ case $choice in
         cd && cat ${NODE_NAME}.identity
         ;;
     6)
+        echo -e "${YELLOW}Вставьте код, который вы получили в Discord:${NC}"
+        read DISCORD_CODE
+
+        sonaric node-register $DISCORD_CODE
+        ;;
+    7)
         echo -e "${BLUE}Удаление ноды Sonaric...${NC}"
 
         sudo systemctl stop sonaricd
