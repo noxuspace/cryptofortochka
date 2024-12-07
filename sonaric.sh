@@ -79,6 +79,7 @@ case $choice in
         echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
         echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
         sleep 2
+        sonaric node-info
         ;;
     2)
         echo -e "${BLUE}Обновляем ноду Sonaric...${NC}"
@@ -93,6 +94,7 @@ case $choice in
         echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
         echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
         sleep 2
+        sonaric node-info
         ;;
     3)
         echo -e "${BLUE}Проверка работы ноды...${NC}"
