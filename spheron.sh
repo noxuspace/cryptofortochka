@@ -19,23 +19,6 @@ sleep 1
 # Отображаем логотип
 curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_club.sh | bash
 
-# Проверка наличия bc и установка, если не установлен
-echo -e "${BLUE}Проверяем версию вашей OS...${NC}"
-if ! command -v bc &> /dev/null; then
-    sudo apt update
-    sudo apt install bc -y
-fi
-sleep 1
-
-# Проверка версии Ubuntu
-UBUNTU_VERSION=$(lsb_release -rs)
-REQUIRED_VERSION=22.04
-
-if (( $(echo "$UBUNTU_VERSION < $REQUIRED_VERSION" | bc -l) )); then
-    echo -e "${RED}Для этой ноды нужна минимальная версия Ubuntu 22.04${NC}"
-    exit 1
-fi
-
 # Меню
 echo -e "${YELLOW}Выберите действие:${NC}"
 echo -e "${CYAN}1) Установка ноды${NC}"
