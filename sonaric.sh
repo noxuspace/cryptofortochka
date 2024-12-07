@@ -112,10 +112,18 @@ case $choice in
         cd && cat ${NODE_NAME}.identity
         ;;
     6)
+        # Вывод запроса и ожидание ввода
         echo -e "${YELLOW}Вставьте код, который вы получили в Discord:${NC}"
         read DISCORD_CODE
 
-        sonaric node-register $DISCORD_CODE
+        # Проверка, что код не пустой
+        if [ -z "$DISCORD_CODE" ]; then
+            echo -e "${YELLOW}Код не был введен. Попробуйте снова.${NC}"
+            exit 1
+        fi
+        
+        # Выполнение команды с введенным кодом
+        sonaric node-register "$DISCORD_CODE"
         ;;
     7)
         echo -e "${BLUE}Удаление ноды Sonaric...${NC}"
