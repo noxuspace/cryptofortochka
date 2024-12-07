@@ -50,27 +50,41 @@ case $choice in
     1)
         echo -e "${BLUE}Устанавливаем ноду Spheron...${NC}"
 
-        # Обновление и установка зависимостей
-        sudo apt update -y
-        sudo apt upgrade -y
-        for pkg in docker.io docker-doc docker-compose podman-docker containerd runc; do sudo apt-get remove $pkg; done
-        sudo apt-get update
-        sudo apt-get install ca-certificates curl gnupg -y
-        sudo install -m 0755 -d /etc/apt/keyrings
-        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-        sudo chmod a+r /etc/apt/keyrings/docker.gpg
-
-        sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-        sudo chmod +x /usr/local/bin/docker-compose
-
-        echo \
-         "deb [arch=\"$(dpkg --print-architecture)\" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-          \"$(. /etc/os-release && echo \"$VERSION_CODENAME\")\" stable" | \
-           sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-        sudo apt update -y
-        sudo apt upgrade -y
-        sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+        # Обновление системы и установка зависимостей
+        sudo apt update -y && sudo apt upgrade -y
+        
+        # Проверка и установка Docker
+        if ! command -v docker &> /dev/null; then
+            echo "Docker не установлен. Устанавливаю Docker..."
+            sudo apt-get install -y ca-certificates curl gnupg
+            sudo install -m 0755 -d /etc/apt/keyrings
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+            sudo chmod a+r /etc/apt/keyrings/docker.gpg
+        
+            echo "deb [arch=\"$(dpkg --print-architecture)\" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \"$(. /etc/os-release && echo \"$VERSION_CODENAME\")\" stable" | \
+            sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        
+            sudo apt update -y
+            sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+        else
+            echo "Docker уже установлен. Пропускаю установку."
+        fi
+        
+        # Проверка и установка Docker Compose
+        if ! command -v docker-compose &> /dev/null; then
+            echo "Docker Compose не установлен. Устанавливаю Docker Compose..."
+            sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+        else
+            echo "Docker Compose уже установлен. Пропускаю установку."
+        fi
+        
+        # Проверка успешной установки
+        if command -v docker &> /dev/null && command -v docker-compose &> /dev/null; then
+            echo "Docker и Docker Compose успешно установлены и готовы к использованию."
+        else
+            echo "Ошибка при установке Docker или Docker Compose. Проверьте журнал ошибок."
+        fi
 
         # Проверка домашней директории
         HOME_DIR=$(eval echo ~$USER)
