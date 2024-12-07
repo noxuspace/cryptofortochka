@@ -43,8 +43,8 @@ echo -e "${CYAN}2) Обновление ноды${NC}"
 echo -e "${CYAN}3) Проверка работы ноды${NC}"
 echo -e "${CYAN}4) Проверка поинтов${NC}"
 echo -e "${CYAN}5) Бекап ноды${NC}"
-echo -e "${CYAN}6) Бекап ноды${NC}"
-echo -e "${CYAN}7) Регистрация ноды${NC}"
+echo -e "${CYAN}6) Регистрация ноды${NC}"
+echo -e "${CYAN}7) Удаление ноды${NC}"
 
 echo -e "${YELLOW}Введите номер:${NC} "
 read choice
