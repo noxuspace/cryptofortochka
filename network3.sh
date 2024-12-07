@@ -55,11 +55,12 @@ Description=Manager Service
 After=network.target
 
 [Service]
-User=$USERNAME
-WorkingDirectory=$HOME_DIR/ubuntu-node/
-ExecStart=/bin/bash $HOME_DIR/ubuntu-node/manager.sh up
-ExecStop=/bin/bash $HOME_DIR/ubuntu-node/manager.sh down
-Restart=on-failure
+User=root
+WorkingDirectory=/root/ubuntu-node/
+ExecStart=/bin/bash /root/ubuntu-node/manager.sh up
+ExecStop=/bin/bash /root/ubuntu-node/manager.sh down
+Restart=always
+Type=forking
 
 [Install]
 WantedBy=multi-user.target
