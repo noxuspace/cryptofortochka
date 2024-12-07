@@ -42,6 +42,7 @@ case $choice in
         wget https://network3.io/ubuntu-node-v2.1.0.tar
         tar -xvf ubuntu-node-v2.1.0.tar
         rm -rf ubuntu-node-v2.1.0.tar
+        sudo ufw allow 8080
 
         # Определяем имя текущего пользователя и его домашнюю директорию
         USERNAME=$(whoami)
