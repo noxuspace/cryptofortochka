@@ -96,10 +96,7 @@ case $choice in
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
         echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
         echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
-        sleep 2
-
-        # Запуск логов
-        docker logs -f elixir
+        sleep 2      
         ;;
     2)
         echo -e "${BLUE}Обновление ноды в тестнете...${NC}"
@@ -123,9 +120,6 @@ case $choice in
         echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
         echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
         sleep 2
-
-        # Запуск логов
-        docker logs -f elixir
         ;;
     3)
         # Проверка логов
@@ -209,9 +203,6 @@ case $choice in
         echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
         echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
         sleep 2
-
-        # Запуск логов
-        docker logs -f elixir-main
         ;;
     6)
         echo -e "${BLUE}Обновление ноды в мейннете...${NC}"
@@ -235,9 +226,6 @@ case $choice in
         echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
         echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
         sleep 2
-
-        # Запуск логов
-        docker logs -f elixir-main
         ;;
     7)
         # Проверка логов
