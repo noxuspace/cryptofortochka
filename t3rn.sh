@@ -138,6 +138,10 @@ EOT"
         tar -xzvf executor-linux-${LATEST_VERSION}.tar.gz
         rm -rf executor-linux-${LATEST_VERSION}.tar.gz
 
+        # Определяем пользователя и домашнюю директорию
+        USERNAME=$(whoami)
+        HOME_DIR=$(eval echo ~$USERNAME)
+        
         # Создаем .t3rn и записываем приватный ключ
         CONFIG_FILE="$HOME_DIR/executor/executor/bin/.t3rn"
         echo "NODE_ENV=testnet" > $CONFIG_FILE
