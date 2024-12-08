@@ -83,7 +83,7 @@ case $choice in
         docker pull elixirprotocol/validator:testnet --platform linux/amd64
 
         # Ожидание пользователя
-        echo -e "${CYAN}Следуйте гайду и заклеймите токены на платформе, когда сделаете это, нажмите Enter...${NC}"
+        echo -e "${YELLOW}Следуйте гайду и заклеймите токены на платформе, когда сделаете это, нажмите Enter...${NC}"
         read -p ""
 
         # Запуск контейнера
