@@ -127,11 +127,9 @@ EOT"
         # Остановка сервиса
         sudo systemctl stop t3rn
 
-        # Копируем .t3rn
-        cp $HOME_DIR/executor/executor/bin/.t3rn $HOME_DIR/.t3rn_backup
-
         # Удаляем папку executor
-        rm -rf $HOME_DIR/executor
+        cd
+        rm -rf executor/
 
         # Скачиваем новый бинарник
         LATEST_VERSION=$(curl -s https://api.github.com/repos/t3rn/executor-release/releases/latest | grep 'tag_name' | cut -d\" -f4)
@@ -140,8 +138,20 @@ EOT"
         tar -xzvf executor-linux-${LATEST_VERSION}.tar.gz
         rm -rf executor-linux-${LATEST_VERSION}.tar.gz
 
-        # Возвращаем .t3rn
-        mv $HOME_DIR/.t3rn_backup $HOME_DIR/executor/executor/bin/.t3rn
+        # Создаем .t3rn и записываем приватный ключ
+        CONFIG_FILE="$HOME_DIR/executor/executor/bin/.t3rn"
+        echo "NODE_ENV=testnet" > $CONFIG_FILE
+        echo "LOG_LEVEL=debug" >> $CONFIG_FILE
+        echo "LOG_PRETTY=false" >> $CONFIG_FILE
+        echo "EXECUTOR_PROCESS_ORDERS=true" >> $CONFIG_FILE
+        echo "EXECUTOR_PROCESS_CLAIMS=true" >> $CONFIG_FILE
+        echo "PRIVATE_KEY_LOCAL=" >> $CONFIG_FILE
+        echo "ENABLED_NETWORKS='arbitrum-sepolia,base-sepolia,optimism-sepolia,l1rn'" >> $CONFIG_FILE
+        echo "RPC_ENDPOINTS_BSSP='https://base-sepolia-rpc.publicnode.com'" >> $CONFIG_FILE
+
+        echo -e "${YELLOW}Введите ваш приватный ключ:${NC}"
+        read PRIVATE_KEY
+        sed -i "s|PRIVATE_KEY_LOCAL=|PRIVATE_KEY_LOCAL=$PRIVATE_KEY|" $CONFIG_FILE
 
         # Релоад деймонов
         sudo systemctl daemon-reload
