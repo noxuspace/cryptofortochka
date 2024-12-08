@@ -40,29 +40,29 @@ case $choice in
 
         # Проверка, установлен ли Docker
         if ! command -v docker &> /dev/null; then
-            echo -e "${YELLOW}Docker не установлен. Устанавливаем Docker...${NC}"
+            echo -e "${BLUE}Docker не установлен. Устанавливаем Docker...${NC}"
             sudo apt install docker.io -y
         else
-            echo -e "${GREEN}Docker уже установлен. Пропускаем установку.${NC}"
+            echo -e "${BLUE}Docker уже установлен. Пропускаем установку.${NC}"
         fi
 
         # Проверка, установлен ли Docker Compose
         if ! command -v docker-compose &> /dev/null; then
-            echo -e "${YELLOW}Docker Compose не установлен. Устанавливаем Docker Compose...${NC}"
+            echo -e "${BLUE}Docker Compose не установлен. Устанавливаем Docker Compose...${NC}"
             sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
         else
-            echo -e "${GREEN}Docker Compose уже установлен. Пропускаем установку.${NC}"
+            echo -e "${BLUE}Docker Compose уже установлен. Пропускаем установку.${NC}"
         fi
 
         rm -rf unichain-node/
 
         # Клонируем репозиторий Uniswap Unichain Node
         if [ ! -d "$HOME/unichain-node" ]; then
-            echo -e "${YELLOW}Клонируем репозиторий Uniswap Unichain Node...${NC}"
+            echo -e "${BLUE}Клонируем репозиторий Uniswap Unichain Node...${NC}"
             git clone https://github.com/Uniswap/unichain-node $HOME/unichain-node
         else
-            echo -e "${GREEN}Папка unichain-node уже существует. Пропускаем клонирование.${NC}"
+            echo -e "${BLUE}Папка unichain-node уже существует. Пропускаем клонирование.${NC}"
         fi
 
         # Переходим в директорию unichain-node
@@ -70,7 +70,7 @@ case $choice in
 
         # Проверяем, существует ли файл .env.sepolia
         if [ -f ".env.sepolia" ]; then
-            echo -e "${YELLOW}Редактируем файл .env.sepolia...${NC}"
+            echo -e "${BLUE}Редактируем файл .env.sepolia...${NC}"
 
             # Меняем значение OP_NODE_L1_ETH_RPC
             sed -i 's|^OP_NODE_L1_ETH_RPC=.*|OP_NODE_L1_ETH_RPC=https://ethereum-sepolia-rpc.publicnode.com|' .env.sepolia
@@ -78,7 +78,7 @@ case $choice in
             # Меняем значение OP_NODE_L1_BEACON
             sed -i 's|^OP_NODE_L1_BEACON=.*|OP_NODE_L1_BEACON=https://ethereum-sepolia-beacon-api.publicnode.com|' .env.sepolia
 
-            echo -e "${GREEN}Файл .env.sepolia успешно обновлен.${NC}"
+            echo -e "${BLUE}Файл .env.sepolia успешно обновлен.${NC}"
         else
             echo -e "${RED}Файл .env.sepolia не найден. Выход.${NC}"
             exit 1
