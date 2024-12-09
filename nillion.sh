@@ -23,8 +23,8 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
 echo -e "${YELLOW}Выберите действие:${NC}"
 echo -e "${CYAN}1) Установка ноды${NC}"
 echo -e "${CYAN}2) Обновление ноды${NC}"
-echo -e "${CYAN}3) Посмотреть логи${NC}"
-echo -e "${CYAN}4) Заменить RPC${NC}"
+echo -e "${CYAN}3) Просмотр логов${NC}"
+echo -e "${CYAN}4) Замена RPC${NC}"
 echo -e "${CYAN}5) Бекап ноды${NC}"
 echo -e "${CYAN}6) Удаление ноды${NC}"
 
