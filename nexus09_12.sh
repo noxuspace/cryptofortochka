@@ -28,7 +28,6 @@ if (( $(echo "$UBUNTU_VERSION < $REQUIRED_VERSION" | bc -l) )); then
 fi
 
 # Меню
-while true; do
     echo -e "${YELLOW}Выберите действие:${NC}"
     echo -e "${CYAN}1) Установка ноды${NC}"
     echo -e "${CYAN}2) Обновление ноды${NC}"
@@ -111,5 +110,3 @@ while true; do
             echo -e "${RED}Неверный выбор. Пожалуйста, введите номер от 1 до 4.${NC}"
             ;;
     esac
-
-done
