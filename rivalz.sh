@@ -42,9 +42,21 @@ case $choice in
         sudo apt-get update
         sudo apt-get install screen -y
 
+        # Находим все сессии screen, содержащие "rivalz"
+        SESSION_IDS=$(screen -ls | grep "rivalz" | awk '{print $1}' | cut -d '.' -f 1)
+
+        # Если сессии найдены, удаляем их
+        if [ -n "$SESSION_IDS" ]; then
+            echo -e "${BLUE}Завершение сессий screen с идентификаторами: $SESSION_IDS${NC}"
+            for SESSION_ID in $SESSION_IDS; do
+                screen -S "$SESSION_ID" -X quit
+            done
+        else
+            echo -e "${BLUE}Сессии screen для ноды Rivalz не найдены, создаем сессию...${NC}"
+        fi
+
         # Создание сессии screen
-        echo -e "${YELLOW}Создаем сессию screen...${NC}"
-        screen -dmS rivalz rivalz run
+        screen -dmS rivalz
 
         # Заключительное сообщение
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
@@ -66,10 +78,18 @@ case $choice in
     4)
         echo -e "${BLUE}Удаление ноды Rivalz...${NC}"
 
-        # Удаление сессии screen
-        screen -S rivalz -X quit
+        # Находим все сессии screen, содержащие "rivalz"
+        SESSION_IDS=$(screen -ls | grep "rivalz" | awk '{print $1}' | cut -d '.' -f 1)
 
-        echo -e "${GREEN}Сессия screen с именем rivalz завершена.${NC}"
+        # Если сессии найдены, удаляем их
+        if [ -n "$SESSION_IDS" ]; then
+            echo -e "${BLUE}Завершение сессий screen с идентификаторами: $SESSION_IDS${NC}"
+            for SESSION_ID in $SESSION_IDS; do
+                screen -S "$SESSION_ID" -X quit
+            done
+        else
+            echo -e "${BLUE}Сессии screen для ноды Rivalz не найдены, удаление завершено.${NC}"
+        fi
 
         # Заключительное сообщение
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
