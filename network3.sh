@@ -72,6 +72,7 @@ case $choice in
             sudo netfilter-persistent reload
         else
             echo "Устанавливаем netfilter-persistent для сохранения правил..."
+            export DEBIAN_FRONTEND=noninteractive
             sudo apt install -y iptables-persistent
             sudo netfilter-persistent save
             sudo netfilter-persistent reload
