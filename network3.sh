@@ -40,9 +40,44 @@ case $choice in
 
         # Скачиваем и распаковываем бинарник
         wget https://network3.io/ubuntu-node-v2.1.0.tar
-        tar -xvf ubuntu-node-v2.1.0.tar
-        rm -rf ubuntu-node-v2.1.0.tar
-        sudo ufw allow 8080
+        if [ -f "ubuntu-node-v2.1.0.tar" ]; then
+            tar -xvf ubuntu-node-v2.1.0.tar
+            rm ubuntu-node-v2.1.0.tar
+            echo "Временный файл удалён."
+        else
+            echo -e "${RED}Ошибка: Файл ubuntu-node-v2.1.0.tar не найден.${NC}"
+            exit 1
+        fi
+
+        # Проверка наличия iptables
+        if ! command -v iptables &> /dev/null; then
+            echo "iptables не установлен. Устанавливаем..."
+            sudo apt install -y iptables
+        else
+            echo "iptables уже установлен."
+        fi
+
+        # Проверка и открытие порта 8080
+        if ! sudo iptables -C INPUT -p tcp --dport 8080 -j ACCEPT 2>/dev/null; then
+            echo "Открываем порт 8080 через iptables..."
+            sudo iptables -A INPUT -p tcp --dport 8080 -j ACCEPT
+        else
+            echo "Порт 8080 уже открыт."
+        fi
+
+        # Сохраняем правила, чтобы они работали после перезагрузки
+        if command -v netfilter-persistent &> /dev/null; then
+            echo "Сохраняем правила с помощью netfilter-persistent..."
+            sudo netfilter-persistent save
+            sudo netfilter-persistent reload
+        else
+            echo "Устанавливаем netfilter-persistent для сохранения правил..."
+            sudo apt install -y iptables-persistent
+            sudo netfilter-persistent save
+            sudo netfilter-persistent reload
+        fi
+
+        echo "Порт 8080 успешно открыт и правило сохранено."
 
         # Определяем имя текущего пользователя и его домашнюю директорию
         USERNAME=$(whoami)
@@ -55,10 +90,10 @@ Description=Manager Service
 After=network.target
 
 [Service]
-User=root
-WorkingDirectory=/root/ubuntu-node/
-ExecStart=/bin/bash /root/ubuntu-node/manager.sh up
-ExecStop=/bin/bash /root/ubuntu-node/manager.sh down
+User=$USERNAME
+WorkingDirectory=$HOME_DIR/ubuntu-node/
+ExecStart=/bin/bash $HOME_DIR/ubuntu-node/manager.sh up
+ExecStop=/bin/bash $HOME_DIR/ubuntu-node/manager.sh down
 Restart=always
 Type=forking
 
@@ -71,6 +106,15 @@ EOT"
         sleep 1
         sudo systemctl enable manager
         sudo systemctl start manager
+
+        # Проверка состояния сервиса
+        if sudo systemctl is-active --quiet manager; then
+            echo -e "${GREEN}Сервис успешно запущен!${NC}"
+        else
+            echo -e "${RED}Ошибка запуска сервиса. Проверьте логи командой:${NC}"
+            echo "sudo journalctl -xe"
+            exit 1
+        fi
 
         # Заключительный вывод
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
@@ -101,7 +145,12 @@ EOT"
         sleep 1
 
         # Удаление папки
-        rm -rf $HOME_DIR/ubuntu-node
+        if [ -d "$HOME_DIR/ubuntu-node" ]; then
+            rm -rf $HOME_DIR/ubuntu-node
+            echo "Директория ноды удалена."
+        else
+            echo -e "${RED}Директория ноды не найдена.${NC}"
+        fi
 
         echo -e "${GREEN}Нода Network3 успешно удалена!${NC}"
 
