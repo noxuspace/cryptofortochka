@@ -131,7 +131,7 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             ;;
 
         4)
-            # Путь к файлу docker-compose.yml
+           # Путь к файлу docker-compose.yml
             COMPOSE_FILE="$HOME/nwaku-compose/docker-compose.yml"
             
             # Проверка существования файла
@@ -140,22 +140,22 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
                 exit 1
             fi
             
-            # Функция замены порта
+            # Функция замены только внешнего порта
             replace_port() {
                 local OLD_PORT="$1"
                 local NEW_PORT="$2"
             
-                # Проверяем наличие порта в файле
-                if ! grep -qE ":${OLD_PORT}([^0-9]|$)" "$COMPOSE_FILE"; then
+                # Проверяем наличие старого порта в файле
+                if ! grep -qE "[[:space:]]${OLD_PORT}:" "$COMPOSE_FILE"; then
                     echo -e "${RED}Порт ${OLD_PORT} не найден в файле.${NC}"
                     return 1
                 fi
             
                 # Замена только внешнего порта
-                sed -i -E "s/(:)${OLD_PORT}([^0-9]|$)/:\1${NEW_PORT}\2/g" "$COMPOSE_FILE"
+                sed -i -E "s/([[:space:]])${OLD_PORT}:([0-9]+)/\1${NEW_PORT}:\2/g" "$COMPOSE_FILE"
             
                 # Проверяем успешность замены
-                if grep -qE ":${NEW_PORT}([^0-9]|$)" "$COMPOSE_FILE"; then
+                if grep -qE "[[:space:]]${NEW_PORT}:" "$COMPOSE_FILE"; then
                     echo -e "${GREEN}Порт ${OLD_PORT} успешно заменен на ${NEW_PORT} в файле.${NC}"
                 else
                     echo -e "${RED}Ошибка: не удалось заменить порт ${OLD_PORT} на ${NEW_PORT}.${NC}"
@@ -163,19 +163,7 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
                 fi
             }
             
-            # Функция остановки Docker Compose, если запущен
-            stop_docker_compose() {
-                cd "$HOME/nwaku-compose" || exit
-                if docker-compose ps | grep -q "Up"; then
-                    echo -e "${YELLOW}Контейнеры запущены. Останавливаем...${NC}"
-                    docker-compose down
-                    echo -e "${GREEN}Контейнеры успешно остановлены.${NC}"
-                else
-                    echo -e "${CYAN}Контейнеры уже остановлены. Пропускаем шаг.${NC}"
-                fi
-            }
-            
-            # Основная логика скрипта
+            # Запрашиваем старый и новый порты
             echo -e "${YELLOW}Введите внешний порт, который вы хотите заменить:${NC} \c"
             read OLD_PORT
             
@@ -201,7 +189,9 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             fi
             
             # Остановка Docker Compose
-            stop_docker_compose
+            echo -e "${YELLOW}Останавливаем контейнеры...${NC}"
+            cd "$HOME/nwaku-compose" || exit
+            docker-compose down
             
             # Замена порта
             replace_port "$OLD_PORT" "$NEW_PORT"
