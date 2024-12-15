@@ -22,9 +22,10 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
 # Меню
 echo -e "${YELLOW}Выберите действие:${NC}"
 echo -e "${CYAN}1) Установка ноды${NC}"
-echo -e "${CYAN}2) Проверка логов${NC}"
-echo -e "${CYAN}3) Получение ключа ноды${NC}"
-echo -e "${CYAN}4) Удаление ноды${NC}"
+echo -e "${CYAN}2) Обновление ноды${NC}"
+echo -e "${CYAN}3) Проверка логов${NC}"
+echo -e "${CYAN}4) Получение ключа ноды${NC}"
+echo -e "${CYAN}5) Удаление ноды${NC}"
 
 echo -e "${YELLOW}Введите номер:${NC} "
 read choice
@@ -128,14 +129,40 @@ EOT"
         sudo journalctl -fu manager.service
         ;;
     2)
+        sudo systemctl stop manager
+        
+        wget https://network3.io/ubuntu-node-v2.1.1.tar
+        if [ -f "ubuntu-node-v2.1.1.tar" ]; then
+            tar -xvf ubuntu-node-v2.1.1.tar
+            rm ubuntu-node-v2.1.1.tar
+            echo "Временный файл удалён."
+        else
+            echo -e "${RED}Ошибка: Файл ubuntu-node-v2.1.1.tar не найден.${NC}"
+            exit 1
+        fi
+
+        sudo systemctl restart manager
+
+        # Заключительный вывод
+        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+        echo -e "${YELLOW}Команда для проверки логов:${NC}"
+        echo "sudo journalctl -fu manager.service"
+        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+        echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
+        echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
+        sleep 2
+        sudo journalctl -fu manager.service
+        ;;
+        
+    3)
         # Проверка логов
         sudo journalctl -fu manager.service
         ;;
-    3)
+    4)
         echo -e "${BLUE}Получение ключа ноды...${NC}"
         sudo bash ubuntu-node/manager.sh key
         ;;
-    4)
+    5)
         echo -e "${BLUE}Удаление ноды Network3...${NC}"
 
         # Остановка и удаление сервиса
