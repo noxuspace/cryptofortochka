@@ -135,15 +135,15 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             COMPOSE_DIR="$HOME/nwaku-compose"
             
             # Переход в директорию
-            cd "$COMPOSE_DIR" || { echo "Директория $COMPOSE_DIR не найдена!"; exit 1; }
+            cd "$COMPOSE_DIR" || { echo -e "${RED}Директория $COMPOSE_DIR не найдена!${NC}"; exit 1; }
             
             # Проверяем, запущены ли контейнеры
             if docker-compose ps | grep -q "Up"; then
-                echo "Контейнеры запущены. Останавливаем..."
+                echo -e "${BLUE}Контейнеры запущены. Останавливаем...${NC}"
                 docker-compose down
-                echo "Контейнеры успешно остановлены."
+                echo -e "${BLUE}Контейнеры успешно остановлены.${NC}"
             else
-                echo "Контейнеры уже остановлены. Пропускаем остановку."
+                echo -e "${BLUE}Контейнеры уже остановлены. Пропускаем остановку.${NC}"
             fi
             
             # Путь к файлу docker-compose.yml
@@ -151,39 +151,41 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             
             # Проверяем, существует ли файл
             if [[ ! -f "$COMPOSE_FILE" ]]; then
-                echo "Файл docker-compose.yml не найден по пути: $COMPOSE_FILE"
+                echo -e "${RED}Файл docker-compose.yml не найден по пути: $COMPOSE_FILE.${NC}"
                 exit 1
             fi
             
             # Запрашиваем порт для замены
-            read -p "Введите внешний порт, который вы хотите заменить: " OLD_PORT
+            echo -e "${YELLOW}Введите внешний порт, который вы хотите заменить:${NC} \c"
+            read OLD_PORT
             
             # Проверяем, что введен корректный порт
             if ! [[ "$OLD_PORT" =~ ^[0-9]+$ ]]; then
-                echo "Ошибка: порт должен быть числом."
+                echo -e "${RED}Ошибка: порт должен быть числом.${NC}"
                 exit 1
             fi
             
             # Проверяем, существует ли порт в файле
             if ! grep -q "$OLD_PORT:" "$COMPOSE_FILE"; then
-                echo "Внешний порт $OLD_PORT не найден в файле $COMPOSE_FILE."
+                echo -e "${RED}Внешний порт $OLD_PORT не найден в файле $COMPOSE_FILE.${NC}"
                 exit 1
             fi
             
             # Запрашиваем новый порт
-            read -p "Введите новый внешний порт для замены: " NEW_PORT
-            
+            echo -e "${YELLOW}Введите новый внешний порт для замены:${NC} \c"
+            read NEW_PORT
+                        
             # Проверяем, что новый порт - число
             if ! [[ "$NEW_PORT" =~ ^[0-9]+$ ]]; then
-                echo "Ошибка: новый порт должен быть числом."
+                echo -e "${RED}Ошибка: новый порт должен быть числом.${NC}"
                 exit 1
             fi
             
             # Подтверждение от пользователя
-            echo "Вы хотите заменить внешний порт $OLD_PORT на $NEW_PORT. Продолжить? (y/n)"
+            echo -e "${YELLOW}Вы хотите заменить внешний порт $OLD_PORT на $NEW_PORT. Продолжить? (y/n)${NC}"
             read CONFIRM
             if [[ "$CONFIRM" != "y" ]]; then
-                echo "Замена отменена."
+                echo -e "${RED}Замена отменена.${NC}"
                 exit 1
             fi
             
@@ -192,9 +194,9 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             
             # Проверяем, успешна ли замена
             if grep -q "$NEW_PORT:" "$COMPOSE_FILE"; then
-                echo "Внешний порт $OLD_PORT успешно заменен на $NEW_PORT в файле $COMPOSE_FILE."
+                echo -e "${GREEN}Внешний порт $OLD_PORT успешно заменен на $NEW_PORT в файле $COMPOSE_FILE.${NC}"
             else
-                echo "Ошибка: не удалось заменить внешний порт $OLD_PORT на $NEW_PORT."
+                echo -e "${RED}Ошибка: не удалось заменить внешний порт $OLD_PORT на $NEW_PORT.${NC}"
             fi
 
             docker-compose up -d
