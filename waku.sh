@@ -24,7 +24,8 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
     echo -e "${CYAN}1) Установка ноды${NC}"
     echo -e "${CYAN}2) Обновление ноды${NC}"
     echo -e "${CYAN}3) Проверка логов${NC}"
-    echo -e "${CYAN}4) Удаление ноды${NC}"
+    echo -e "${CYAN}4) Замена портов${NC}"
+    echo -e "${CYAN}5) Удаление ноды${NC}"
 
     echo -e "${YELLOW}Введите номер:${NC} "
     read choice
@@ -131,6 +132,88 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             ;;
 
         4)
+            # Путь к директории с docker-compose.yml
+            COMPOSE_DIR="$HOME/nwaku-compose"
+            
+            # Переход в директорию
+            cd "$COMPOSE_DIR" || { echo "Директория $COMPOSE_DIR не найдена!"; exit 1; }
+            
+            # Проверяем, запущены ли контейнеры
+            if docker-compose ps | grep -q "Up"; then
+                echo "Контейнеры запущены. Останавливаем..."
+                docker-compose down
+                echo "Контейнеры успешно остановлены."
+            else
+                echo "Контейнеры уже остановлены. Пропускаем остановку."
+            fi
+            
+            # Путь к файлу docker-compose.yml
+            COMPOSE_FILE="$HOME/nwaku-compose/docker-compose.yml"
+            
+            # Проверяем, существует ли файл
+            if [[ ! -f "$COMPOSE_FILE" ]]; then
+                echo "Файл docker-compose.yml не найден по пути: $COMPOSE_FILE"
+                exit 1
+            fi
+            
+            # Запрашиваем порт для замены
+            read -p "Введите внешний порт, который вы хотите заменить: " OLD_PORT
+            
+            # Проверяем, что введен корректный порт
+            if ! [[ "$OLD_PORT" =~ ^[0-9]+$ ]]; then
+                echo "Ошибка: порт должен быть числом."
+                exit 1
+            fi
+            
+            # Проверяем, существует ли порт в файле
+            if ! grep -q "$OLD_PORT:" "$COMPOSE_FILE"; then
+                echo "Внешний порт $OLD_PORT не найден в файле $COMPOSE_FILE."
+                exit 1
+            fi
+            
+            # Запрашиваем новый порт
+            read -p "Введите новый внешний порт для замены: " NEW_PORT
+            
+            # Проверяем, что новый порт - число
+            if ! [[ "$NEW_PORT" =~ ^[0-9]+$ ]]; then
+                echo "Ошибка: новый порт должен быть числом."
+                exit 1
+            fi
+            
+            # Подтверждение от пользователя
+            echo "Вы хотите заменить внешний порт $OLD_PORT на $NEW_PORT. Продолжить? (y/n)"
+            read CONFIRM
+            if [[ "$CONFIRM" != "y" ]]; then
+                echo "Замена отменена."
+                exit 1
+            fi
+            
+            # Делаем замену только внешнего порта в файле
+            sed -i "s/\b$OLD_PORT:/\b$NEW_PORT:/g" "$COMPOSE_FILE"
+            
+            # Проверяем, успешна ли замена
+            if grep -q "$NEW_PORT:" "$COMPOSE_FILE"; then
+                echo "Внешний порт $OLD_PORT успешно заменен на $NEW_PORT в файле $COMPOSE_FILE."
+            else
+                echo "Ошибка: не удалось заменить внешний порт $OLD_PORT на $NEW_PORT."
+            fi
+
+            docker-compose up -d
+
+            # Заключительное сообщение
+            echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+            echo -e "${YELLOW}Порты успешно изменены и нода запущена!${NC}"
+            echo -e "${YELLOW}Для проверки логов используйте:${NC}"
+            echo -e "cd $HOME/nwaku-compose && docker-compose logs -f"
+            echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+            echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
+            echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
+            sleep 2
+            docker-compose logs -f
+
+            ;;
+
+        5)
             echo -e "${BLUE}Удаление ноды Waku...${NC}"
             cd $HOME/nwaku-compose
             docker-compose down
