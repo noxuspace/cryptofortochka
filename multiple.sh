@@ -108,7 +108,7 @@ case $choice in
 
         # Удаление файлов ноды
         cd ~
-        rm -rf multipleforlinux
+        sudo rm -rf multipleforlinux
 
         echo -e "${GREEN}Нода успешно удалена!${NC}"
 
