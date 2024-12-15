@@ -146,6 +146,35 @@ EOT"
             exit 1
         fi
 
+         # Проверка наличия iptables
+        if ! command -v iptables &> /dev/null; then
+            echo "iptables не установлен. Устанавливаем..."
+            sudo apt install -y iptables
+        else
+            echo "iptables уже установлен."
+        fi
+
+        # Проверка и открытие порта 8080
+        if ! sudo iptables -C INPUT -p tcp --dport 8080 -j ACCEPT 2>/dev/null; then
+            echo "Открываем порт 8080 через iptables..."
+            sudo iptables -A INPUT -p tcp --dport 8080 -j ACCEPT
+        else
+            echo "Порт 8080 уже открыт."
+        fi
+
+        # Сохраняем правила, чтобы они работали после перезагрузки
+        if command -v netfilter-persistent &> /dev/null; then
+            echo "Сохраняем правила с помощью netfilter-persistent..."
+            sudo netfilter-persistent save
+            sudo netfilter-persistent reload
+        else
+            echo "Устанавливаем netfilter-persistent для сохранения правил..."
+            export DEBIAN_FRONTEND=noninteractive
+            sudo apt install -y iptables-persistent
+            sudo netfilter-persistent save
+            sudo netfilter-persistent reload
+        fi
+
         # Определяем имя текущего пользователя и его домашнюю директорию
         USERNAME=$(whoami)
         HOME_DIR=$(eval echo ~$USERNAME)
