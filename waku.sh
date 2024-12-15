@@ -146,16 +146,16 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
                 local NEW_PORT="$2"
             
                 # Проверяем наличие старого порта в файле
-                if ! grep -qE "[[:space:]]${OLD_PORT}:" "$COMPOSE_FILE"; then
+                if ! grep -qE "(:|[[:space:]])${OLD_PORT}:([0-9]+)" "$COMPOSE_FILE"; then
                     echo -e "${RED}Порт ${OLD_PORT} не найден в файле.${NC}"
                     return 1
                 fi
             
-                # Замена только внешнего порта
-                sed -i -E "s/([[:space:]])${OLD_PORT}:([0-9]+)/\1${NEW_PORT}:\2/g" "$COMPOSE_FILE"
+                # Замена только внешнего порта с учетом IP-адресов
+                sed -i -E "s/(:|[[:space:]])(${OLD_PORT}):([0-9]+)/\1${NEW_PORT}:\3/g" "$COMPOSE_FILE"
             
                 # Проверяем успешность замены
-                if grep -qE "[[:space:]]${NEW_PORT}:" "$COMPOSE_FILE"; then
+                if grep -qE "(:|[[:space:]])${NEW_PORT}:([0-9]+)" "$COMPOSE_FILE"; then
                     echo -e "${GREEN}Порт ${OLD_PORT} успешно заменен на ${NEW_PORT} в файле.${NC}"
                 else
                     echo -e "${RED}Ошибка: не удалось заменить порт ${OLD_PORT} на ${NEW_PORT}.${NC}"
