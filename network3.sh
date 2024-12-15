@@ -129,7 +129,12 @@ EOT"
         sudo journalctl -fu manager.service
         ;;
     2)
+        # Остановка и удаление сервиса
         sudo systemctl stop manager
+        sudo systemctl disable manager
+        sudo rm /etc/systemd/system/manager.service
+        sudo systemctl daemon-reload
+        sleep 1     
         
         wget https://network3.io/ubuntu-node-v2.1.1.tar.gz
         if [ -f "ubuntu-node-v2.1.1.tar.gz" ]; then
@@ -141,7 +146,33 @@ EOT"
             exit 1
         fi
 
-        sudo systemctl restart manager
+        # Определяем имя текущего пользователя и его домашнюю директорию
+        USERNAME=$(whoami)
+        HOME_DIR=$(eval echo ~$USERNAME)
+
+        # Создаем сервис
+        sudo bash -c "cat <<EOT > /etc/systemd/system/manager.service
+[Unit]
+Description=Manager Service
+After=network.target
+
+[Service]
+User=$USERNAME
+WorkingDirectory=$HOME_DIR/ubuntu-node/
+ExecStart=/bin/bash $HOME_DIR/ubuntu-node/manager.sh up
+ExecStop=/bin/bash $HOME_DIR/ubuntu-node/manager.sh down
+Restart=always
+Type=forking
+
+[Install]
+WantedBy=multi-user.target
+EOT"
+
+        # Запуск сервиса
+        sudo systemctl daemon-reload
+        sleep 1
+        sudo systemctl enable manager
+        sudo systemctl start manager
 
         # Заключительный вывод
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
