@@ -40,13 +40,13 @@ case $choice in
         sudo apt install -y screen net-tools
 
         # Скачиваем и распаковываем бинарник
-        wget https://network3.io/ubuntu-node-v2.1.0.tar
-        if [ -f "ubuntu-node-v2.1.0.tar" ]; then
-            tar -xvf ubuntu-node-v2.1.0.tar
-            rm ubuntu-node-v2.1.0.tar
+        wget https://network3.io/ubuntu-node-v2.1.1.tar.gz
+        if [ -f "ubuntu-node-v2.1.1.tar.gz" ]; then
+            tar -xvf ubuntu-node-v2.1.1.tar.gz
+            rm ubuntu-node-v2.1.1.tar.gz
             echo "Временный файл удалён."
         else
-            echo -e "${RED}Ошибка: Файл ubuntu-node-v2.1.0.tar не найден.${NC}"
+            echo -e "${RED}Ошибка: Файл ubuntu-node-v2.1.1.tar.gz не найден.${NC}"
             exit 1
         fi
 
@@ -160,7 +160,8 @@ EOT"
         ;;
     4)
         echo -e "${BLUE}Получение ключа ноды...${NC}"
-        sudo bash ubuntu-node/manager.sh key
+        cd ubuntu-node/
+        sudo bash manager.sh key
         ;;
     5)
         echo -e "${BLUE}Удаление ноды Network3...${NC}"
