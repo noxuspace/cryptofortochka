@@ -95,7 +95,6 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
 
             # Заключительное сообщение
             echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-            echo -e "${YELLOW}Нода Waku успешно установлена и запущена!${NC}"
             echo -e "${YELLOW}Для проверки логов используйте:${NC}"
             echo -e "cd $HOME/nwaku-compose && docker-compose logs -f"
             echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
@@ -115,7 +114,6 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             docker-compose up -d
             # Заключительное сообщение
             echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-            echo -e "${YELLOW}Нода Waku успешно обновлена и запущена!${NC}"
             echo -e "${YELLOW}Для проверки логов используйте:${NC}"
             echo -e "cd $HOME/nwaku-compose && docker-compose logs -f"
             echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
@@ -203,7 +201,6 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
 
             # Заключительное сообщение
             echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-            echo -e "${YELLOW}Порты успешно изменены и нода запущена!${NC}"
             echo -e "${YELLOW}Для проверки логов используйте:${NC}"
             echo -e "cd $HOME/nwaku-compose && docker-compose logs -f"
             echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
