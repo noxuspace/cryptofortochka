@@ -131,75 +131,85 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             ;;
 
         4)
-            # Путь к директории с docker-compose.yml
-            COMPOSE_DIR="$HOME/nwaku-compose"
-            
-            # Переход в директорию
-            cd "$COMPOSE_DIR" || { echo -e "${RED}Директория $COMPOSE_DIR не найдена!${NC}"; exit 1; }
-            
-            # Проверяем, запущены ли контейнеры
-            if docker-compose ps | grep -q "Up"; then
-                echo -e "${BLUE}Контейнеры запущены. Останавливаем...${NC}"
-                docker-compose down
-                echo -e "${BLUE}Контейнеры успешно остановлены.${NC}"
-            else
-                echo -e "${BLUE}Контейнеры уже остановлены. Пропускаем остановку.${NC}"
-            fi
-            
             # Путь к файлу docker-compose.yml
             COMPOSE_FILE="$HOME/nwaku-compose/docker-compose.yml"
             
-            # Проверяем, существует ли файл
+            # Проверка существования файла
             if [[ ! -f "$COMPOSE_FILE" ]]; then
-                echo -e "${RED}Файл docker-compose.yml не найден по пути: $COMPOSE_FILE.${NC}"
+                echo -e "${RED}Файл docker-compose.yml не найден по пути: $COMPOSE_FILE${NC}"
                 exit 1
             fi
             
-            # Запрашиваем порт для замены
+            # Функция замены порта
+            replace_port() {
+                local OLD_PORT="$1"
+                local NEW_PORT="$2"
+            
+                # Проверяем наличие порта в файле
+                if ! grep -qE ":${OLD_PORT}([^0-9]|$)" "$COMPOSE_FILE"; then
+                    echo -e "${RED}Порт ${OLD_PORT} не найден в файле.${NC}"
+                    return 1
+                fi
+            
+                # Замена только внешнего порта
+                sed -i -E "s/(:)${OLD_PORT}([^0-9]|$)/:\1${NEW_PORT}\2/g" "$COMPOSE_FILE"
+            
+                # Проверяем успешность замены
+                if grep -qE ":${NEW_PORT}([^0-9]|$)" "$COMPOSE_FILE"; then
+                    echo -e "${GREEN}Порт ${OLD_PORT} успешно заменен на ${NEW_PORT} в файле.${NC}"
+                else
+                    echo -e "${RED}Ошибка: не удалось заменить порт ${OLD_PORT} на ${NEW_PORT}.${NC}"
+                    return 1
+                fi
+            }
+            
+            # Функция остановки Docker Compose, если запущен
+            stop_docker_compose() {
+                cd "$HOME/nwaku-compose" || exit
+                if docker-compose ps | grep -q "Up"; then
+                    echo -e "${YELLOW}Контейнеры запущены. Останавливаем...${NC}"
+                    docker-compose down
+                    echo -e "${GREEN}Контейнеры успешно остановлены.${NC}"
+                else
+                    echo -e "${CYAN}Контейнеры уже остановлены. Пропускаем шаг.${NC}"
+                fi
+            }
+            
+            # Основная логика скрипта
             echo -e "${YELLOW}Введите внешний порт, который вы хотите заменить:${NC} \c"
             read OLD_PORT
             
-            # Проверяем, что введен корректный порт
             if ! [[ "$OLD_PORT" =~ ^[0-9]+$ ]]; then
                 echo -e "${RED}Ошибка: порт должен быть числом.${NC}"
                 exit 1
             fi
             
-            # Проверяем, существует ли порт в файле
-            if ! grep -q "$OLD_PORT:" "$COMPOSE_FILE"; then
-                echo -e "${RED}Внешний порт $OLD_PORT не найден в файле $COMPOSE_FILE.${NC}"
-                exit 1
-            fi
-            
-            # Запрашиваем новый порт
             echo -e "${YELLOW}Введите новый внешний порт для замены:${NC} \c"
             read NEW_PORT
-                        
-            # Проверяем, что новый порт - число
+            
             if ! [[ "$NEW_PORT" =~ ^[0-9]+$ ]]; then
                 echo -e "${RED}Ошибка: новый порт должен быть числом.${NC}"
                 exit 1
             fi
             
-            # Подтверждение от пользователя
-            echo -e "${YELLOW}Вы хотите заменить внешний порт $OLD_PORT на $NEW_PORT. Продолжить? (y/n)${NC}"
+            # Подтверждение действий
+            echo -e "${YELLOW}Вы хотите заменить внешний порт ${OLD_PORT} на ${NEW_PORT}. Продолжить? (y/n)${NC} \c"
             read CONFIRM
             if [[ "$CONFIRM" != "y" ]]; then
-                echo -e "${RED}Замена отменена.${NC}"
-                exit 1
+                echo -e "${CYAN}Замена отменена пользователем.${NC}"
+                exit 0
             fi
             
-            # Делаем замену только внешнего порта в файле
-            sed -i "s/\([[:space:]]\)$OLD_PORT:/\1$NEW_PORT:/g" "$COMPOSE_FILE"
+            # Остановка Docker Compose
+            stop_docker_compose
             
-            # Проверяем, успешна ли замена
-            if grep -q "$NEW_PORT:" "$COMPOSE_FILE"; then
-                echo -e "${GREEN}Внешний порт $OLD_PORT успешно заменен на $NEW_PORT в файле $COMPOSE_FILE.${NC}"
-            else
-                echo -e "${RED}Ошибка: не удалось заменить внешний порт $OLD_PORT на $NEW_PORT.${NC}"
-            fi
-
+            # Замена порта
+            replace_port "$OLD_PORT" "$NEW_PORT"
+            
+            # Перезапуск Docker Compose
+            echo -e "${YELLOW}Перезапускаем контейнеры...${NC}"
             docker-compose up -d
+            echo -e "${GREEN}Контейнеры успешно запущены!${NC}"
 
             # Заключительное сообщение
             echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
