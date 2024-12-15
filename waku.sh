@@ -189,7 +189,7 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             fi
             
             # Делаем замену только внешнего порта в файле
-            sed -i "s/\b$OLD_PORT:/\b$NEW_PORT:/g" "$COMPOSE_FILE"
+            sed -i "s/\([[:space:]]\)$OLD_PORT:/\1$NEW_PORT:/g" "$COMPOSE_FILE"
             
             # Проверяем, успешна ли замена
             if grep -q "$NEW_PORT:" "$COMPOSE_FILE"; then
