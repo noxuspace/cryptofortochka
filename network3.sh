@@ -131,13 +131,13 @@ EOT"
     2)
         sudo systemctl stop manager
         
-        wget https://network3.io/ubuntu-node-v2.1.1.tar
-        if [ -f "ubuntu-node-v2.1.1.tar" ]; then
-            tar -xvf ubuntu-node-v2.1.1.tar
-            rm ubuntu-node-v2.1.1.tar
+        wget https://network3.io/ubuntu-node-v2.1.1.tar.gz
+        if [ -f "ubuntu-node-v2.1.1.tar.gz" ]; then
+            tar -xvf ubuntu-node-v2.1.1.tar.gz
+            rm ubuntu-node-v2.1.1.tar.gz
             echo "Временный файл удалён."
         else
-            echo -e "${RED}Ошибка: Файл ubuntu-node-v2.1.1.tar не найден.${NC}"
+            echo -e "${RED}Ошибка: Файл ubuntu-node-v2.1.1.tar.gz не найден.${NC}"
             exit 1
         fi
 
