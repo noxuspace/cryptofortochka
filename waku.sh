@@ -70,7 +70,7 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_fo
             # Клонируем репозиторий и настраиваем
             cd $HOME
             git clone https://github.com/waku-org/nwaku-compose
-            cd nwaku-compose
+            cd $HOME/nwaku-compose
             cp .env.example .env
 
             # Запрашиваем у пользователя данные
@@ -96,7 +96,7 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_fo
             echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
             echo -e "${YELLOW}Нода Waku успешно установлена и запущена!${NC}"
             echo -e "${YELLOW}Для проверки логов используйте:${NC}"
-            echo -e "docker-compose logs -f"
+            echo -e "cd $HOME/nwaku-compose && docker-compose logs -f"
             echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
             echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
             echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
@@ -112,8 +112,14 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_fo
             git pull origin master
             ./register_rln.sh
             docker-compose up -d
-            echo -e "${YELLOW}Обновление завершено. Для проверки логов используйте:${NC}"
-            echo -e "docker-compose logs -f"
+            # Заключительное сообщение
+            echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+            echo -e "${YELLOW}Нода Waku успешно обновлена и запущена!${NC}"
+            echo -e "${YELLOW}Для проверки логов используйте:${NC}"
+            echo -e "cd $HOME/nwaku-compose && docker-compose logs -f"
+            echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+            echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
+            echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
             sleep 2
             docker-compose logs -f
             ;;
