@@ -234,8 +234,8 @@ EOT"
         sleep 1
 
         # Удаление папки
-        if [ -d "$HOME_DIR/ubuntu-node" ]; then
-            rm -rf $HOME_DIR/ubuntu-node
+        if [ -d "$HOME/ubuntu-node" ]; then
+            rm -rf $HOME/ubuntu-node
             echo "Директория ноды удалена."
         else
             echo -e "${RED}Директория ноды не найдена.${NC}"
