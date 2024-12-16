@@ -22,10 +22,9 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
 # Меню
 echo -e "${YELLOW}Выберите действие:${NC}"
 echo -e "${CYAN}1) Установка ноды${NC}"
-echo -e "${CYAN}2) Обновление ноды${NC}"
-echo -e "${CYAN}3) Проверка логов${NC}"
-echo -e "${CYAN}4) Получение ключа ноды${NC}"
-echo -e "${CYAN}5) Удаление ноды${NC}"
+echo -e "${CYAN}2) Проверка логов${NC}"
+echo -e "${CYAN}3) Получение ключа ноды${NC}"
+echo -e "${CYAN}4) Удаление ноды${NC}"
 
 echo -e "${YELLOW}Введите номер:${NC} "
 read choice
@@ -128,102 +127,17 @@ EOT"
         sleep 2
         sudo journalctl -fu manager.service
         ;;
+        
     2)
-        # Остановка и удаление сервиса
-        sudo systemctl stop manager
-        sudo systemctl disable manager
-        sudo rm /etc/systemd/system/manager.service
-        sudo systemctl daemon-reload
-        sleep 1     
-        
-        wget https://network3.io/ubuntu-node-v2.1.1.tar.gz
-        if [ -f "ubuntu-node-v2.1.1.tar.gz" ]; then
-            tar -xvf ubuntu-node-v2.1.1.tar.gz
-            rm ubuntu-node-v2.1.1.tar.gz
-            echo "Временный файл удалён."
-        else
-            echo -e "${RED}Ошибка: Файл ubuntu-node-v2.1.1.tar.gz не найден.${NC}"
-            exit 1
-        fi
-
-         # Проверка наличия iptables
-        if ! command -v iptables &> /dev/null; then
-            echo "iptables не установлен. Устанавливаем..."
-            sudo apt install -y iptables
-        else
-            echo "iptables уже установлен."
-        fi
-
-        # Проверка и открытие порта 8080
-        if ! sudo iptables -C INPUT -p tcp --dport 8080 -j ACCEPT 2>/dev/null; then
-            echo "Открываем порт 8080 через iptables..."
-            sudo iptables -A INPUT -p tcp --dport 8080 -j ACCEPT
-        else
-            echo "Порт 8080 уже открыт."
-        fi
-
-        # Сохраняем правила, чтобы они работали после перезагрузки
-        if command -v netfilter-persistent &> /dev/null; then
-            echo "Сохраняем правила с помощью netfilter-persistent..."
-            sudo netfilter-persistent save
-            sudo netfilter-persistent reload
-        else
-            echo "Устанавливаем netfilter-persistent для сохранения правил..."
-            export DEBIAN_FRONTEND=noninteractive
-            sudo apt install -y iptables-persistent
-            sudo netfilter-persistent save
-            sudo netfilter-persistent reload
-        fi
-
-        # Определяем имя текущего пользователя и его домашнюю директорию
-        USERNAME=$(whoami)
-        HOME_DIR=$(eval echo ~$USERNAME)
-
-        # Создаем сервис
-        sudo bash -c "cat <<EOT > /etc/systemd/system/manager.service
-[Unit]
-Description=Manager Service
-After=network.target
-
-[Service]
-User=$USERNAME
-WorkingDirectory=$HOME_DIR/ubuntu-node/
-ExecStart=/bin/bash $HOME_DIR/ubuntu-node/manager.sh up
-ExecStop=/bin/bash $HOME_DIR/ubuntu-node/manager.sh down
-Restart=always
-Type=forking
-
-[Install]
-WantedBy=multi-user.target
-EOT"
-
-        # Запуск сервиса
-        sudo systemctl daemon-reload
-        sleep 1
-        sudo systemctl enable manager
-        sudo systemctl start manager
-
-        # Заключительный вывод
-        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-        echo -e "${YELLOW}Команда для проверки логов:${NC}"
-        echo "sudo journalctl -fu manager.service"
-        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-        echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
-        echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
-        sleep 2
-        sudo journalctl -fu manager.service
-        ;;
-        
-    3)
         # Проверка логов
         sudo journalctl -fu manager.service
         ;;
-    4)
+    3)
         echo -e "${BLUE}Получение ключа ноды...${NC}"
         cd ubuntu-node/
         sudo bash manager.sh key
         ;;
-    5)
+    4)
         echo -e "${BLUE}Удаление ноды Network3...${NC}"
 
         # Остановка и удаление сервиса
