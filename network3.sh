@@ -72,7 +72,7 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             # Заключительное сообщение
             echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
             echo -e "${YELLOW}Нода установлена. Перейдите по ссылке, чтобы проверить её работу:${NC}"
-            echo "http://account.network3.ai:8080/login_page"
+            echo "https://account.network3.ai/main?o=ВАШ_IP_СЕРВЕРА:8080"
             echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
             echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
             echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
@@ -126,7 +126,7 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             # Заключительное сообщение
             echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
             echo -e "${YELLOW}Нода обновлена. Перейдите по ссылке, чтобы проверить её работу:${NC}"
-            echo "http://account.network3.ai:8080/login_page"
+            echo "https://account.network3.ai/main?o=ВАШ_IP_СЕРВЕРА:8080"
             echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
             echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
             echo
