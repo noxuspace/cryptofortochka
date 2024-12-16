@@ -20,236 +20,145 @@ sleep 1
 curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_club.sh | bash
 
 # Меню
-echo -e "${YELLOW}Выберите действие:${NC}"
-echo -e "${CYAN}1) Установка ноды${NC}"
-echo -e "${CYAN}2) Обновление ноды${NC}"
-echo -e "${CYAN}3) Проверка логов${NC}"
-echo -e "${CYAN}4) Получение ключа ноды${NC}"
-echo -e "${CYAN}5) Удаление ноды${NC}"
+    echo -e "${YELLOW}Выберите действие:${NC}"
+    echo -e "${CYAN}1) Установка ноды${NC}"
+    echo -e "${CYAN}2) Обновление ноды${NC}"
+    echo -e "${CYAN}3) Получение ключа ноды${NC}"
+    echo -e "${CYAN}4) Удаление ноды${NC}"
 
-echo -e "${YELLOW}Введите номер:${NC} "
-read choice
+    echo -e "${YELLOW}Введите номер:${NC} "
+    read choice
 
-case $choice in
-    1)
-        echo -e "${BLUE}Установка ноды Network3...${NC}"
+    case $choice in
+        1)
+            echo -e "${BLUE}Установка ноды Network3...${NC}"
 
-        # Обновление и установка зависимостей
-        sudo apt update -y
-        sudo apt upgrade -y
-        sudo apt install -y screen net-tools
+            # Обновление и установка зависимостей
+            sudo apt update -y
+            sudo apt upgrade -y
+            sudo apt install -y screen net-tools iptables
 
-        # Скачиваем и распаковываем бинарник
-        wget https://network3.io/ubuntu-node-v2.1.1.tar.gz
-        if [ -f "ubuntu-node-v2.1.1.tar.gz" ]; then
-            tar -xvf ubuntu-node-v2.1.1.tar.gz
-            rm ubuntu-node-v2.1.1.tar.gz
-            echo "Временный файл удалён."
-        else
-            echo -e "${RED}Ошибка: Файл ubuntu-node-v2.1.1.tar.gz не найден.${NC}"
-            exit 1
-        fi
+            # Скачивание и распаковка ноды
+            wget https://network3.io/ubuntu-node-v2.1.1.tar.gz
+            if [ -f "ubuntu-node-v2.1.1.tar.gz" ]; then
+                tar -xvf ubuntu-node-v2.1.1.tar.gz
+                rm ubuntu-node-v2.1.1.tar.gz
+            else
+                echo -e "${RED}Ошибка: Файл ubuntu-node-v2.1.1.tar.gz не найден.${NC}"
+                exit 1
+            fi
 
-        # Проверка наличия iptables
-        if ! command -v iptables &> /dev/null; then
-            echo "iptables не установлен. Устанавливаем..."
-            sudo apt install -y iptables
-        else
-            echo "iptables уже установлен."
-        fi
+            # Проверка и открытие порта 8080
+            if ! sudo iptables -C INPUT -p tcp --dport 8080 -j ACCEPT 2>/dev/null; then
+                echo -e "${BLUE}Открываем порт 8080 через iptables...${NC}"
+                sudo iptables -A INPUT -p tcp --dport 8080 -j ACCEPT
+                sudo iptables-save > /etc/iptables/rules.v4
+            else
+                echo -e "${GREEN}Порт 8080 уже открыт.${NC}"
+            fi
 
-        # Проверка и открытие порта 8080
-        if ! sudo iptables -C INPUT -p tcp --dport 8080 -j ACCEPT 2>/dev/null; then
-            echo "Открываем порт 8080 через iptables..."
-            sudo iptables -A INPUT -p tcp --dport 8080 -j ACCEPT
-        else
-            echo "Порт 8080 уже открыт."
-        fi
+            if sudo iptables -C INPUT -p tcp --dport 8080 -j ACCEPT 2>/dev/null; then
+                echo -e "${GREEN}Правила уже сохранены.${NC}"
+            else
+                echo -e "${BLUE}Сохраняем правила...${NC}"
+                sudo iptables-save > /etc/iptables/rules.v4
+            fi
 
-        # Сохраняем правила, чтобы они работали после перезагрузки
-        if command -v netfilter-persistent &> /dev/null; then
-            echo "Сохраняем правила с помощью netfilter-persistent..."
-            sudo netfilter-persistent save
-            sudo netfilter-persistent reload
-        else
-            echo "Устанавливаем netfilter-persistent для сохранения правил..."
-            export DEBIAN_FRONTEND=noninteractive
-            sudo apt install -y iptables-persistent
-            sudo netfilter-persistent save
-            sudo netfilter-persistent reload
-        fi
+            # Запуск ноды
+            cd ubuntu-node
+            sudo bash manager.sh up
+            cd
 
-        echo "Порт 8080 успешно открыт и правило сохранено."
+            # Заключительное сообщение
+            echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+            echo -e "${YELLOW}Нода установлена. Перейдите по ссылке, чтобы проверить её работу:${NC}"
+            echo "http://account.network3.ai:8080/login_page"
+            echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+            echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
+            echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
+            ;;
 
-        # Определяем имя текущего пользователя и его домашнюю директорию
-        USERNAME=$(whoami)
-        HOME_DIR=$(eval echo ~$USERNAME)
+        2)
+            echo -e "${BLUE}Обновление ноды Network3...${NC}"
 
-        # Создаем сервис
-        sudo bash -c "cat <<EOT > /etc/systemd/system/manager.service
-[Unit]
-Description=Manager Service
-After=network.target
+            # Остановка сервиса, если он существует
+            if systemctl list-units --type=service | grep -q "manager.service"; then
+                echo -e "${BLUE}Останавливаем запущенный сервис manager...${NC}"
+                sudo systemctl stop manager
+                sudo systemctl disable manager
+                sudo rm /etc/systemd/system/manager.service
+                sudo systemctl daemon-reload
+            else
+                echo -e "${BLUE}Сервис manager не запущен. Пропускаем остановку.${NC}"
+            fi
 
-[Service]
-User=$USERNAME
-WorkingDirectory=$HOME_DIR/ubuntu-node/
-ExecStart=/bin/bash $HOME_DIR/ubuntu-node/manager.sh up
-ExecStop=/bin/bash $HOME_DIR/ubuntu-node/manager.sh down
-Restart=always
-Type=forking
+            # Скачивание и распаковка бинарника
+            wget https://network3.io/ubuntu-node-v2.1.1.tar.gz
+            if [ -f "ubuntu-node-v2.1.1.tar.gz" ]; then
+                tar -xvf ubuntu-node-v2.1.1.tar.gz
+                rm ubuntu-node-v2.1.1.tar.gz
+            else
+                echo -e "${RED}Ошибка: Файл ubuntu-node-v2.1.1.tar.gz не найден.${NC}"
+                exit 1
+            fi
 
-[Install]
-WantedBy=multi-user.target
-EOT"
+            # Проверка и открытие порта 8080
+            if ! sudo iptables -C INPUT -p tcp --dport 8080 -j ACCEPT 2>/dev/null; then
+                echo -e "${BLUE}Открываем порт 8080 через iptables...${NC}"
+                sudo iptables -A INPUT -p tcp --dport 8080 -j ACCEPT
+                sudo iptables-save > /etc/iptables/rules.v4
+            else
+                echo -e "${GREEN}Порт 8080 уже открыт.${NC}"
+            fi
 
-        # Запуск сервиса
-        sudo systemctl daemon-reload
-        sleep 1
-        sudo systemctl enable manager
-        sudo systemctl start manager
+            if sudo iptables -C INPUT -p tcp --dport 8080 -j ACCEPT 2>/dev/null; then
+                echo -e "${GREEN}Правила уже сохранены.${NC}"
+            else
+                echo -e "${BLUE}Сохраняем правила...${NC}"
+                sudo iptables-save > /etc/iptables/rules.v4
+            fi
 
-        # Проверка состояния сервиса
-        if sudo systemctl is-active --quiet manager; then
-            echo -e "${GREEN}Сервис успешно запущен!${NC}"
-        else
-            echo -e "${RED}Ошибка запуска сервиса. Проверьте логи командой:${NC}"
-            echo "sudo journalctl -xe"
-            exit 1
-        fi
+            # Запуск ноды
+            cd ubuntu-node
+            sudo bash manager.sh up
+            cd
 
-        # Заключительный вывод
-        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-        echo -e "${YELLOW}Команда для проверки логов:${NC}"
-        echo "sudo journalctl -fu manager.service"
-        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-        echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
-        echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
-        sleep 2
-        sudo journalctl -fu manager.service
-        ;;
-    2)
-        # Остановка и удаление сервиса
-        sudo systemctl stop manager
-        sudo systemctl disable manager
-        sudo rm /etc/systemd/system/manager.service
-        sudo systemctl daemon-reload
-        sleep 1     
-        
-        wget https://network3.io/ubuntu-node-v2.1.1.tar.gz
-        if [ -f "ubuntu-node-v2.1.1.tar.gz" ]; then
-            tar -xvf ubuntu-node-v2.1.1.tar.gz
-            rm ubuntu-node-v2.1.1.tar.gz
-            echo "Временный файл удалён."
-        else
-            echo -e "${RED}Ошибка: Файл ubuntu-node-v2.1.1.tar.gz не найден.${NC}"
-            exit 1
-        fi
+            # Заключительное сообщение
+            echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+            echo -e "${YELLOW}Нода обновлена. Перейдите по ссылке, чтобы проверить её работу:${NC}"
+            echo "http://account.network3.ai:8080/login_page"
+            echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+            echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
+            echo
+            ;;
 
-         # Проверка наличия iptables
-        if ! command -v iptables &> /dev/null; then
-            echo "iptables не установлен. Устанавливаем..."
-            sudo apt install -y iptables
-        else
-            echo "iptables уже установлен."
-        fi
+        3)
+            echo -e "${BLUE}Получение ключа ноды...${NC}"
+            cd ubuntu-node/
+            sudo bash manager.sh key
+            ;;
 
-        # Проверка и открытие порта 8080
-        if ! sudo iptables -C INPUT -p tcp --dport 8080 -j ACCEPT 2>/dev/null; then
-            echo "Открываем порт 8080 через iptables..."
-            sudo iptables -A INPUT -p tcp --dport 8080 -j ACCEPT
-        else
-            echo "Порт 8080 уже открыт."
-        fi
+        4)
+            echo -e "${BLUE}Удаление ноды Network3...${NC}"
 
-        # Сохраняем правила, чтобы они работали после перезагрузки
-        if command -v netfilter-persistent &> /dev/null; then
-            echo "Сохраняем правила с помощью netfilter-persistent..."
-            sudo netfilter-persistent save
-            sudo netfilter-persistent reload
-        else
-            echo "Устанавливаем netfilter-persistent для сохранения правил..."
-            export DEBIAN_FRONTEND=noninteractive
-            sudo apt install -y iptables-persistent
-            sudo netfilter-persistent save
-            sudo netfilter-persistent reload
-        fi
+            # Удаление папки
+            if [ -d "$HOME/ubuntu-node" ]; then
+                rm -rf $HOME/ubuntu-node
+                echo -e "${GREEN}Директория ноды удалена.${NC}"
+            else
+                echo -e "${RED}Директория ноды не найдена.${NC}"
+            fi
 
-        # Определяем имя текущего пользователя и его домашнюю директорию
-        USERNAME=$(whoami)
-        HOME_DIR=$(eval echo ~$USERNAME)
+            echo -e "${GREEN}Нода Network3 успешно удалена!${NC}"
 
-        # Создаем сервис
-        sudo bash -c "cat <<EOT > /etc/systemd/system/manager.service
-[Unit]
-Description=Manager Service
-After=network.target
+            # Завершающий вывод
+            echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+            echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
+            echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
+            sleep 1
+            ;;
 
-[Service]
-User=$USERNAME
-WorkingDirectory=$HOME_DIR/ubuntu-node/
-ExecStart=/bin/bash $HOME_DIR/ubuntu-node/manager.sh up
-ExecStop=/bin/bash $HOME_DIR/ubuntu-node/manager.sh down
-Restart=always
-Type=forking
-
-[Install]
-WantedBy=multi-user.target
-EOT"
-
-        # Запуск сервиса
-        sudo systemctl daemon-reload
-        sleep 1
-        sudo systemctl enable manager
-        sudo systemctl start manager
-
-        # Заключительный вывод
-        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-        echo -e "${YELLOW}Команда для проверки логов:${NC}"
-        echo "sudo journalctl -fu manager.service"
-        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-        echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
-        echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
-        sleep 2
-        sudo journalctl -fu manager.service
-        ;;
-        
-    3)
-        # Проверка логов
-        sudo journalctl -fu manager.service
-        ;;
-    4)
-        echo -e "${BLUE}Получение ключа ноды...${NC}"
-        cd ubuntu-node/
-        sudo bash manager.sh key
-        ;;
-    5)
-        echo -e "${BLUE}Удаление ноды Network3...${NC}"
-
-        # Остановка и удаление сервиса
-        sudo systemctl stop manager
-        sudo systemctl disable manager
-        sudo rm /etc/systemd/system/manager.service
-        sudo systemctl daemon-reload
-        sleep 1
-
-        # Удаление папки
-        if [ -d "$HOME/ubuntu-node" ]; then
-            rm -rf $HOME/ubuntu-node
-            echo "Директория ноды удалена."
-        else
-            echo -e "${RED}Директория ноды не найдена.${NC}"
-        fi
-
-        echo -e "${GREEN}Нода Network3 успешно удалена!${NC}"
-
-        # Завершающий вывод
-        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-        echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
-        echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
-        sleep 1
-        ;;
-    *)
-        echo -e "${RED}Неверный выбор. Пожалуйста, введите номер от 1 до 4.${NC}"
-        ;;
-esac
+        *)
+            echo -e "${RED}Неверный выбор. Пожалуйста, введите номер от 1 до 4.${NC}"
+            ;;
+    esac
