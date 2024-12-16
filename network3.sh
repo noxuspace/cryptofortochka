@@ -82,14 +82,14 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             echo -e "${BLUE}Обновление ноды Network3...${NC}"
 
             # Остановка сервиса, если он существует
-            if systemctl list-units --type=service | grep -q "manager.service"; then
-                echo -e "${BLUE}Останавливаем запущенный сервис manager...${NC}"
-                sudo systemctl stop manager
-                sudo systemctl disable manager
+            if [ -f "/etc/systemd/system/manager.service" ]; then
+                echo -e "${BLUE}Останавливаем и удаляем сервис manager...${NC}"
+                sudo systemctl stop manager 2>/dev/null || true
+                sudo systemctl disable manager 2>/dev/null || true
                 sudo rm /etc/systemd/system/manager.service
                 sudo systemctl daemon-reload
             else
-                echo -e "${BLUE}Сервис manager не запущен. Пропускаем остановку.${NC}"
+                echo -e "${GREEN}Сервис manager не существует. Пропускаем удаление.${NC}"
             fi
 
             # Скачивание и распаковка бинарника
@@ -140,6 +140,17 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
 
         4)
             echo -e "${BLUE}Удаление ноды Network3...${NC}"
+
+            # Остановка сервиса, если он существует
+            if [ -f "/etc/systemd/system/manager.service" ]; then
+                echo -e "${BLUE}Останавливаем и удаляем сервис manager...${NC}"
+                sudo systemctl stop manager 2>/dev/null || true
+                sudo systemctl disable manager 2>/dev/null || true
+                sudo rm /etc/systemd/system/manager.service
+                sudo systemctl daemon-reload
+            else
+                echo -e "${GREEN}Сервис manager не существует. Пропускаем удаление.${NC}"
+            fi
 
             # Удаление папки
             if [ -d "$HOME/ubuntu-node" ]; then
