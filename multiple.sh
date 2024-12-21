@@ -28,6 +28,8 @@ echo -e "${CYAN}3) Удаление ноды${NC}"
 echo -e "${YELLOW}Введите номер:${NC} "
 read choice
 
+
+
 case $choice in
     1)
         echo -e "${BLUE}Устанавливаем ноду...${NC}"
