@@ -51,7 +51,7 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             # Ввод данных от пользователя
             echo -e "${YELLOW}Введите имя валидатора:${NC}"
             read NAME
-            echo -e "${YELLOW}Введите приватный ключ от EVM кошелька:${NC}"
+            echo -e "${YELLOW}Введите приватный ключ от EVM кошелька начиная с 0x:${NC}"
             read PRIVATE_KEY
 
             # Создание директории
