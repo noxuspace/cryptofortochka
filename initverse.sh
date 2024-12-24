@@ -82,15 +82,6 @@ EOT"
             sudo systemctl enable initverse
             sudo systemctl start initverse
 
-            # Проверка состояния сервиса
-            if sudo systemctl is-active --quiet initverse; then
-                echo -e "${GREEN}Сервис InitVerse успешно запущен!${NC}"
-            else
-                echo -e "${RED}Ошибка запуска сервиса. Проверьте логи командой:${NC}"
-                echo "sudo journalctl -xe"
-                exit 1
-            fi
-
             # Заключительное сообщение
             echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
             echo -e "${YELLOW}Команда для проверки логов:${NC}"
