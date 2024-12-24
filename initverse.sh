@@ -64,7 +64,7 @@ After=network.target
 [Service]
 User=$USERNAME
 WorkingDirectory=$HOME_DIR/initverse
-ExecStart=$HOME_DIR/initverse/iniminer-linux-x64 --pool stratum+tcp://\$WALLET.\$NODE_NAME@pool-core-testnet.inichain.com:32672 --cpu-devices 1 --cpu-devices 2
+ExecStart=$HOME_DIR/initverse/iniminer-linux-x64 --pool stratum+tcp://\${WALLET}.\${NODE_NAME}@pool-core-testnet.inichain.com:32672 --cpu-devices 1 --cpu-devices 2
 Restart=on-failure
 
 [Install]
