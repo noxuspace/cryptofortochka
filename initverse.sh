@@ -55,6 +55,12 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             USERNAME=$(whoami)
             HOME_DIR=$(eval echo ~$USERNAME)
 
+            # Создание файла окружения
+            sudo bash -c "cat <<EOT > $HOME_DIR/initverse/.env
+            WALLET=$WALLET
+            NODE_NAME=$NODE_NAME
+            EOT"
+
             # Создание сервиса
             sudo bash -c "cat <<EOT > /etc/systemd/system/initverse.service
 [Unit]
@@ -64,6 +70,7 @@ After=network.target
 [Service]
 User=$USERNAME
 WorkingDirectory=$HOME_DIR/initverse
+EnvironmentFile=$HOME_DIR/initverse/.env
 ExecStart=$HOME_DIR/initverse/iniminer-linux-x64 --pool stratum+tcp://\${WALLET}.\${NODE_NAME}@pool-core-testnet.inichain.com:32672 --cpu-devices 1 --cpu-devices 2
 Restart=on-failure
 
