@@ -71,7 +71,7 @@ After=network.target
 User=$USERNAME
 WorkingDirectory=$HOME_DIR/initverse
 EnvironmentFile=$HOME_DIR/initverse/.env
-ExecStart=/bin/bash -c '$HOME_DIR/initverse/iniminer-linux-x64 --pool stratum+tcp://\${WALLET}.\${NODE_NAME}@pool-core-testnet.inichain.com:32672 --cpu-devices 1 --cpu-devices 2'
+ExecStart=/bin/bash -c 'source $HOME_DIR/initverse/.env && $HOME_DIR/initverse/iniminer-linux-x64 --pool stratum+tcp://${WALLET}.${NODE_NAME}@pool-core-testnet.inichain.com:32672 --cpu-devices 1 --cpu-devices 2'
 Restart=on-failure
 Environment=WALLET=\$WALLET NODE_NAME=\$NODE_NAME
 
