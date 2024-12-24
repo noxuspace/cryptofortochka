@@ -54,6 +54,8 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             # Создаем файл .env и записываем данные
             echo "WALLET=$WALLET" > "$HOME/initverse/.env"
             echo "NODE_NAME=$NODE_NAME" >> "$HOME/initverse/.env"
+            cat "$HOME/initverse/.env"
+            sleep 2
 
             # Определяем имя текущего пользователя и его домашнюю директорию
             USERNAME=$(whoami)
