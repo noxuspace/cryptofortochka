@@ -45,21 +45,19 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             chmod +x iniminer-linux-x64
             cd
 
-            # Запрос данных у пользователя
+            # Запрос данных у пользователя и запись в файл .env
             echo -e "${YELLOW}Введите адрес вашего EVM кошелька:${NC}"
             read WALLET
             echo -e "${YELLOW}Введите имя вашей ноды-майнера:${NC}"
             read NODE_NAME
+            
+            # Создаем файл .env и записываем данные
+            echo "WALLET=$WALLET" > "$HOME/initverse/.env"
+            echo "NODE_NAME=$NODE_NAME" >> "$HOME/initverse/.env"
 
             # Определяем имя текущего пользователя и его домашнюю директорию
             USERNAME=$(whoami)
             HOME_DIR=$(eval echo ~$USERNAME)
-
-            # Создание файла окружения
-            sudo bash -c "cat <<EOT > $HOME_DIR/initverse/.env
-            WALLET=$WALLET
-            NODE_NAME=$NODE_NAME
-            EOT"
 
             # Создание сервиса
             sudo bash -c "cat <<EOT > /etc/systemd/system/initverse.service
