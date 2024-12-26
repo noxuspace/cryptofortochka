@@ -22,9 +22,8 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
 # Меню
 echo -e "${YELLOW}Выберите действие:${NC}"
 echo -e "${CYAN}1) Установка ноды${NC}"
-echo -e "${CYAN}2) Обновление ноды${NC}"
-echo -e "${CYAN}3) Проверка логов${NC}"
-echo -e "${CYAN}4) Удаление ноды${NC}"
+echo -e "${CYAN}2) Проверка логов${NC}"
+echo -e "${CYAN}3) Удаление ноды${NC}"
 
 echo -e "${YELLOW}Введите номер:${NC} "
 read choice
@@ -81,20 +80,18 @@ case $choice in
         # Заключительный вывод
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
         echo -e "${YELLOW}Команда для проверки логов:${NC}"
-        echo "docker-compose -f ~/.spheron/fizz/docker-compose.yml logs -f"
+        echo "sphnctl fizz logs"
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
         echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
         echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
         sleep 2
         ;;
+    
     2)
-        echo -e "${GREEN}Установлена актуальная версия ноды.${NC}"
+        # Проверка логов
+        sphnctl fizz logs
         ;;
     3)
-        # Проверка логов
-        docker-compose -f ~/.spheron/fizz/docker-compose.yml logs -f
-        ;;
-    4)
         echo -e "${BLUE}Удаление ноды Spheron...${NC}"
 
         # Остановка компоуза
