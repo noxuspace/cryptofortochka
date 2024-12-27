@@ -82,7 +82,7 @@ case $choice in
 
         # Инициализация ноды
         pellcored config node tcp://localhost:${PELL_PORT}657
-        pellcored config keyring-backend test
+        pellcored config keyring-backend os
         pellcored config chain-id ignite_186-1
         pellcored init "$MONIKER" --chain-id ignite_186-1
 
