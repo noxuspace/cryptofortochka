@@ -77,12 +77,12 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             # Заключительное сообщение
             echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
             echo -e "${YELLOW}Команда для проверки логов:${NC}"
-            echo "docker logs -f hyperlane"
+            echo "docker logs --tail 100 -f hyperlane"
             echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
             echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
             echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
             sleep 2
-            docker logs -f hyperlane
+            docker logs --tail 100 -f hyperlane
             ;;
 
         2)
@@ -92,7 +92,7 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
 
         3)
             echo -e "${BLUE}Просмотр логов...${NC}"
-            docker logs -f hyperlane
+            docker logs --tail 100 -f hyperlane
             ;;
 
         4)
