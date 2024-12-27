@@ -121,7 +121,11 @@ EOF
         sudo systemctl daemon-reload
         sleep 1
         sudo systemctl enable pellcored
-        sudo systemctl restart pellcored
+        cp $HOME/.pellcored/data/priv_validator_state.json $HOME/.pellcored/priv_validator_state.json.backup
+        rm -rf $HOME/.pellcored/data
+        curl https://server-5.itrocket.net/testnet/pell/pell_2024-12-27_307890_snap.tar.lz4 | lz4 -dc - | tar -xf - -C $HOME/.pellcored
+        mv $HOME/.pellcored/priv_validator_state.json.backup $HOME/.pellcored/data/priv_validator_state.json
+        sudo systemctl restart pellcored && sudo journalctl -u pellcored -f --no-hostname -o cat
 
         echo -e "${GREEN}Установка ноды завершена!${NC}"
         # Завершающий вывод
