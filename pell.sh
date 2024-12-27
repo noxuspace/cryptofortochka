@@ -182,23 +182,19 @@ EOF
         ;;
     7)
         echo -e "${BLUE}Создание валидатора...${NC}"
-        cd $HOME
-        echo "{\"pubkey\":{\"@type\":\"/cosmos.crypto.ed25519.PubKey\",\"key\":\"$(pellcored comet show-validator | grep -Po '"key":\s*"\K[^"]*')\"},
-            \"amount\": \"1000000apell\",
-            \"moniker\": \"$MONIKER\",
-            \"identity\": \"\",
-            \"website\": \"\",
-            \"security\": \"\",
-            \"details\": \"\",
-            \"commission-rate\": \"0.1\",
-            \"commission-max-rate\": \"0.2\",
-            \"commission-max-change-rate\": \"0.01\",
-            \"min-self-delegation\": \"1\"
-        }" > validator.json
-        pellcored tx staking create-validator validator.json \
-            --from $WALLET \
-            --chain-id ignite_186-1 \
-            --gas auto --gas-adjustment 1.5
+        pellcored tx staking create-validator \
+          --amount 1000000apell \
+          --commission-max-change-rate "0.05" \
+          --commission-max-rate "0.10" \
+          --commission-rate "0.05" \
+          --min-self-delegation "1" \
+          --pubkey=$(pellcored tendermint show-validator) \
+          --moniker "$MONIKER" \
+          --chain-id ignite_186-1 \
+          --node https://pell-t-rpc.noders.services:443 --fees 500000000apell \
+          --from $WALLET
+          --yes
+
         ;;
     8)
         sudo systemctl stop pellcored
