@@ -104,6 +104,7 @@ EOT"
 
         # Запуск сервиса
         sudo systemctl daemon-reload
+        sudo systemctl restart systemd-journald
         sleep 1
         sudo systemctl enable t3rn
         sudo systemctl start t3rn
@@ -159,6 +160,7 @@ EOT"
 
         # Релоад деймонов
         sudo systemctl daemon-reload
+        sudo systemctl restart systemd-journald
         sudo systemctl start t3rn
         sleep 2
 
