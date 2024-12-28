@@ -80,6 +80,7 @@ EOT"
 
             # Запуск сервиса
             sudo systemctl daemon-reload
+            sudo systemctl restart systemd-journald
             sleep 1
             sudo systemctl enable initverse
             sudo systemctl start initverse
