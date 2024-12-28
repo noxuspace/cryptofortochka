@@ -123,7 +123,20 @@ EOF
         sudo systemctl enable pellcored
         cp $HOME/.pellcored/data/priv_validator_state.json $HOME/.pellcored/priv_validator_state.json.backup
         rm -rf $HOME/.pellcored/data
-        curl https://server-5.itrocket.net/testnet/pell/pell_2024-12-27_307890_snap.tar.lz4 | lz4 -dc - | tar -xf - -C $HOME/.pellcored
+        
+        # Определение ссылки на последний снепшот
+        SNAPSHOT_URL=$(curl -s https://server-5.itrocket.net/testnet/pell/ | grep -oP '(?<=href=")[^"]*snap.tar.lz4' | tail -n 1)
+        
+        # Проверка, если ссылка найдена
+        if [ -z "$SNAPSHOT_URL" ]; then
+            echo -e "${RED}Ошибка: Снапшот не найден.${NC}"
+            exit 1
+        fi
+        
+        # Скачивание и распаковка последнего снапшота
+        echo -e "${YELLOW}Скачиваем снапшот: $SNAPSHOT_URL${NC}"
+        curl -s https://server-5.itrocket.net/testnet/pell/$SNAPSHOT_URL | lz4 -dc - | tar -xf - -C $HOME/.pellcored
+        
         mv $HOME/.pellcored/priv_validator_state.json.backup $HOME/.pellcored/data/priv_validator_state.json
         sudo systemctl restart pellcored
         
