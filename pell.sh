@@ -69,13 +69,18 @@ case $choice in
         # Загрузка бинарника
         cd $HOME
         wget -O pellcored https://github.com/0xPellNetwork/network-config/releases/download/v1.1.1-ignite/pellcored-v1.1.1-linux-amd64
+        sleep 1
         chmod +x pellcored
+        sleep 1
         mv pellcored ~/go/bin/
+        sleep 1
+        source $HOME/.bash_profile
 
         # Установка WASMVM
         WASMVM_VERSION=v2.1.2
         export LD_LIBRARY_PATH=~/.pellcored/lib
         mkdir -p $LD_LIBRARY_PATH
+        sleep 1
         wget "https://github.com/CosmWasm/wasmvm/releases/download/$WASMVM_VERSION/libwasmvm.$(uname -m).so" -O "$LD_LIBRARY_PATH/libwasmvm.$(uname -m).so"
         echo "export LD_LIBRARY_PATH=$HOME/.pellcored/lib:$LD_LIBRARY_PATH" >> $HOME/.bash_profile
         source ~/.bash_profile
