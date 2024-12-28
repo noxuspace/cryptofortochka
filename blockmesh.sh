@@ -98,6 +98,7 @@ EOT"
 
         # Обновляем сервисы и включаем BlockMesh
         sudo systemctl daemon-reload
+        sudo systemctl restart systemd-journald
         sleep 1
         sudo systemctl enable blockmesh
         sudo systemctl start blockmesh
@@ -178,6 +179,7 @@ EOT"
 
         # Перезапускаем сервис
         sudo systemctl daemon-reload
+        sudo systemctl restart systemd-journald
         sleep 1
         sudo systemctl enable blockmesh
         sudo systemctl restart blockmesh
@@ -235,6 +237,7 @@ EOT"
 
         # Перезапускаем сервис с новыми данными
         sudo systemctl daemon-reload
+        sudo systemctl restart systemd-journald
         sleep 1
         sudo systemctl restart blockmesh
 
