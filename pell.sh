@@ -135,7 +135,7 @@ EOF
         
         # Скачивание и распаковка последнего снапшота
         echo -e "${YELLOW}Скачиваем снапшот: $SNAPSHOT_URL${NC}"
-        curl -s https://server-5.itrocket.net/testnet/pell/$SNAPSHOT_URL | lz4 -dc - | tar -xf - -C $HOME/.pellcored
+        curl --progress-bar https://server-5.itrocket.net/testnet/pell/$SNAPSHOT_URL | lz4 -dc - | tar -xf - -C $HOME/.pellcored
         
         mv $HOME/.pellcored/priv_validator_state.json.backup $HOME/.pellcored/data/priv_validator_state.json
         sudo systemctl restart pellcored
