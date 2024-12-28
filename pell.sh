@@ -96,30 +96,30 @@ case $choice in
             echo -e "${RED}Файл client.toml не найден. Создаём новый...${NC}"
             mkdir -p "$(dirname "$CLIENT_TOML")"
         fi
-        
+
         # Новое содержимое файла
         cat <<EOT > "$CLIENT_TOML"
-        # This is a TOML config file.
-        # For more information, see https://github.com/toml-lang/toml
-        
-        ###############################################################################
-        ###                           Client Configuration                            ###
-        ###############################################################################
-        
-        # The network chain ID
-        chain-id = "ignite_186-1"
-        # The keyring's backend, where the keys are stored (os|file|kwallet|pass|test|memory)
-        keyring-backend = "test"
-        # CLI output format (text|json)
-        output = "text"
-        # <host>:<port> to CometBFT RPC interface for this chain
-        node = "tcp://localhost:41657"
-        # Transaction broadcasting mode (sync|async)
-        broadcast-mode = "sync"
-        EOT
-        
-        echo -e "${GREEN}Файл client.toml успешно обновлён!${NC}"
+# This is a TOML config file.
+# For more information, see https://github.com/toml-lang/toml
 
+###############################################################################
+###                           Client Configuration                            ###
+###############################################################################
+
+# The network chain ID
+chain-id = "ignite_186-1"
+# The keyring's backend, where the keys are stored (os|file|kwallet|pass|test|memory)
+keyring-backend = "test"
+# CLI output format (text|json)
+output = "text"
+# <host>:<port> to CometBFT RPC interface for this chain
+node = "tcp://localhost:41657"
+# Transaction broadcasting mode (sync|async)
+broadcast-mode = "sync"
+EOT
+
+        echo -e "${GREEN}Файл client.toml успешно обновлён!${NC}"
+        
         # Загрузка genesis и addrbook
         wget -O $HOME/.pellcored/config/genesis.json https://server-5.itrocket.net/testnet/pell/genesis.json
         wget -O $HOME/.pellcored/config/addrbook.json https://server-5.itrocket.net/testnet/pell/addrbook.json
