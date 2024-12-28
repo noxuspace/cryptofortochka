@@ -184,7 +184,7 @@ EOF
         echo -e "${BLUE}Создание валидатора...${NC}"
         cd $HOME
         # Create validator.json file
-        echo "{\"pubkey\":{\"@type\":\"/cosmos.crypto.ed25519.PubKey\",\"key\":\"$(pellcored comet show-validator | grep -Po '\"key\":\s*\"\K[^"]*')\"},
+        echo "{\"pubkey\":{\"@type\":\"/cosmos.crypto.ed25519.PubKey\",\"key\":\"$(pellcored tendermint show-validator | grep -Po '\"key\":\s*\"\K[^"]*')\"},
             \"amount\": \"1000000apell\",
             \"moniker\": \"$WALLET\",
             \"identity\": \"\",
