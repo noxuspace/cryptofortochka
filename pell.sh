@@ -172,8 +172,10 @@ EOF
             echo -e "${RED}Нода не синхронизирована. Создавать кошелек необходимо после полной синхронизации.${NC}"
             exit 1
         fi
+        sleep 2
 
         pellcored keys add $WALLET
+        sleep 3
         WALLET_ADDRESS=$(pellcored keys show $WALLET -a)
         VALOPER_ADDRESS=$(pellcored keys show $WALLET --bech val -a)
         echo "export WALLET_ADDRESS=$WALLET_ADDRESS" >> $HOME/.bash_profile
