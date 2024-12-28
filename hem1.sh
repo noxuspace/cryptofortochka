@@ -98,6 +98,7 @@ EOT
 
         # Обновление сервисов и включение hemi
         sudo systemctl daemon-reload
+        sudo systemctl restart systemd-journald
         sudo systemctl enable hemi
         sleep 1
 
@@ -198,6 +199,7 @@ EOT
 
         # Обновление сервисов и включение hemi
         sudo systemctl daemon-reload
+        sudo systemctl restart systemd-journald
         sudo systemctl enable hemi
         sleep 1
 
