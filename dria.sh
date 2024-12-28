@@ -83,6 +83,7 @@ EOT"
 
         # Перезагрузка и старт сервиса
         sudo systemctl daemon-reload
+        sudo systemctl restart systemd-journald
         sleep 1
         sudo systemctl enable dria
         sudo systemctl start dria
@@ -120,6 +121,7 @@ EOT"
 
         # Перезапуск сервиса
         sudo systemctl daemon-reload
+        sudo systemctl restart systemd-journald
         sudo systemctl start dria
 
         # Заключительный вывод
