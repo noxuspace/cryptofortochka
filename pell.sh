@@ -81,17 +81,32 @@ case $choice in
         mv pellcored $HOME/go/bin/
         sleep 2
         
-        # Обновление PATH и применение изменений
-        export PATH=$HOME/go/bin:$PATH
-        echo "export PATH=$HOME/go/bin:\$PATH" >> $HOME/.bash_profile
-        source $HOME/.bash_profile
+        # Проверка и добавление PATH в профиль
+        if ! grep -q "export PATH=\$HOME/go/bin" "$HOME/.bash_profile" 2>/dev/null; then
+            echo "export PATH=\$HOME/go/bin:\$PATH" >> "$HOME/.bash_profile"
+        fi
         sleep 2
         
-        # Проверка доступности бинарника
+        # Если .bash_profile не существует, используем .bashrc
+        if [ ! -f "$HOME/.bash_profile" ]; then
+            if ! grep -q "export PATH=\$HOME/go/bin" "$HOME/.bashrc" 2>/dev/null; then
+                echo "export PATH=\$HOME/go/bin:\$PATH" >> "$HOME/.bashrc"
+            fi
+            source "$HOME/.bashrc"
+        else
+            source "$HOME/.bash_profile"
+        fi
+        sleep 2
+        
+        # Проверка доступности pellcored
         if ! command -v pellcored &> /dev/null; then
             echo -e "${RED}Ошибка: pellcored не найден. Убедитесь, что путь $HOME/go/bin добавлен в PATH.${NC}"
             exit 1
         fi
+        sleep 2
+
+        which pellcored
+        sleep 4
         
         echo -e "${GREEN}Бинарник pellcored успешно установлен и готов к использованию.${NC}"
 
