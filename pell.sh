@@ -69,12 +69,32 @@ case $choice in
         # Загрузка бинарника
         cd $HOME
         wget -O pellcored https://github.com/0xPellNetwork/network-config/releases/download/v1.1.1-ignite/pellcored-v1.1.1-linux-amd64
-        sleep 7
+        if [ $? -ne 0 ]; then
+            echo -e "${RED}Ошибка при загрузке бинарника pellcored. Проверьте интернет-соединение или ссылку.${NC}"
+            exit 1
+        fi
+        sleep 2
+        
         chmod +x pellcored
-        sleep 4
-        mv pellcored ~/go/bin/
-        sleep 4
+        sleep 2
+        
+        mv pellcored $HOME/go/bin/
+        sleep 2
+        
+        # Обновление PATH и применение изменений
+        export PATH=$HOME/go/bin:$PATH
+        echo "export PATH=$HOME/go/bin:\$PATH" >> $HOME/.bash_profile
         source $HOME/.bash_profile
+        sleep 2
+        
+        # Проверка доступности бинарника
+        if ! command -v pellcored &> /dev/null; then
+            echo -e "${RED}Ошибка: pellcored не найден. Убедитесь, что путь $HOME/go/bin добавлен в PATH.${NC}"
+            exit 1
+        fi
+        
+        echo -e "${GREEN}Бинарник pellcored успешно установлен и готов к использованию.${NC}"
+
 
         # Установка WASMVM
         WASMVM_VERSION=v2.1.2
