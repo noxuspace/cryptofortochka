@@ -69,11 +69,11 @@ case $choice in
         # Загрузка бинарника
         cd $HOME
         wget -O pellcored https://github.com/0xPellNetwork/network-config/releases/download/v1.1.1-ignite/pellcored-v1.1.1-linux-amd64
-        sleep 1
+        sleep 7
         chmod +x pellcored
-        sleep 1
+        sleep 4
         mv pellcored ~/go/bin/
-        sleep 1
+        sleep 4
         source $HOME/.bash_profile
 
         # Установка WASMVM
