@@ -96,12 +96,34 @@ case $choice in
 
         # Установка WASMVM
         WASMVM_VERSION=v2.1.2
-        export LD_LIBRARY_PATH=~/.pellcored/lib
-        mkdir -p $LD_LIBRARY_PATH
-        sleep 1
-        wget "https://github.com/CosmWasm/wasmvm/releases/download/$WASMVM_VERSION/libwasmvm.$(uname -m).so" -O "$LD_LIBRARY_PATH/libwasmvm.$(uname -m).so"
-        echo "export LD_LIBRARY_PATH=$HOME/.pellcored/lib:$LD_LIBRARY_PATH" >> $HOME/.bash_profile
-        source ~/.bash_profile
+        LIB_DIR="$HOME/.pellcored/lib"
+        export LD_LIBRARY_PATH=$LIB_DIR
+        mkdir -p $LIB_DIR
+        
+        # Загрузка библиотеки
+        wget "https://github.com/CosmWasm/wasmvm/releases/download/$WASMVM_VERSION/libwasmvm.$(uname -m).so" -O "$LIB_DIR/libwasmvm.$(uname -m).so"
+        if [ $? -ne 0 ]; then
+            echo -e "${RED}Ошибка: Не удалось загрузить библиотеку WASMVM.${NC}"
+            exit 1
+        fi
+        
+        # Добавление пути в .bash_profile
+        if ! grep -q "LD_LIBRARY_PATH=$HOME/.pellcored/lib" "$HOME/.bash_profile"; then
+            echo "export LD_LIBRARY_PATH=$HOME/.pellcored/lib:$LD_LIBRARY_PATH" >> $HOME/.bash_profile
+        fi
+        
+        # Применение изменений
+        export LD_LIBRARY_PATH=$HOME/.pellcored/lib:$LD_LIBRARY_PATH
+        source $HOME/.bash_profile
+        
+        # Проверка наличия библиотеки
+        if [ ! -f "$LIB_DIR/libwasmvm.$(uname -m).so" ]; then
+            echo -e "${RED}Ошибка: Файл библиотеки libwasmvm.$(uname -m).so отсутствует.${NC}"
+            exit 1
+        fi
+        
+        echo -e "${GREEN}WASMVM библиотека успешно установлена и доступна.${NC}"
+
 
         # Инициализация ноды
         pellcored config node tcp://localhost:${PELL_PORT}657
