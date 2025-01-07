@@ -129,6 +129,7 @@ fi
                 echo -e "${YELLOW}Сессии screen openledger удалены.${NC}"
             fi
             rm -f openledger-node-1.0.0-linux.zip
+            rm -f openledger-node-1.0.0.deb
             sudo apt remove --purge -y openledger-node
             echo -e "${GREEN}Нода OpenLedger успешно удалена.${NC}"
             ;;
