@@ -201,6 +201,7 @@ EOF
         sleep 1
         sudo systemctl enable pellcored
         cp $HOME/.pellcored/data/priv_validator_state.json $HOME/.pellcored/priv_validator_state.json.backup
+        pellcored tendermint unsafe-reset-all --home $HOME/.pellcored --keep-addr-book
         rm -rf $HOME/.pellcored/data
         
         # Определение ссылки на последний снепшот
@@ -240,6 +241,10 @@ EOF
         
         sudo mv $HOME/pellcored $(which pellcored)
         sleep 2
+
+        cp $HOME/.pellcored/data/priv_validator_state.json $HOME/.pellcored/priv_validator_state.json.backup
+        pellcored tendermint unsafe-reset-all --home $HOME/.pellcored --keep-addr-book
+        rm -rf $HOME/.pellcored/data
 
         # Определение ссылки на последний снепшот
         SNAPSHOT_URL=$(curl -s https://server-5.itrocket.net/testnet/pell/ | grep -oP '(?<=href=")[^"]*snap.tar.lz4' | tail -n 1)
