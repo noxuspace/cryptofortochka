@@ -104,7 +104,7 @@ Type=simple
 ExecStart=/usr/bin/openledger-node --no-sandbox --disable-gpu
 Restart=always
 User=root
-Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+Environment=DISPLAY=:0
 
 [Install]
 WantedBy=multi-user.target
