@@ -98,7 +98,7 @@ fi
                 screen -S openledger -X quit
                 echo -e "${YELLOW}Существующие сессии screen openledger удалены.${NC}"
             fi
-            screen -dmS openledger openledger-node --no-sandbox --disable-gpu
+            screen -dmS openledger_node bash -c 'openledger-node --no-sandbox --disable-gpu'
 
             # Завершающий вывод
             echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
