@@ -70,6 +70,7 @@ fi
             sudo adduser xrdp ssl-cert
             sudo systemctl start gdm
             sudo systemctl restart xrdp
+            sudo systemctl enable xrdp
 
             # Загрузка и установка OpenLedger
             wget https://cdn.openledger.xyz/openledger-node-1.0.0-linux.zip
