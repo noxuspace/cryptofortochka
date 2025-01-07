@@ -4,52 +4,136 @@
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
-NC='\033[0m' # Сброс цвета
+NC='\033[0m' # Нет цвета (сброс цвета)
 
-# Проверка запуска от root
-if [ "$EUID" -ne 0 ]; then
-    echo -e "${RED}Скрипт должен быть запущен с правами root.${NC}"
+# Проверка наличия curl и установка, если не установлен
+if ! command -v curl &> /dev/null; then
+    sudo apt update
+    sudo apt install curl -y
+fi
+sleep 1
+
+# Отображаем логотип
+curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_club.sh | bash
+
+# Проверка наличия bc и установка, если не установлен
+if ! command -v bc &> /dev/null; then
+    sudo apt update
+    sudo apt install bc -y
+fi
+sleep 1
+
+# Проверка версии Ubuntu
+UBUNTU_VERSION=$(lsb_release -rs)
+REQUIRED_VERSION=22.04
+
+if (( $(echo "$UBUNTU_VERSION < $REQUIRED_VERSION" | bc -l) )); then
+    echo -e "${RED}Для этой ноды нужна минимальная версия Ubuntu 22.04${NC}"
     exit 1
 fi
 
-# Проверка наличия X-сервера и настройки $DISPLAY
-if [ -z "$DISPLAY" ]; then
-    export DISPLAY=:0
-    echo -e "${YELLOW}Переменная DISPLAY установлена в :0.${NC}"
-fi
+# Меню
+    echo -e "${YELLOW}Выберите действие:${NC}"
+    echo -e "${CYAN}1) Установка ноды${NC}"
+    echo -e "${CYAN}2) Обновление ноды${NC}"
+    echo -e "${CYAN}3) Перейти в сессию screen${NC}"
+    echo -e "${CYAN}4) Удаление ноды${NC}"
+    read -p "Введите номер: " choice
 
-# Настройка xhost для предоставления доступа
-xhost +local:root &> /dev/null || echo -e "${YELLOW}Не удалось настроить xhost. Убедитесь, что X-сервер работает.${NC}"
+    case $choice in
+        1)
+            echo -e "${BLUE}Установка ноды OpenLedger...${NC}"
 
-# Создание systemd-сервиса для OpenLedger
-echo -e "${YELLOW}Создаем systemd-сервис...${NC}"
-cat > /etc/systemd/system/openledger.service << EOF
-[Unit]
-Description=OpenLedger Node
-After=network.target
+            # Проверка и установка Docker
+            if ! command -v docker &> /dev/null; then
+                echo -e "${YELLOW}Docker не установлен. Устанавливаем Docker...${NC}"
+                apt remove docker docker-engine docker.io containerd runc -y
+                apt install -y apt-transport-https ca-certificates curl software-properties-common
+                curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+                echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+                apt update
+                apt install -y docker-ce docker-ce-cli containerd.io
+                echo -e "${GREEN}Docker успешно установлен.${NC}"
+            else
+                echo -e "${GREEN}Docker уже установлен.${NC}"
+            fi
 
-[Service]
-Type=simple
-ExecStart=/usr/bin/openledger-node --no-sandbox --disable-gpu --headless
-Restart=always
-Environment=DISPLAY=:0
-User=root
-WorkingDirectory=/root
+            # Проверка и запуск Docker
+            if systemctl is-active --quiet docker; then
+                echo "Docker уже запущен."
+            else
+                echo "Запускаем Docker..."
+                sudo systemctl start docker
+            fi
 
-[Install]
-WantedBy=multi-user.target
-EOF
+            if systemctl is-enabled --quiet docker; then
+                echo "Docker уже добавлен в автозагрузку."
+            else
+                echo "Добавляем Docker в автозагрузку..."
+                sudo systemctl enable docker
+            fi
 
-# Перезагрузка systemd, запуск и включение сервиса
-systemctl daemon-reload
-systemctl enable openledger.service
-systemctl start openledger.service
+            # Установка зависимостей
+            sudo apt update && sudo apt upgrade -y
+            sudo apt install ubuntu-desktop xrdp unzip screen -y
+            sudo apt install -y desktop-file-utils libgbm1 libasound2
+            sudo dpkg --configure -a
 
-# Проверка статуса сервиса
-if systemctl is-active --quiet openledger.service; then
-    echo -e "${GREEN}OpenLedger успешно запущен как сервис.${NC}"
-else
-    echo -e "${RED}Ошибка запуска OpenLedger. Проверьте логи с помощью:${NC}"
-    echo -e "journalctl -u openledger.service"
-fi
+            # Настройка XRDP
+            sudo adduser xrdp ssl-cert
+            sudo systemctl start gdm
+            sudo systemctl enable xrdp
+            sudo systemctl restart xrdp
+
+            # Установка OpenLedger
+            wget https://cdn.openledger.xyz/openledger-node-1.0.0-linux.zip
+            unzip openledger-node-1.0.0-linux.zip
+            sudo dpkg -i openledger-node-1.0.0.deb
+
+            # Проверка и настройка screen
+            if screen -list | grep -q "openledger"; then
+                screen -S openledger -X quit
+                echo -e "${YELLOW}Существующие сессии screen openledger удалены.${NC}"
+            fi
+            screen -dmS openledger openledger-node --no-sandbox --disable-gpu
+
+            # Завершающий вывод
+            echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+            echo -e "${YELLOW}Команда для входа в сессию screen:${NC}" 
+            echo "screen -r openledger"
+            echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+            echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
+            echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
+            ;;
+
+        2)
+            echo -e "${GREEN}У вашей ноды актуальная версия.${NC}"
+            ;;
+
+        3)
+            echo -e "${YELLOW}Переход в сессию screen...${NC}"
+            if screen -list | grep -q "openledger"; then
+                screen -r openledger
+            else
+                echo -e "${RED}Сессия screen openledger не найдена.${NC}"
+            fi
+            ;;
+
+        4)
+            echo -e "${RED}Удаление ноды OpenLedger...${NC}"
+            if screen -list | grep -q "openledger"; then
+                screen -S openledger -X quit
+                echo -e "${YELLOW}Сессии screen openledger удалены.${NC}"
+            fi
+            rm -f openledger-node-1.0.0-linux.zip
+            sudo apt remove --purge -y openledger-node
+            echo -e "${GREEN}Нода OpenLedger успешно удалена.${NC}"
+            ;;
+
+        *)
+            echo -e "${RED}Неверный выбор. Пожалуйста, введите номер от 1 до 4.${NC}"
+            ;;
+    esac
