@@ -68,7 +68,7 @@ case $choice in
     
         # Загрузка бинарника
         cd $HOME
-        wget -O pellcored https://github.com/0xPellNetwork/network-config/releases/download/v1.1.1-ignite/pellcored-v1.1.1-linux-amd64
+        wget -O pellcored https://github.com/0xPellNetwork/network-config/releases/download/v1.1.5/pellcored-v1.1.5-linux-amd64
         if [ $? -ne 0 ]; then
             echo -e "${RED}Ошибка при загрузке бинарника pellcored. Проверьте интернет-соединение или ссылку.${NC}"
             exit 1
@@ -231,7 +231,32 @@ EOF
         sudo journalctl -u pellcored -f --no-hostname -o cat
         ;;
     2)
-        echo -e "${GREEN}У вас актуальная версия ноды!${NC}"
+        sudo systemctl stop pellcored
+        cd $HOME
+        wget -O pellcored https://github.com/0xPellNetwork/network-config/releases/download/v1.1.5/pellcored-v1.1.5-linux-amd64
+        
+        chmod +x pellcored
+        sleep 2
+        
+        sudo mv $HOME/pellcored $(which pellcored)
+        sleep 2
+
+        # Определение ссылки на последний снепшот
+        SNAPSHOT_URL=$(curl -s https://server-5.itrocket.net/testnet/pell/ | grep -oP '(?<=href=")[^"]*snap.tar.lz4' | tail -n 1)
+        
+        # Проверка, если ссылка найдена
+        if [ -z "$SNAPSHOT_URL" ]; then
+            echo -e "${RED}Ошибка: Снапшот не найден.${NC}"
+            exit 1
+        fi
+        
+        # Скачивание и распаковка последнего снапшота
+        echo -e "${YELLOW}Скачиваем снапшот: $SNAPSHOT_URL${NC}"
+        curl --progress-bar https://server-5.itrocket.net/testnet/pell/$SNAPSHOT_URL | lz4 -dc - | tar -xf - -C $HOME/.pellcored
+        
+        mv $HOME/.pellcored/priv_validator_state.json.backup $HOME/.pellcored/data/priv_validator_state.json
+        
+        sudo systemctl restart pellcored && sudo journalctl -u pellcored -f --no-hostname -o cat
         ;;
     3)
         sudo systemctl restart pellcored && sudo journalctl -u pellcored -f --no-hostname -o cat
