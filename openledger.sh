@@ -39,7 +39,7 @@ fi
     echo -e "${YELLOW}Выберите действие:${NC}"
     echo -e "${CYAN}1) Установка ноды${NC}"
     echo -e "${CYAN}2) Обновление ноды${NC}"
-    echo -e "${CYAN}3) Перейти в сессию screen${NC}"
+    echo -e "${CYAN}3) Перейти в сессию tmux${NC}"
     echo -e "${CYAN}4) Удаление ноды${NC}"
     read -p "Введите номер: " choice
 
@@ -78,7 +78,7 @@ fi
 
             # Установка зависимостей
             sudo apt update && sudo apt upgrade -y
-            sudo apt install ubuntu-desktop xrdp unzip screen -y
+            sudo apt install ubuntu-desktop xrdp unzip tmux -y
             sudo apt install -y desktop-file-utils libgbm1 libasound2
             sudo dpkg --configure -a
 
@@ -93,17 +93,17 @@ fi
             unzip openledger-node-1.0.0-linux.zip
             sudo dpkg -i openledger-node-1.0.0.deb
 
-            # Проверка и настройка screen
-            if screen -list | grep -q "openledger"; then
-                screen -S openledger -X quit
-                echo -e "${YELLOW}Существующие сессии screen openledger удалены.${NC}"
+            # Проверка и настройка tmux
+            if tmux list-sessions | grep -q "openledger"; then
+                tmux kill-session -t openledger
+                echo -e "${YELLOW}Существующие сессии tmux openledger удалены.${NC}"
             fi
-            screen -dmS openledger openledger-node --no-sandbox --disable-gpu
+            tmux new-session -d -s openledger "openledger-node --no-sandbox --disable-gpu"
 
             # Завершающий вывод
             echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-            echo -e "${YELLOW}Команда для входа в сессию screen:${NC}" 
-            echo "screen -r openledger"
+            echo -e "${YELLOW}Команда для входа в сессию tmux:${NC}" 
+            echo "tmux attach-session -t openledger"
             echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
             echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
             echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
@@ -114,19 +114,19 @@ fi
             ;;
 
         3)
-            echo -e "${YELLOW}Переход в сессию screen...${NC}"
-            if screen -list | grep -q "openledger"; then
-                screen -r openledger
+            echo -e "${YELLOW}Переход в сессию tmux...${NC}"
+            if tmux list-sessions | grep -q "openledger"; then
+                tmux attach-session -t openledger
             else
-                echo -e "${RED}Сессия screen openledger не найдена.${NC}"
+                echo -e "${RED}Сессия tmux openledger не найдена.${NC}"
             fi
             ;;
 
         4)
             echo -e "${RED}Удаление ноды OpenLedger...${NC}"
-            if screen -list | grep -q "openledger"; then
-                screen -S openledger -X quit
-                echo -e "${YELLOW}Сессии screen openledger удалены.${NC}"
+            if tmux list-sessions | grep -q "openledger"; then
+                tmux kill-session -t openledger
+                echo -e "${YELLOW}Сессии tmux openledger удалены.${NC}"
             fi
             rm -f openledger-node-1.0.0-linux.zip
             sudo apt remove --purge -y openledger-node
