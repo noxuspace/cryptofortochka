@@ -103,7 +103,7 @@ fi
             # Завершающий вывод
             echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
             echo -e "${YELLOW}Команда для входа в сессию screen:${NC}" 
-            echo "screen -r openledger"
+            echo "screen -r openledger_node"
             echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
             echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
             echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
@@ -115,8 +115,8 @@ fi
 
         3)
             echo -e "${YELLOW}Переход в сессию screen...${NC}"
-            if screen -list | grep -q "openledger"; then
-                screen -r openledger
+            if screen -list | grep -q "openledger_node"; then
+                screen -r openledger_node
             else
                 echo -e "${RED}Сессия screen openledger не найдена.${NC}"
             fi
@@ -124,8 +124,8 @@ fi
 
         4)
             echo -e "${RED}Удаление ноды OpenLedger...${NC}"
-            if screen -list | grep -q "openledger"; then
-                screen -S openledger -X quit
+            if screen -list | grep -q "openledger_node"; then
+                screen -S openledger_node -X quit
                 echo -e "${YELLOW}Сессии screen openledger удалены.${NC}"
             fi
             rm -f openledger-node-1.0.0-linux.zip
