@@ -33,9 +33,9 @@ case $choice in
 
         # Проверка Docker
         if command -v docker &> /dev/null; then
-            echo -e "${YELLOW}Docker уже установлен. Пропускаем установку.${NC}"
+            echo -e "${BLUE}Docker уже установлен. Пропускаем установку.${NC}"
         else
-            echo -e "${YELLOW}Устанавливаем Docker...${NC}"
+            echo -e "${BLUE}Устанавливаем Docker...${NC}"
             sudo apt remove -y docker docker-engine docker.io containerd runc
             sudo apt install -y apt-transport-https ca-certificates curl software-properties-common lsb-release gnupg2
             curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
@@ -47,9 +47,9 @@ case $choice in
 
         # Проверка Docker Compose
         if command -v docker-compose &> /dev/null; then
-            echo -e "${YELLOW}Docker Compose уже установлен. Пропускаем установку.${NC}"
+            echo -e "${GREEN}Docker Compose уже установлен. Пропускаем установку.${NC}"
         else
-            echo -e "${YELLOW}Устанавливаем Docker Compose...${NC}"
+            echo -e "${BLUE}Устанавливаем Docker Compose...${NC}"
             VER=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep tag_name | cut -d '"' -f 4)
             sudo curl -L "https://github.com/docker/compose/releases/download/$VER/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
@@ -58,23 +58,22 @@ case $choice in
 
         # Добавление пользователя в группу Docker
         if ! groups $USER | grep -q '\bdocker\b'; then
-            echo -e "${YELLOW}Добавляем текущего пользователя в группу Docker...${NC}"
+            echo -e "${BLUE}Добавляем текущего пользователя в группу Docker...${NC}"
             sudo groupadd docker
             sudo usermod -aG docker $USER
         else
-            echo -e "${YELLOW}Пользователь уже находится в группе Docker.${NC}"
+            echo -e "${GREEN}Пользователь уже находится в группе Docker.${NC}"
         fi
 
         # Загрузка Docker-образа Titan
-        echo -e "${YELLOW}Загружаем Docker-образ Titan...${NC}"
+        echo -e "${BLUE}Загружаем Docker-образ Titan...${NC}"
         docker pull nezha123/titan-edge
 
         # Создание директории Titan
         mkdir -p ~/.titanedge
 
         # Запуск Titan
-        echo -e "${YELLOW}Запускаем Docker-контейнер Titan...${NC}"
-        docker run --network=host -d -v ~/.titanedge:/root/.titanedge nezha123/titan-edge
+        docker run --name titan --network=host -d -v ~/.titanedge:/root/.titanedge nezha123/titan-edge
 
         # Привязка кода идентификации
         echo -e "${YELLOW}Введите ваш Titan identity code:${NC}"
@@ -84,34 +83,34 @@ case $choice in
         # Заключительный вывод
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
         echo -e "${YELLOW}Команда для проверки логов:${NC}"
-        echo "docker logs --follow $(docker ps --filter ancestor=nezha123/titan-edge --format "{{.ID}}")"
+        echo "docker logs -f titan"
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
         echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
         echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
         sleep 2
 
         # Проверка логов
-        docker logs --follow $(docker ps --filter ancestor=nezha123/titan-edge --format "{{.ID}}")
+        docker logs -f titan
         ;;
     2)
-        echo -e "${YELLOW}У вашей ноды актуальная версия.${NC}"
+        echo -e "${GREEN}У вашей ноды актуальная версия.${NC}"
         ;;
     3)
-        echo -e "${YELLOW}Просмотр логов...${NC}"
-        docker logs --follow $(docker ps --filter ancestor=nezha123/titan-edge --format "{{.ID}}")
+        echo -e "${BLUE}Просмотр логов...${NC}"
+        docker logs -f titan
         ;;
     4)
-        echo -e "${YELLOW}Перезапускаем ноду...${NC}"
-        docker restart $(docker ps --filter ancestor=nezha123/titan-edge --format "{{.ID}}")x
+        echo -e "${BLUE}Перезапускаем ноду...${NC}"
+        docker restart titan
         sleep 2
 
         # Проверка логов
-        docker logs --follow $(docker ps --filter ancestor=nezha123/titan-edge --format "{{.ID}}")
+        docker logs -f titan
         ;;
     5)
         echo -e "${RED}Удаляем ноду Titan...${NC}"
-        docker stop $(docker ps --filter ancestor=nezha123/titan-edge --format "{{.ID}}")
-        docker rm $(docker ps -a --filter ancestor=nezha123/titan-edge --format "{{.ID}}")
+        docker stop titan
+        docker rm titan
         docker rmi nezha123/titan-edge
         rm -rf ~/.titanedge
         # Заключительный вывод
