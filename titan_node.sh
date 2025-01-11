@@ -34,7 +34,7 @@ case $choice in
 
         # Проверка Docker
         if command -v docker &> /dev/null; then
-            echo -e "${BLUE}Docker уже установлен. Пропускаем установку.${NC}"
+            echo -e "${GREEN}Docker уже установлен. Пропускаем установку.${NC}"
         else
             echo -e "${BLUE}Устанавливаем Docker...${NC}"
             sudo apt remove -y docker docker-engine docker.io containerd runc
