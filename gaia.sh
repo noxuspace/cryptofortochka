@@ -41,8 +41,13 @@ case $choice in
 
         # Установка Gaianet и других зависимостей
         curl -sSfL 'https://github.com/GaiaNet-AI/gaianet-node/releases/latest/download/install.sh' | bash
-        sleep 5
+        sleep 6
         source ~/.bashrc
+        sleep 2
+        source ~/.bashrc
+        sleep 2
+        source ~/.bashrc
+        sleep 2
 
         # Инициализация ноды
         gaianet init --config https://raw.githubusercontent.com/GaiaNet-AI/node-configs/main/qwen2-0.5b-instruct/config.json  
