@@ -161,7 +161,7 @@ async def chat_loop():
             user_message = next((msg[\"content\"] for msg in messages if msg[\"role\"] == \"user\"), \"No user message found\")
             
             # Логируем отправленный вопрос
-            print(f\"Отправлен вопрос: {user_message}\")
+            print(f"Отправлен вопрос: {user_message}")
             
             data = {\"messages\": messages}
 
@@ -170,13 +170,13 @@ async def chat_loop():
                     if response.status == 200:
                         result = await response.json()
                         assistant_response = result[\"choices\"][0][\"message\"][\"content\"]
-                        print(f\"Получен ответ: {assistant_response}\n{'-'*50}\")
+                        print(f"Получен ответ: {assistant_response}\n{'-'*50}")
                     else:
-                        print(f\"Ошибка: {response.status} - {await response.text()}\")
+                        print(f"Ошибка: {response.status} - {await response.text()}")
             except asyncio.TimeoutError:
                 print(\"Тайм-аут ожидания. Отправляю следующий запрос...\")
             except Exception as e:
-                print(f\"Ошибка: {e}\")
+                print(f"Ошибка: {e}")
 
             # Небольшая задержка перед отправкой следующего сообщения
             await asyncio.sleep(1)
