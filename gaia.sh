@@ -113,7 +113,7 @@ case $choice in
         echo -e "system\nuser\nassistant\ntool" > roles.txt
 
         # Запрос адреса ноды
-        echo -e "${YELLOW}Введите адрес вашей ноды:${NC}"
+        echo -e "${YELLOW}Введите адрес вашей ноды${NC}"
         read -p "Адрес ноды: " NODE_ID
 
         # Создание скрипта для бота
