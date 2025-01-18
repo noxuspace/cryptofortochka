@@ -20,12 +20,12 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
 
 # Меню
 echo -e "${YELLOW}Выберите действие:${NC}"
-echo -e "${CYAN}1) Установка ноды Gaia${NC}"
-echo -e "${CYAN}2) Запуск бота Gaia${NC}"
-echo -e "${CYAN}3) Обновление ноды Gaia${NC}"
-echo -e "${CYAN}4) Информация по ноде Gaia${NC}"
-echo -e "${CYAN}5) Удаление ноды Gaia${NC}"
-echo -e "${CYAN}6) Удаление бота Gaia${NC}"
+echo -e "${CYAN}1) Установка ноды${NC}"
+echo -e "${CYAN}2) Запуск бота${NC}"
+echo -e "${CYAN}3) Обновление ноды${NC}"
+echo -e "${CYAN}4) Информация по ноде${NC}"
+echo -e "${CYAN}5) Удаление ноды${NC}"
+echo -e "${CYAN}6) Удаление бота${NC}"
 
 read -p "Введите номер: " choice
 
