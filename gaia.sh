@@ -149,7 +149,7 @@ WantedBy=multi-user.target" > /etc/systemd/system/gaia-bot.service
         # Заключительный вывод
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
         echo -e "${YELLOW}Команда для проверки логов:${NC}"
-        echo "gaianet logs -f"
+        echo "sudo journalctl -u gaia-bot -f"
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
         echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
         echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
