@@ -41,13 +41,15 @@ case $choice in
 
         # Установка Gaianet и других зависимостей
         curl -sSfL 'https://github.com/GaiaNet-AI/gaianet-node/releases/latest/download/install.sh' | bash
-        sleep 6
-        source ~/.bashrc
         sleep 2
-        source ~/.bashrc
+        
+        # Явное добавление пути к gaianet в PATH для текущего пользователя
+        echo "export PATH=\$PATH:$HOME/gaianet/bin" >> $HOME/.bashrc
         sleep 2
-        source ~/.bashrc
-        sleep 2
+        
+        # Применяем изменения в текущем сеансе
+        source $HOME/.bashrc
+        sleep 5
 
         # Инициализация ноды
         gaianet init --config https://raw.githubusercontent.com/GaiaNet-AI/node-configs/main/qwen2-0.5b-instruct/config.json  
