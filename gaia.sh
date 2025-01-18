@@ -36,12 +36,13 @@ case $choice in
         # Обновление системы и установка зависимостей
         sudo apt update && sudo apt upgrade -y
         sudo apt install -y python3-pip python3-dev python3-venv curl git
+        sudo apt install -y build-essential
         pip3 install aiohttp
 
         # Установка Gaianet и других зависимостей
         curl -sSfL 'https://github.com/GaiaNet-AI/gaianet-node/releases/latest/download/install.sh' | bash
+        sleep 4
         source ~/.bashrc
-        sudo apt install -y build-essential
 
         # Инициализация ноды
         gaianet init --config https://raw.githubusercontent.com/GaiaNet-AI/node-configs/main/qwen2-0.5b-instruct/config.json  
@@ -53,9 +54,6 @@ case $choice in
         gaianet start
 
         # Заключительный вывод
-        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-        echo -e "${YELLOW}Команда для проверки логов:${NC}"
-        echo "gaianet logs -f"
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
         echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
         echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
