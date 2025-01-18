@@ -39,6 +39,9 @@ case $choice in
         sudo apt install -y build-essential
         pip3 install aiohttp
 
+        sudo fuser -k 8080/tcp
+        sleep 3
+
         # Установка Gaianet и других зависимостей
         curl -sSfL 'https://github.com/GaiaNet-AI/gaianet-node/releases/latest/download/install.sh' | bash
         sleep 2
@@ -61,7 +64,7 @@ case $choice in
         gaianet init --config https://raw.githubusercontent.com/GaiaNet-AI/node-configs/main/qwen2-0.5b-instruct/config.json  
 
         # Изменение порта
-        sed -i 's/"llamaedge_port": "8080"/"llamaedge_port": "8781"/g' ~/gaianet/config.json
+        #sed -i 's/"llamaedge_port": "8080"/"llamaedge_port": "8781"/g' ~/gaianet/config.json
 
         # Запуск ноды
         gaianet start
