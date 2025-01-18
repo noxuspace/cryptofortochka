@@ -45,11 +45,17 @@ case $choice in
         
         # Явное добавление пути к gaianet в PATH для текущего пользователя
         echo "export PATH=\$PATH:$HOME/gaianet/bin" >> $HOME/.bashrc
-        sleep 2
+        sleep 5
         
         # Применяем изменения в текущем сеансе
         source $HOME/.bashrc
-        sleep 5
+        sleep 10
+
+        # Проверяем, доступна ли команда gaianet
+        if ! command -v gaianet &> /dev/null; then
+            echo "Ошибка: gaianet не найден! Путь $HOME/gaianet/bin не добавлен в PATH."
+            exit 1
+        fi
 
         # Инициализация ноды
         gaianet init --config https://raw.githubusercontent.com/GaiaNet-AI/node-configs/main/qwen2-0.5b-instruct/config.json  
