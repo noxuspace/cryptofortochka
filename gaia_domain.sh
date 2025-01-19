@@ -131,15 +131,15 @@ case $choice in
         curl -L https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/gaia_bot_dom.py -o gaia_bot_dom.py
 
         # Запрос адреса ноды
-        echo -e "${YELLOW}Введите адрес вашей ноды${NC}"
+        echo -e "${YELLOW}Введите название вашего домена без gaia.domains (если ваш домен forto.gaia.domains, то введите только forto)${NC}"
         read -p "Адрес ноды: " NODE_ID
         
         # Подставляем введенный адрес в файл gaia_bot_dom.py
         sed -i "s|\$NODE_ID|$NODE_ID|g" gaia_bot_dom.py
 
         # Запрос домена
-        echo -e "${YELLOW}Введите название вашего домена без gaia.domains (если ваш домен forto.gaia.domains, то введите только forto)${NC}"
-        read -p "Название домена: " GAIA_API_KEY
+        echo -e "${YELLOW}Введите ваш API${NC}"
+        read -p "Ключ API: " GAIA_API_KEY
         
         # Подставляем введенный домен в файл gaia_bot_dom.py
         sed -i "s|\$GAIA_API_KEY|$GAIA_API_KEY|g" gaia_bot_dom.py
