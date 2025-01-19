@@ -65,17 +65,8 @@ async def main(num_workers):
     tasks = [chat_worker(i) for i in range(num_workers)]
     await asyncio.gather(*tasks)
 
-# Запрос количества потоков у пользователя
+# Запрос количества потоков из переменной окружения
 if __name__ == "__main__":
-    while True:
-        try:
-            num_threads = int(input("Введите количество потоков (сколько нод подключено): ").strip())
-            if num_threads > 0:
-                break
-            else:
-                print("Число потоков должно быть больше 0!")
-        except ValueError:
-            print("Ошибка! Введите число.")
-
+    num_threads = int(os.getenv("NUM_THREADS", 1))  # Получаем количество потоков из переменной окружения
     print(f"Запускаем {num_threads} потоков...")
     asyncio.run(main(num_threads))
