@@ -4,12 +4,12 @@ import random
 import os
 
 # URL API Gaia
-API_URL = "https://$NODE_ID.gaia.domains/v1/chat/completions"
-GAIA_API_KEY = os.getenv("$GAIA_API_KEY")
+API_URL = "https://NODE_ID.gaia.domains/v1/chat/completions"
+GAIA_API_KEY = os.getenv("GAIA_API_KEY")
 
 # Заголовки запроса
 HEADERS = {
-    "Authorization": f"Bearer {$GAIA_API_KEY}",
+    "Authorization": f"Bearer {GAIA_API_KEY}",
     "Accept": "application/json",
     "Content-Type": "application/json"
 }
