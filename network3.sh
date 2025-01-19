@@ -152,6 +152,9 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
                 echo -e "${GREEN}Сервис manager не существует. Пропускаем удаление.${NC}"
             fi
 
+            #Убиваем процесс
+            sudo fuser -k 8080/tcp
+
             # Удаление папки
             if [ -d "$HOME/ubuntu-node" ]; then
                 rm -rf $HOME/ubuntu-node
