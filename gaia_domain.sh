@@ -61,7 +61,7 @@ case $choice in
         fi
 
         # Инициализация ноды
-        gaianet init --config https://raw.githubusercontent.com/GaiaNet-AI/node-configs/main/qwen2-0.5b-instruct/config.json  
+        gaianet init --config https://raw.gaianet.ai/qwen-1.5-0.5b-chat/config.json  
 
         # Изменение порта
         #sed -i 's/"llamaedge_port": "8080"/"llamaedge_port": "8781"/g' ~/gaianet/config.json
