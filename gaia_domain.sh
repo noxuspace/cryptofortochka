@@ -144,6 +144,13 @@ case $choice in
         # Подставляем введенный домен в файл gaia_bot_dom.py
         sed -i "s|\$GAIA_API_KEY|$GAIA_API_KEY|g" gaia_bot_dom.py
 
+        # Запрос количества потоков
+        echo -e "${YELLOW}Введите количество потоков (сколько нод подключено)${NC}"
+        read -p "Количество потоков: " NUM_THREADS
+        
+        # Подставляем количество потоков в файл gaia_bot_dom.py
+        sed -i "s|\$NUM_THREADS|$NUM_THREADS|g" gaia_bot_dom.py
+
         # Определяем имя текущего пользователя и его домашнюю директорию
         USERNAME=$(whoami)
         HOME_DIR=$(eval echo ~$USERNAME)
