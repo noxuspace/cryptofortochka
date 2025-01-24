@@ -20,8 +20,9 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
 echo -e "${YELLOW}Выберите действие:${NC}"
 echo -e "${CYAN}1) Установка ноды Hyperspace${NC}"
 echo -e "${CYAN}2) Обновление ноды${NC}"
-echo -e "${CYAN}3) Проверка логов${NC}"
-echo -e "${CYAN}4) Удаление ноды${NC}"
+echo -e "${CYAN}3) Ввывод ключей ноды${NC}"
+echo -e "${CYAN}4) Проверка логов${NC}"
+echo -e "${CYAN}5) Удаление ноды${NC}"
 
 read -p "Введите номер: " choice
 
@@ -31,10 +32,10 @@ case $choice in
 
         # Обновление системы и установка зависимостей
         sudo apt update && sudo apt upgrade -y
-        sudo apt install -y mc wget curl git htop netcat net-tools unzip jq build-essential ncdu tmux make cmake clang pkg-config libssl-dev protobuf-compiler bc lz4 screen
+        sudo apt install mc wget git htop netcat net-tools unzip jq git build-essential ncdu tmux make cmake clang pkg-config libssl-dev protobuf-compiler bc lz4 screen -y
         sudo curl https://sh.rustup.rs -sSf | sh -s -- -y
         source $HOME/.cargo/env
-        sleep 1
+        sleep 3
 
         response=$(curl -s "https://api.github.com/repos/hyperspaceai/aios-cli/releases/latest")
 
@@ -52,19 +53,18 @@ case $choice in
             curl https://download.hyper.space/api/install --verbose | bash
         fi
         
-        source /root/.bashrc
+        source $HOME/.bashrc
 
         # Проверка наличия директории
         if [[ ! -d "$HOME/.aios" ]]; then
-            echo "Установка ноды прервана из-за недоступности серверов Hyperspace. Перезапустите скрипт установки позже."
-            exit 1
+            echo -e "${RED}Сервера Hyperspace недоступны, установка ноды прервана. Попробуйте установить ноду позже!${NC}"
+            exit 1  # Завершение скрипта с кодом 1
         fi
 
         # Определяем имя текущего пользователя и его домашнюю директорию
         USERNAME=$(whoami)
         HOME_DIR=$(eval echo ~$USERNAME)
         
-        # Создание и настройка сервиса
         sudo tee /etc/systemd/system/aios.service > /dev/null << EOF
 [Unit]
 Description=Hyperspace Aios Node
@@ -72,7 +72,7 @@ After=network-online.target
 
 [Service]
 User=$USERNAME
-ExecStart=$HOME/.aios/aios-cli start --connect
+ExecStart=$HOME_DIR/.aios/aios-cli start --connect
 Restart=on-failure
 RestartSec=10
 LimitNOFILE=65535
@@ -81,18 +81,51 @@ LimitNOFILE=65535
 WantedBy=multi-user.target
 EOF
 
-        # Запуск сервиса
+sudo tee $HOME/.aios/private_key.pem > /dev/null << EOF
+$PRIVATE_KEY
+EOF
+
         sudo systemctl daemon-reload
+        sleep 2
         sudo systemctl enable aios
         sudo systemctl start aios
+        
+        end_time=$((SECONDS + 60))
+        
+        journalctl -n 100 -f -u aios -o cat | while read line; do
+            if [[ "$line" == *"Authenticated successfully"* ]]; then
+                echo -e "${BLUE}Начинаем настройку ноды...${NC}"
+        
+                $HOME/.aios/aios-cli models add hf:TheBloke/phi-2-GGUF:phi-2.Q4_K_M.gguf
+                $HOME/.aios/aios-cli models add hf:TheBloke/Mistral-7B-Instruct-v0.1-GGUF:mistral-7b-instruct-v0.1.Q4_K_S.gguf
+        
+                sudo systemctl restart aios
+        
+                $HOME/.aios/aios-cli hive whoami
+                break
+            fi
+            
+            if [[ SECONDS -ge end_time ]]; then
+                echo -e "${RED}Сервера Hyperspace недоступны, установка ноды прервана. Попробуйте установить ноду позже!${NC}"
+                systemctl stop aios
+                systemctl disable aios
+                rm -rf /etc/systemd/system/aios.service
+                rm -rf $HOME/.aios
+                rm -rf $HOME/.cache/hyperspace
+                rm -rf $HOME/.config/hyperspace
+                
+                exit 1
+            fi
+        done
 
-        # Заключительный вывод
+        # Завершающий вывод
+        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+        echo -e "${YELLOW}Команда для проверки логов:${NC}" 
+        echo "journalctl -n 100 -f -u aios -o cat"
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
         echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
         echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
-        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-        sleep 2
-        sudo systemctl journalctl -n 100 -f -u aios -o cat       
+        sleep 2     
         ;;
 
     2)
@@ -100,20 +133,26 @@ EOF
         ;;
 
     3)
-        echo -e "${CYAN}Просмотр логов...${NC}"
-        sudo systemctl journalctl -n 100 -f -u aios -o cat
+        echo -e "${CYAN}Ввывод ключей ноды...${NC}"
+        \$HOME/.aios/aios-cli hive whoami
         ;;
 
     4)
+        echo -e "${CYAN}Просмотр логов...${NC}"
+        journalctl -n 100 -f -u aios -o cat
+        ;;
+
+    5)
         echo -e "${RED}Удаляем ноду Hyperspace...${NC}"
-        sudo systemctl stop aios
-        sudo systemctl disable aios
+        systemctl stop aios
+        systemctl disable aios
+        sleep 2
+        rm -rf /etc/systemd/system/aios.service
+        rm -rf $HOME/.aios
+        rm -rf $HOME/.cache/hyperspace
+        rm -rf $HOME/.config/hyperspace
         sudo systemctl daemon-reload
         sleep 2
-        sudo rm -rf /etc/systemd/system/aios.service
-        sudo rm -rf $HOME_DIR/.aios
-        sudo rm -rf $HOME_DIR/.cache/hyperspace
-        sudo rm -rf $HOME_DIR/.config/hyperspace
         echo -e "${GREEN}Нода успешно удалена.${NC}"
         ;;
 
