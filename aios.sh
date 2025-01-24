@@ -49,7 +49,7 @@ case $choice in
 
         # Check if the response contains a rate limit error
         if echo "$response" | grep -q "API rate limit exceeded"; then
-            echo "Введите Гитхаб токен"
+            echo -e "${YELLOW}Введите Гитхаб токен${NC}"
             read GITHUB_TOKEN
         
             curl -o install_script.sh https://download.hyper.space/api/install
