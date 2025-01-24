@@ -97,7 +97,7 @@ EOF
         sleep 2
         sudo systemctl enable aios
         sudo systemctl start aios
-        
+        : '
         end_time=$((SECONDS + 60))
         
         journalctl -n 100 -f -u aios -o cat | while read line; do
@@ -125,7 +125,8 @@ EOF
                 exit 1
             fi
         done
-
+        '
+        journalctl -n 100 -f -u aios -o cat
         # Завершающий вывод
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
         echo -e "${YELLOW}Команда для проверки логов:${NC}" 
