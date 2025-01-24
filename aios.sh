@@ -33,9 +33,16 @@ case $choice in
         # Обновление системы и установка зависимостей
         sudo apt update && sudo apt upgrade -y
         sudo apt install mc wget git htop netcat net-tools unzip jq git build-essential ncdu tmux make cmake clang pkg-config libssl-dev protobuf-compiler bc lz4 screen -y
-        sudo curl https://sh.rustup.rs -sSf | sh -s -- -y
-        source $HOME/.cargo/env
-        sleep 3
+        
+        # Проверка, установлен ли Rust
+        if ! command -v rustc &>/dev/null; then
+            echo "Rust не найден, начинаем установку..."
+            sudo curl https://sh.rustup.rs -sSf | sh -s -- -y
+            source $HOME/.cargo/env
+            sleep 3
+        else
+            echo "Rust уже установлен, пропускаем установку."
+        fi
 
         response=$(curl -s "https://api.github.com/repos/hyperspaceai/aios-cli/releases/latest")
 
