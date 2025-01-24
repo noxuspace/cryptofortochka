@@ -143,7 +143,7 @@ EOF
 
     3)
         echo -e "${CYAN}Ввывод ключей ноды...${NC}"
-        \$HOME/.aios/aios-cli hive whoami
+        $HOME/.aios/aios-cli hive whoami
         ;;
 
     4)
