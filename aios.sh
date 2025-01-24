@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Цвета текста
+BLUE='\033[0;34m'
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
@@ -28,7 +29,7 @@ read -p "Введите номер: " choice
 
 case $choice in
     1)
-        echo -e "${CYAN}Начинаем установку ноды Hyperspace...${NC}"
+        echo -e "${BLUE}Начинаем установку ноды Hyperspace...${NC}"
 
         # Обновление системы и установка зависимостей
         sudo apt update && sudo apt upgrade -y
@@ -36,12 +37,12 @@ case $choice in
         
         # Проверка, установлен ли Rust
         if ! command -v rustc &>/dev/null; then
-            echo "Rust не найден, начинаем установку..."
+            echo -e "${BLUE}Rust не найден, начинаем установку...${NC}"
             sudo curl https://sh.rustup.rs -sSf | sh -s -- -y
             source $HOME/.cargo/env
             sleep 3
         else
-            echo "Rust уже установлен, пропускаем установку."
+            echo -e "${BLUE}Rust уже установлен, пропускаем установку.${NC}"
         fi
 
         response=$(curl -s "https://api.github.com/repos/hyperspaceai/aios-cli/releases/latest")
