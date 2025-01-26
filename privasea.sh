@@ -58,7 +58,7 @@ case $choice in
 
         # Пуллим проект
         docker pull privasea/acceleration-node-beta:latest
-        mkdir -p ~/privasea/config && cd ~/privasea
+        mkdir -p ~/privasea/config
         ;;
 
     2)
