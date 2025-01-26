@@ -70,7 +70,7 @@ case $choice in
         echo "docker logs -f privanetix-node"
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
         echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
-        echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}
+        echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
         sleep 2
 
         docker logs -f privanetix-node
@@ -107,7 +107,7 @@ case $choice in
         # Заключительное сообщение
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
         echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
-        echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}
+        echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
         sleep 2
         ;;
 
