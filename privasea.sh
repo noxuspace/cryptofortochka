@@ -40,12 +40,20 @@ case $choice in
         if ! command -v docker &> /dev/null; then
             echo -e "${BLUE}Docker не установлен. Устанавливаем Docker...${NC}"
             sudo apt install docker.io -y
+            if ! command -v docker &> /dev/null; then
+                echo -e "${RED}Ошибка: Docker не был установлен.${NC}"
+                exit 1
+            fi
         fi
 
         if ! command -v docker-compose &> /dev/null; then
             echo -e "${BLUE}Docker Compose не установлен. Устанавливаем Docker Compose...${NC}"
             sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
+            if ! command -v docker-compose &> /dev/null; then
+                echo -e "${RED}Ошибка: Docker Compose не был установлен.${NC}"
+                exit 1
+            fi
         fi
 
         # Пуллим проект
@@ -63,6 +71,10 @@ case $choice in
 
         # Запуск контейнера с нодой
         docker run -d --name privanetix-node -v "$HOME/privasea/config:/app/config" -e KEYSTORE_PASSWORD=$PASS privasea/acceleration-node-beta:latest
+        if [ $? -ne 0 ]; then
+            echo -e "${RED}Не удалось запустить контейнер Docker.${NC}"
+            exit 1
+        fi
 
         # Заключительное сообщение
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
