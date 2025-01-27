@@ -317,7 +317,7 @@ install_validator() {
     echo "PRIVATE_FILE_ENCRYPTION_PUBLIC_KEY_BASE64=\"$public_key\"" >> .env
 
     success "Файл конфигурации успешно создан"    
-    echo -e "${YELLOW}Установка валидатора успешно завершена!${NC}"
+    echo -e "${GREEN}Установка валидатора успешно завершена!${NC}"
     exit 0
 }
 
@@ -459,7 +459,7 @@ remove_node() {
         warning "Директория конфигурации .vana не найдена"
     fi
 
-    log "Удаление ноды завершено!"
+    echo -e "${GREEN}Удаление ноды завершено!${NC}"
     echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
     echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
     echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
