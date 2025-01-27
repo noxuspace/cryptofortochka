@@ -17,23 +17,23 @@ fi
 
 # Функция логирования
 log() {
-    echo -e "${BLUE}[$(date +'%Y-%m-%d %H:%M:%S')]${NC} $1"
+    echo -e "${BLUE}$1${NC}"
 }
 
 # Функция отображения успеха
 success() {
-    echo -e "${GREEN} $1${NC}"
+    echo -e "${GREEN}$1${NC}"
 }
 
 # Функция отображения ошибки
 error() {
-    echo -e "${RED} $1${NC}"
+    echo -e "${RED}$1${NC}"
     exit 1
 }
 
 # Функция отображения предупреждения
 warning() {
-    echo -e "${YELLOW} $1${NC}"
+    echo -e "${YELLOW}$1${NC}"
 }
 
 # Функция проверки статуса выполнения команды
@@ -59,29 +59,22 @@ install_base_dependencies() {
     success "Система успешно обновлена"
     
     # Git
-    log "Установка Git..."
     sudo apt-get install git -y
     check_error "Ошибка установки Git"
-    success "Git успешно установлен"
     
     # Unzip
-    log "Установка Unzip..."
     sudo apt install unzip -y
     check_error "Ошибка установки Unzip"
-    success "Unzip успешно установлен"
     
     # Nano
-    log "Установка Nano..."
     sudo apt install nano -y
     check_error "Ошибка установки Nano"
-    success "Nano успешно установлен"
     
     # Python зависимости
     log "Установка Python..."
     sudo apt install software-properties-common -y
     check_error "Ошибка установки software-properties-common"
     
-    log "Добавление репозитория Python..."
     sudo add-apt-repository ppa:deadsnakes/ppa -y
     check_error "Ошибка добавления репозитория Python"
     
@@ -92,9 +85,9 @@ install_base_dependencies() {
     # Проверка версии Python
     python_version=$(python3.11 --version)
     if [[ $python_version == *"3.11"* ]]; then
-        success "Python версии $python_version успешно установлен"
+        success "Python версии $python_version установлен успешно"
     else
-        error "Ошибка установки Python 3.11"
+        error "Ошибка установки Python 3.11!"
     fi
     
     # Poetry
@@ -102,16 +95,15 @@ install_base_dependencies() {
     sudo apt install python3-pip python3-venv curl -y
     curl -sSL https://install.python-poetry.org | python3 -
     export PATH="$HOME/.local/bin:$PATH"
+    sleep 5
     source ~/.bashrc
+    sleep 5
     if command -v poetry &> /dev/null; then
         success "Poetry успешно установлен: $(poetry --version)"
     else
         error "Ошибка установки Poetry"
     fi
-    
-    # Node.js и npm
-    log "Установка Node.js и npm..."
-    
+     
     # Установка NVM
     log "Установка NVM..."
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
@@ -149,10 +141,9 @@ install_base_dependencies() {
 # Функция установки ноды
 install_node() {
     clear
-    log "Начало установки ноды..."
+    log "Установка ноды Vana..."
     
     # Клонирование репозитория
-    log "Клонирование репозитория..."
     if [ -d "vana-dlp-chatgpt" ]; then
         warning "Директория vana-dlp-chatgpt уже существует"
         read -p "Хотите удалить её и склонировать заново? (y/n): " choice
@@ -191,40 +182,15 @@ install_node() {
     vanacli wallet create --wallet.name default --wallet.hotkey default
     check_error "Ошибка создания кошелька"
     
-    success "Установка ноды завершена!"
-    read -p "Нажмите Enter для возврата в главное меню..."
+    echo -e "${GREEN}Установка ноды завершена${NC}"
+    exit 0
 }
 
 # Функция создания и развертывания DLP
 create_and_deploy_dlp() {
-    clear
-    log "Начало создания и развертывания DLP..."
-
-    # Детальная проверка директории
-    log "Проверка установки ноды..."
-    if [ ! -d "$HOME/vana-dlp-chatgpt" ]; then
-        warning "Директория ноды не найдена в $HOME/vana-dlp-chatgpt"
-        log "Проверка текущей рабочей директории..."
-        pwd
-        log "Содержимое домашней директории:"
-        ls -la $HOME
-        
-        read -p "Хотите переустановить ноду? (y/n): " choice
-        if [[ $choice == "y" ]]; then
-            install_node
-        else
-            error "Невозможно продолжить без установленной ноды"
-        fi
-    fi
-
     # Генерация ключей
     log "Генерация ключей..."
     cd $HOME/vana-dlp-chatgpt || error "Нет доступа к директории ноды"
-    
-    log "Текущая директория:"
-    pwd
-    log "Содержимое директории:"
-    ls -la
     
     if [ ! -f "keygen.sh" ]; then
         error "keygen.sh не найден. Содержимое директории некорректно"
@@ -235,8 +201,8 @@ create_and_deploy_dlp() {
     check_error "Ошибка генерации ключей"
     success "Ключи успешно сгенерированы"
     warning "Обязательно сохраните все 4 ключа:"
-    echo "- public_key.asc и public_key_base64.asc (для UI)"
-    echo "- private_key.asc и private_key_base64.asc (для валидатора)"
+    echo "- public_key.asc и public_key_base64.asc"
+    echo "- private_key.asc и private_key_base64.asc"
 
     # Остановка сервиса ноды если запущен
     log "Остановка сервиса vana..."
@@ -267,9 +233,9 @@ create_and_deploy_dlp() {
     echo -e "${YELLOW}Пожалуйста, предоставьте следующую информацию:${NC}"
     read -p "Введите приватный ключ coldkey (с префиксом 0x): " private_key
     read -p "Введите адрес кошелька coldkey (с префиксом 0x): " owner_address
-    read -p "Введите название DLP: " dlp_name
-    read -p "Введите название токена DLP: " token_name
-    read -p "Введите символ токена DLP: " token_symbol
+    read -p "Введите название DLP (что-то придумайте): " dlp_name
+    read -p "Введите название токена DLP (что-то придумайте): " token_name
+    read -p "Введите символ токена DLP (что-то придумайте): " token_symbol
 
     # Обновление файла .env
     sed -i "s/^DEPLOYER_PRIVATE_KEY=.*/DEPLOYER_PRIVATE_KEY=$private_key/" .env
@@ -293,9 +259,9 @@ create_and_deploy_dlp() {
     else
         warning "Развертывание пропущено. Получите тестовые токены и запустите развертывание позже."
     fi
-
-    log "Процесс создания и развертывания DLP завершен!"
-    read -p "Нажмите Enter для возврата в главное меню..."
+    
+    echo -e "${GREEN}Процесс создания и развертывания DLP завершен!${NC}"
+    exit 0
 }
 
 # Функция установки валидатора
@@ -307,7 +273,6 @@ install_validator() {
     log "Настройка OpenAI API..."
     echo -e "${YELLOW}Введите ваш OpenAI API ключ:${NC}"
     read openai_key
-    success "OpenAI API ключ успешно получен"
 
     # Получение публичного ключа
     log "Получение публичного ключа..."
@@ -315,7 +280,7 @@ install_validator() {
         public_key=$(cat /root/vana-dlp-chatgpt/public_key_base64.asc)
         success "Публичный ключ успешно получен"
         warning "Обязательно сохраните этот публичный ключ в надежном месте:"
-        echo -e "${BLUE}$public_key${NC}"
+        echo -e "${CYAN}$public_key${NC}"
         echo -e "${YELLOW}Нажмите Enter после сохранения публичного ключа...${NC}"
         read
     else
@@ -484,7 +449,7 @@ remove_node() {
         warning "Директория конфигурации .vana не найдена"
     fi
 
-    log "Удаление ноды завершено! Теперь вы можете установить новую ноду при необходимости."
+    log "Удаление ноды завершено!"
 }
 
 # Функция отображения логотипа
@@ -496,13 +461,14 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_fo
 # Функция главного меню
 show_menu() {
     show_logo
-    echo -e "${CYAN}1) Установить базовые зависимости${NC}"
-    echo -e "${CYAN}2) Установить ноду${NC}"
-    echo -e "${CYAN}3) Создать и развернуть DLP${NC}"
-    echo -e "${CYAN}4) Установить валидатор${NC}"
-    echo -e "${CYAN}5) Зарегистрировать и запустить валидатор${NC}"
+    echo -e "${YELLOW}Выберите действие:${NC}"
+    echo -e "${CYAN}1) Установка зависимостей${NC}"
+    echo -e "${CYAN}2) Установка ноды${NC}"
+    echo -e "${CYAN}3) Создание DLP${NC}"
+    echo -e "${CYAN}4) Установка валидатора${NC}"
+    echo -e "${CYAN}5) Запуск валидатора${NC}"
     echo -e "${CYAN}6) Просмотр логов валидатора${NC}"
-    echo -e "${CYAN}7) Удалить ноду${NC}"
+    echo -e "${CYAN}7) Удаление ноды${NC}"
     
     read -p "Введите номер: " choice
     
