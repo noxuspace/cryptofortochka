@@ -46,6 +46,7 @@ check_error() {
 # Функция просмотра логов
 show_logs() {
     sudo journalctl -u vana.service -f
+    exit 0
 }
 
 # Функция установки базовых зависимостей
