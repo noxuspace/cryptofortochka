@@ -199,10 +199,7 @@ create_and_deploy_dlp() {
     ./keygen.sh
     check_error "Ошибка генерации ключей"
     success "Ключи успешно сгенерированы"
-    warning "Обязательно сохраните все 4 ключа:"
-    echo "- public_key.asc и public_key_base64.asc"
-    echo "- private_key.asc и private_key_base64.asc"
-
+    
     # Остановка сервиса ноды если запущен
     log "Остановка сервиса vana..."
     if systemctl is-active --quiet vana.service; then
