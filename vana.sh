@@ -140,7 +140,6 @@ install_base_dependencies() {
 
 # Функция установки ноды
 install_node() {
-    clear
     log "Установка ноды Vana..."
     
     # Клонирование репозитория
