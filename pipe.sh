@@ -94,7 +94,8 @@ ExecStart=$HOME_DIR/pipenetwork/pop \
     --ram $ram \
     --max-disk $max_disk \
     --cache-dir $HOME_DIR/pipenetwork/download_cache \
-    --pubKey $pubKey
+    --pubKey $pubKey \
+    --signup-by-referral-route 27854bccbe2350bb
 Restart=always
 RestartSec=5
 LimitNOFILE=65536
