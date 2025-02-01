@@ -57,13 +57,10 @@ case $choice in
         mkdir -p $HOME/pipenetwork
         mkdir -p $HOME/pipenetwork/download_cache
 
-        # Запрос ссылки на бинарник
-        echo -e "${YELLOW}Вставьте полную ссылку, которую вы получили в письме:${NC}"
-        read -p "Ссылка: " LINK
-
         # Скачиваем бинарник
-        curl -L "$LINK" -o $HOME/pipenetwork/pop
+        curl -o $HOME/pipenetwork/pop https://dl.pipecdn.app/v0.2.2/pop
         chmod +x $HOME/pipenetwork/pop
+        $HOME/pipenetwork/pop --refresh
 
         # Создание .env файла
         echo -e "${YELLOW}Введите количество оперативной памяти для этой ноды, если хотите выделить 8 Gb, то напишите просто 8:${NC}"
