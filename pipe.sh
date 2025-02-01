@@ -126,7 +126,12 @@ EOF
         ;;
 
     2)
-        echo -e "${GREEN}У вас актуальная версия ноды Pipe.${NC}"
+        sudo systemctl stop pipe-pop
+        rm -f $HOME/pipenetwork/pop
+        curl -o $HOME/pipenetwork/pop https://dl.pipecdn.app/v0.2.2/pop
+        chmod +x $HOME/pipenetwork/pop
+        $HOME/pipenetwork/pop --refresh
+        sudo systemctl restart pipe-pop && sudo journalctl -u pipe-pop -f --no-hostname -o cat
         ;;
 
     3)
