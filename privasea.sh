@@ -70,7 +70,7 @@ case $choice in
         echo
 
         # Запуск контейнера с нодой
-        docker run -d --name privanetix-node -v "$HOME/privasea/config:/app/config" -e KEYSTORE_PASSWORD=$PASS privasea/acceleration-node-beta:latest
+        docker run -d --name privanetix-node -v "$HOME/privasea/config:/app/config" -e KEYSTORE_PASSWORD=$PASS --restart unless-stopped privasea/acceleration-node-beta:latest
         if [ $? -ne 0 ]; then
             echo -e "${RED}Не удалось запустить контейнер Docker.${NC}"
             exit 1
