@@ -81,6 +81,10 @@ case $choice in
         echo "ENABLED_NETWORKS='arbitrum-sepolia,base-sepolia,optimism-sepolia,l1rn'" >> $CONFIG_FILE
         echo "RPC_ENDPOINTS_BSSP='https://base-sepolia-rpc.publicnode.com'" >> $CONFIG_FILE
 
+        if ! grep -q "ENVIRONMENT=testnet" "$HOME/executor/executor/bin/.t3rn"; then
+          echo "ENVIRONMENT=testnet" >> "$HOME/executor/executor/bin/.t3rn"
+        fi
+
         echo -e "${YELLOW}Введите ваш приватный ключ:${NC}"
         read PRIVATE_KEY
         sed -i "s|PRIVATE_KEY_LOCAL=|PRIVATE_KEY_LOCAL=$PRIVATE_KEY|" $CONFIG_FILE
@@ -153,6 +157,10 @@ EOT"
         echo "PRIVATE_KEY_LOCAL=" >> $CONFIG_FILE
         echo "ENABLED_NETWORKS='arbitrum-sepolia,base-sepolia,optimism-sepolia,l1rn'" >> $CONFIG_FILE
         echo "RPC_ENDPOINTS_BSSP='https://base-sepolia-rpc.publicnode.com'" >> $CONFIG_FILE
+
+        if ! grep -q "ENVIRONMENT=testnet" "$HOME/executor/executor/bin/.t3rn"; then
+          echo "ENVIRONMENT=testnet" >> "$HOME/executor/executor/bin/.t3rn"
+        fi
 
         echo -e "${YELLOW}Введите ваш приватный ключ:${NC}"
         read PRIVATE_KEY
