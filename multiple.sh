@@ -41,9 +41,9 @@ case $choice in
         echo -e "${BLUE}Проверяем архитектуру системы...${NC}"
         ARCH=$(uname -m)
         if [[ "$ARCH" == "x86_64" ]]; then
-            CLIENT_URL="https://cdn.app.multiple.cc/client/linux/x64/multipleforlinux.tar"
+            CLIENT_URL="https://mdeck-download.s3.us-east-1.amazonaws.com/client/linux/MultipleForLinux.tar"
         elif [[ "$ARCH" == "aarch64" ]]; then
-            CLIENT_URL="https://cdn.app.multiple.cc/client/linux/arm64/multipleforlinux.tar"
+            CLIENT_URL="https://mdeck-download.s3.us-east-1.amazonaws.com/client/linux/MultipleForLinux.tar"
         else
             echo -e "${RED}Неподдерживаемая архитектура системы: $ARCH${NC}"
             exit 1
@@ -51,14 +51,14 @@ case $choice in
 
         # Скачиваем клиент
         echo -e "${BLUE}Скачиваем клиент с $CLIENT_URL...${NC}"
-        wget $CLIENT_URL -O multipleforlinux.tar
+        wget $CLIENT_URL -O MultipleForLinux.tar
 
         # Распаковываем архив
         echo -e "${BLUE}Распаковка файлов...${NC}"
-        tar -xvf multipleforlinux.tar
+        tar -xvf MultipleForLinux.tar
 
         # Переход в папку клиента
-        cd multipleforlinux
+        cd MultipleForLinux
 
         # Выдача разрешений на выполнение
         echo -e "${BLUE}Выдача разрешений...${NC}"
@@ -87,18 +87,18 @@ case $choice in
         # Заключительный вывод
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
         echo -e "${YELLOW}Команда для проверки статуса ноды:${NC}"
-        echo "cd ~/multipleforlinux && ./multiple-cli status"
+        echo "cd ~/MultipleForLinux && ./multiple-cli status"
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
         echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
         echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
         sleep 2
-        cd ~/multipleforlinux && ./multiple-cli status
+        cd ~/MultipleForLinux && ./multiple-cli status
         ;;
 
     2)
         # Проверка логов
         echo -e "${BLUE}Проверяем статус...${NC}"
-        cd ~/multipleforlinux && ./multiple-cli status
+        cd ~/MultipleForLinux && ./multiple-cli status
         ;;
 
     3)
@@ -109,7 +109,7 @@ case $choice in
 
         # Удаление файлов ноды
         cd ~
-        sudo rm -rf multipleforlinux
+        sudo rm -rf MultipleForLinux
 
         echo -e "${GREEN}Нода успешно удалена!${NC}"
 
