@@ -177,7 +177,10 @@ WantedBy=multi-user.target" > /etc/systemd/system/gaia-bot.service
         ;;
 
     3)
-        echo -e "${GREEN}У вас актуальная версия ноды Gaia.${NC}"
+        echo -e "${BLUE}Обновляем ноду Gaia...${NC}"
+        gaianet stop
+        sleep 2
+        curl -sSfL 'https://github.com/GaiaNet-AI/gaianet-node/releases/latest/download/install.sh' | bash
         ;;
 
     4)
