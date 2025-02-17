@@ -80,6 +80,13 @@ LimitNOFILE=65535
 WantedBy=multi-user.target
 EOF
 
+        echo -e "${YELLOW}Введите приватный ключ:${NC}"
+        read PRIVATE_KEY
+        
+        sudo tee $HOME/.aios/private_key.pem > /dev/null << EOF
+$PRIVATE_KEY
+EOF
+
         sudo systemctl daemon-reload
         sleep 2
         sudo systemctl enable aios
@@ -87,7 +94,7 @@ EOF
 
         $HOME/.aios/aios-cli models add hf:TheBloke/phi-2-GGUF:phi-2.Q4_K_M.gguf
         $HOME/.aios/aios-cli models add hf:TheBloke/Mistral-7B-Instruct-v0.1-GGUF:mistral-7b-instruct-v0.1.Q4_K_S.gguf
-
+        aios-cli hive import-keys $HOME/.aios/private_key.pem
         aios-cli hive login
         sleep 2
         aios-cli hive select-tier 5
@@ -119,13 +126,6 @@ LimitNOFILE=65535
 
 [Install]
 WantedBy=multi-user.target
-EOF
-
-        echo -e "${YELLOW}Введите приватный ключ:${NC}"
-        read PRIVATE_KEY
-        
-        sudo tee $HOME/.aios/private_key.pem > /dev/null << EOF
-$PRIVATE_KEY
 EOF
 
         sudo systemctl daemon-reload
@@ -170,15 +170,6 @@ LimitNOFILE=65535
 
 [Install]
 WantedBy=multi-user.target
-EOF
-
-        rm -f "$HOME/.aios/private_key.pem"
-
-        echo -e "${YELLOW}Введите приватный ключ:${NC}"
-        read PRIVATE_KEY
-        
-        sudo tee $HOME/.aios/private_key.pem > /dev/null << EOF
-$PRIVATE_KEY
 EOF
 
         sudo systemctl daemon-reload
