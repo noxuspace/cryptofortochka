@@ -45,6 +45,19 @@ case $choice in
 
     2)
         echo -e "${BLUE}Подготовка к запуску ноды Hyperspace...${NC}"
+
+        SERVICE_FILE="/etc/systemd/system/aios.service"
+
+        if [ -f "$SERVICE_FILE" ]; then
+            echo "Файл сервиса найден. Останавливаем и удаляем его..."
+            systemctl stop aios
+            systemctl disable aios
+            sleep 2
+            rm -rf "$SERVICE_FILE"
+            sudo systemctl daemon-reload
+        else
+            echo "Файл сервиса не найден, продолжаем..."
+        fi
         # Определяем имя текущего пользователя и его домашнюю директорию
         USERNAME=$(whoami)
         HOME_DIR=$(eval echo ~$USERNAME)
