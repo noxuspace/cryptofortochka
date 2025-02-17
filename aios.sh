@@ -91,6 +91,7 @@ EOF
         aios-cli hive login
         sleep 2
         aios-cli hive select-tier 5
+        sleep 4
         aios-cli hive select-tier 3
 
         systemctl stop aios
