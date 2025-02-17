@@ -80,13 +80,6 @@ LimitNOFILE=65535
 WantedBy=multi-user.target
 EOF
 
-echo -e "${YELLOW}Введите приватный ключ:${NC}"
-read PRIVATE_KEY
-
-sudo tee $HOME/.aios/private_key.pem > /dev/null << EOF
-$PRIVATE_KEY
-EOF
-
         sudo systemctl daemon-reload
         sleep 2
         sudo systemctl enable aios
@@ -126,6 +119,13 @@ LimitNOFILE=65535
 [Install]
 WantedBy=multi-user.target
 EOF
+
+        echo -e "${YELLOW}Введите приватный ключ:${NC}"
+        read PRIVATE_KEY
+        
+        sudo tee $HOME/.aios/private_key.pem > /dev/null << EOF
+        $PRIVATE_KEY
+        EOF
 
         sudo systemctl daemon-reload
         sleep 2
@@ -171,10 +171,19 @@ LimitNOFILE=65535
 WantedBy=multi-user.target
 EOF
 
+        rm -f "$HOME/.aios/private_key.pem"
+
+        echo -e "${YELLOW}Введите приватный ключ:${NC}"
+        read PRIVATE_KEY
+        
+        sudo tee $HOME/.aios/private_key.pem > /dev/null << EOF
+        $PRIVATE_KEY
+        EOF
+
         sudo systemctl daemon-reload
         sleep 2
         sudo systemctl enable aios
-        sudo systemctl start aios
+        sudo systemctl restart aios
         journalctl -n 100 -f -u aios -o cat
         ;;
         
