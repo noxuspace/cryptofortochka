@@ -124,8 +124,8 @@ EOF
         read PRIVATE_KEY
         
         sudo tee $HOME/.aios/private_key.pem > /dev/null << EOF
-        $PRIVATE_KEY
-        EOF
+$PRIVATE_KEY
+EOF
 
         sudo systemctl daemon-reload
         sleep 2
@@ -177,8 +177,8 @@ EOF
         read PRIVATE_KEY
         
         sudo tee $HOME/.aios/private_key.pem > /dev/null << EOF
-        $PRIVATE_KEY
-        EOF
+$PRIVATE_KEY
+EOF
 
         sudo systemctl daemon-reload
         sleep 2
