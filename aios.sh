@@ -194,7 +194,7 @@ EOF
 
     7)
         echo -e "${BLUE}Просмотр поинтов...${NC}"
-        journalctl -n 100 -f -u aios -o cat
+        aios-cli hive points
         ;;    
 
     8)
