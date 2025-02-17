@@ -55,6 +55,7 @@ case $choice in
             sleep 2
             rm -rf "$SERVICE_FILE"
             sudo systemctl daemon-reload
+            sleep 2
         else
             echo "Файл сервиса не найден, продолжаем..."
         fi
