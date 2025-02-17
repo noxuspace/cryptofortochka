@@ -95,6 +95,7 @@ EOF
         $HOME/.aios/aios-cli models add hf:TheBloke/phi-2-GGUF:phi-2.Q4_K_M.gguf
         $HOME/.aios/aios-cli models add hf:TheBloke/Mistral-7B-Instruct-v0.1-GGUF:mistral-7b-instruct-v0.1.Q4_K_S.gguf
         aios-cli hive import-keys $HOME/.aios/private_key.pem
+        sleep 4
         aios-cli hive login
         sleep 2
         aios-cli hive select-tier 5
