@@ -51,6 +51,7 @@ fi
             echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.bashrc
             source ~/.bashrc
             rustup update
+            sudo apt install build-essential pkg-config libssl-dev git-all protobuf-compiler
 
             # Проверка наличия сессий screen для Nexus
             SESSION_IDS=$(screen -ls | grep "nexus" | awk '{print $1}' | cut -d '.' -f 1)
