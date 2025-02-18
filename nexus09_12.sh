@@ -90,8 +90,8 @@ fi
             echo -e "${BLUE}Переход в сессию Nexus...${NC}"
             screen -r nexus
             ;;
-
-       :'4)
+        :'
+        4)
             echo -e "${BLUE}Изменение Prover ID...${NC}"
     
             # Запрашиваем у пользователя новый Prover ID
@@ -112,7 +112,8 @@ fi
     
             # Выполняем скрипт установки
             curl https://cli.nexus.xyz/ | sh
-            ;;'
+            ;;
+            '
            
         4)
             echo -e "${BLUE}Удаление ноды Nexus...${NC}"
