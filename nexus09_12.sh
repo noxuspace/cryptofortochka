@@ -90,31 +90,7 @@ fi
             echo -e "${BLUE}Переход в сессию Nexus...${NC}"
             screen -r nexus
             ;;
-        :'
-        4)
-            echo -e "${BLUE}Изменение Prover ID...${NC}"
-    
-            # Запрашиваем у пользователя новый Prover ID
-            echo -e "${YELLOW}Вставьте ваш Prover ID:${NC}"
-            read PROVER_ID
-    
-            # Определяем домашнюю директорию
-            HOME_DIR=$(eval echo ~$USER)
-    
-            # Обновляем содержимое файла prover-id
-            if [ -f "$HOME_DIR/.nexus/prover-id" ]; then
-                echo "$PROVER_ID" > "$HOME_DIR/.nexus/prover-id"
-                echo -e "${GREEN}Prover ID успешно обновлен!${NC}"
-            else
-                echo -e "${RED}Файл prover-id не найден!${NC}"
-                exit 1
-            fi
-    
-            # Выполняем скрипт установки
-            curl https://cli.nexus.xyz/ | sh
-            ;;
-            '
-           
+                   
         4)
             echo -e "${BLUE}Удаление ноды Nexus...${NC}"
 
