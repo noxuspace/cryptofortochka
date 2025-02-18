@@ -32,8 +32,7 @@ fi
     echo -e "${CYAN}1) Установка ноды${NC}"
     echo -e "${CYAN}2) Обновление ноды${NC}"
     echo -e "${CYAN}3) Переход в сессию screen${NC}"
-    echo -e "${CYAN}4) Изменение Prover ID${NC}"
-    echo -e "${CYAN}5) Удаление ноды${NC}"
+    echo -e "${CYAN}4) Удаление ноды${NC}"
 
     echo -e "${YELLOW}Введите номер:${NC} "
     read choice
@@ -92,7 +91,7 @@ fi
             screen -r nexus
             ;;
 
-       4)
+       :'4)
             echo -e "${BLUE}Изменение Prover ID...${NC}"
     
             # Запрашиваем у пользователя новый Prover ID
@@ -113,9 +112,9 @@ fi
     
             # Выполняем скрипт установки
             curl https://cli.nexus.xyz/ | sh
-            ;;
+            ;;'
            
-        5)
+        4)
             echo -e "${BLUE}Удаление ноды Nexus...${NC}"
 
             # Проверка наличия сессий screen для Nexus
