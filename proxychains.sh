@@ -37,7 +37,6 @@ comment_socks4() {
 }
 
 # Создаём резервную копию файла
-echo -e "${BLUE}Создаём резервную копию $CONFIG_FILE...${NC}"
 sudo cp "$CONFIG_FILE" "$CONFIG_FILE.bak"
 
 # Комментируем строки с socks4
@@ -47,7 +46,8 @@ comment_socks4
 echo -e "${CYAN}Выберите опцию:${NC}"
 echo -e "${YELLOW}1) Старт (начальная настройка прокси)${NC}"
 echo -e "${YELLOW}2) Замена прокси${NC}"
-read -p "${YELLOW}Введите номер опции: ${NC}" choice
+
+read -p "Введите номер опции:" choice
 
 case $choice in
     1)
