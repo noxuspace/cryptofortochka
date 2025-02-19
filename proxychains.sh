@@ -14,12 +14,8 @@ echo -e "${BLUE}Обновление системы и установка proxyc
 sudo apt update -y
 sudo apt install -y proxychains
 
-# 2. Запрос данных для прокси (с использованием цветных сообщений)
-echo -e "${BLUE}Введите данные для настройки прокси:${NC}"
-
-# Протокол
-echo -e "${YELLOW}Протокол (например, socks5, http, https):${NC}"
-read PROXY_PROTOCOL
+# 2. Запрос данных для прокси (LOG/PORT/USER/PASS)
+echo -e "${BLUE}Введите данные для настройки socks5-прокси:${NC}"
 
 # IP-адрес
 echo -e "${YELLOW}IP-адрес прокси:${NC}"
@@ -43,14 +39,14 @@ sudo cp /etc/proxychains.conf /etc/proxychains.conf.bak
 # 4. Комментируем строку с socks4
 sudo sed -i '/^socks4 / s/^/# /' /etc/proxychains.conf
 
-# 5. Добавляем новую строку с данными пользователя
-#    (Будет вида: socks5 1.2.3.4 1080 user pass)
-echo "${PROXY_PROTOCOL} ${PROXY_IP} ${PROXY_PORT} ${PROXY_USER} ${PROXY_PASS}" \
+# 5. Добавляем новую строку (жёстко socks5)
+#    Будет вида: socks5 1.2.3.4 1080 user pass
+echo "socks5 ${PROXY_IP} ${PROXY_PORT} ${PROXY_USER} ${PROXY_PASS}" \
   | sudo tee -a /etc/proxychains.conf >/dev/null
 
 # Вывод итоговых сообщений
 echo -e "${PURPLE}-----------------------------------------------------------${NC}"
 echo -e "${GREEN}✓ Proxychains установлен.${NC}"
 echo -e "${GREEN}✓ Файл /etc/proxychains.conf обновлён:${NC}"
-echo -e "${CYAN}Добавлен ваш прокси: '${PROXY_PROTOCOL} ${PROXY_IP} ${PROXY_PORT} ${PROXY_USER} ${PROXY_PASS}'${NC}"
+echo -e "${CYAN}Добавлен ваш socks5-прокси: 'socks5 ${PROXY_IP} ${PROXY_PORT} ${PROXY_USER} ${PROXY_PASS}'${NC}"
 echo -e "${PURPLE}-----------------------------------------------------------${NC}"
