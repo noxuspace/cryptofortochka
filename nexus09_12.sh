@@ -44,7 +44,7 @@ fi
             # Обновление и установка необходимых компонентов
             sudo apt update -y
             sudo apt upgrade -y
-            sudo apt install -y build-essential pkg-config libssl-dev git-all protobuf-compiler cargo screen
+            sudo apt install -y build-essential pkg-config libssl-dev git-all protobuf-compiler cargo screen unzip
             curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
             source $HOME/.cargo/env
             echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.bashrc
