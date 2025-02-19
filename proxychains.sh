@@ -28,7 +28,7 @@ echo -e "${YELLOW}Для завершения введите пустую стр
 
 PROXY_COUNT=0
 while [ $PROXY_COUNT -lt 50 ]; do
-    read -p "$(echo -e "${YELLOW}Введите прокси #$((PROXY_COUNT+1)):${NC} ")" proxy_line
+    read -p "${YELLOW}Введите прокси #$((PROXY_COUNT+1)):${NC} " proxy_line
     # Если пользователь ввёл пустую строку, выходим из цикла
     if [ -z "$proxy_line" ]; then
         break
