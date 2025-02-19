@@ -22,7 +22,6 @@ CONFIG_FILE="/etc/proxychains.conf"
 
 # Функция для запроса данных прокси
 prompt_proxy_details() {
-    echo -e "${BLUE}Введите данные для настройки socks5-прокси:${NC}"
     read -p "${YELLOW}IP-адрес: ${NC}" PROXY_IP
     read -p "${YELLOW}Порт: ${NC}" PROXY_PORT
     read -p "${YELLOW}Логин (если есть, иначе Enter): ${NC}" PROXY_USER
@@ -54,6 +53,7 @@ case $choice in
         if sudo grep -q "^socks5 " "$CONFIG_FILE"; then
             echo -e "${RED}Прокси уже настроен в файле. Если нужно заменить, выберите опцию 2 (Замена прокси).${NC}"
         else
+            echo -e "${BLUE}Введите данные для настройки socks5-прокси:${NC}"
             proxy_line=$(prompt_proxy_details)
             echo "$proxy_line" | sudo tee -a "$CONFIG_FILE" >/dev/null
             echo -e "${GREEN}Прокси успешно добавлен в $CONFIG_FILE.${NC}"
