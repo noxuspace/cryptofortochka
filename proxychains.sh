@@ -9,44 +9,76 @@ PURPLE=$'\033[0;35m'
 CYAN=$'\033[0;36m'
 NC=$'\033[0m'  # Сброс цвета
 
-# 1. Обновление системы и установка proxychains
-echo -e "${BLUE}Обновление системы и установка proxychains...${NC}"
-sudo apt update -y
-sudo apt install -y proxychains
+# Проверка наличия curl и установка, если не установлен
+if ! command -v curl &> /dev/null; then
+    sudo apt update
+    sudo apt install curl -y
+fi
 
-# 2. Создаём резервную копию /etc/proxychains.conf
-echo -e "${BLUE}Создаём резервную копию /etc/proxychains.conf...${NC}"
-sudo cp /etc/proxychains.conf /etc/proxychains.conf.bak
+# Отображение логотипа
+curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_club.sh | bash
 
-# 3. Комментируем строку с socks4
-sudo sed -i '/^socks4 / s/^/# /' /etc/proxychains.conf
+CONFIG_FILE="/etc/proxychains.conf"
 
-# 4. Ввод прокси от пользователя (пачкой)
-echo -e "${BLUE}Вставьте список прокси для настройки socks5-прокси.${NC}"
-echo -e "${RED}Формат ввода: IP_адрес Порт Логин Пароль (каждая прокси с новой строки)${NC}"
-echo -e "${YELLOW}После вставки нажмите Ctrl-D (максимум можно ввести 50 прокси).${NC}"
-# Читаем весь ввод до EOF (Ctrl-D)
-proxy_input=$(cat)
+# Функция для запроса данных прокси
+prompt_proxy_details() {
+    echo -e "${BLUE}Введите данные для настройки socks5-прокси:${NC}"
+    read -p "${YELLOW}IP-адрес: ${NC}" PROXY_IP
+    read -p "${YELLOW}Порт: ${NC}" PROXY_PORT
+    read -p "${YELLOW}Логин (если есть, иначе Enter): ${NC}" PROXY_USER
+    read -p "${YELLOW}Пароль (если есть, иначе Enter): ${NC}" PROXY_PASS
+    # Формируем строку, предваряя её "socks5"
+    echo "socks5 ${PROXY_IP} ${PROXY_PORT} ${PROXY_USER} ${PROXY_PASS}"
+}
 
-# Преобразуем ввод в массив строк
-readarray -t proxy_array <<< "$proxy_input"
+# Функция для комментария строки с socks4
+comment_socks4() {
+    sudo sed -i '/^socks4 / s/^/# /' "$CONFIG_FILE"
+}
 
-PROXY_COUNT=0
-for proxy_line in "${proxy_array[@]}"; do
-    # Ограничиваем до 50 прокси
-    if [ $PROXY_COUNT -ge 50 ]; then
-        break
-    fi
-    # Если строка не пуста, добавляем её в конфиг с префиксом "socks5"
-    if [ -n "$proxy_line" ]; then
-        echo "socks5 ${proxy_line}" | sudo tee -a /etc/proxychains.conf >/dev/null
-        PROXY_COUNT=$((PROXY_COUNT+1))
-    fi
-done
+# Создаём резервную копию файла
+echo -e "${BLUE}Создаём резервную копию $CONFIG_FILE...${NC}"
+sudo cp "$CONFIG_FILE" "$CONFIG_FILE.bak"
 
-# 5. Вывод итоговых сообщений
-echo -e "${PURPLE}-----------------------------------------------------------${NC}"
-echo -e "${GREEN}✓ Proxychains установлен.${NC}"
-echo -e "${GREEN}✓ Файл /etc/proxychains.conf обновлён:${NC}"
-echo -e "${CYAN}Добавлено $PROXY_COUNT прокси (каждая строка начинается с 'socks5')${NC}"
-echo -e "${PURPLE}-----------------------------------------------------------${NC}"
+# Комментируем строки с socks4
+comment_socks4
+
+# Меню
+echo -e "${CYAN}Выберите опцию:${NC}"
+echo -e "${YELLOW}1) Старт (начальная настройка прокси)${NC}"
+echo -e "${YELLOW}2) Замена прокси${NC}"
+read -p "${YELLOW}Введите номер опции: ${NC}" choice
+
+case $choice in
+    1)
+        # Если строка с socks5 уже существует, выводим сообщение
+        if sudo grep -q "^socks5 " "$CONFIG_FILE"; then
+            echo -e "${RED}Прокси уже настроен в файле. Если нужно заменить, выберите опцию 2 (Замена прокси).${NC}"
+        else
+            proxy_line=$(prompt_proxy_details)
+            echo "$proxy_line" | sudo tee -a "$CONFIG_FILE" >/dev/null
+            echo -e "${GREEN}Прокси успешно добавлен в $CONFIG_FILE.${NC}"
+        fi
+
+        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+        echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
+        echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
+        sleep 2
+        ;;
+    2)
+        # Удаляем все строки, начинающиеся с "socks5 "
+        sudo sed -i '/^socks5 /d' "$CONFIG_FILE"
+        echo -e "${BLUE}Старые строки прокси удалены.${NC}"
+        proxy_line=$(prompt_proxy_details)
+        echo "$proxy_line" | sudo tee -a "$CONFIG_FILE" >/dev/null
+        echo -e "${GREEN}Прокси успешно заменён в $CONFIG_FILE.${NC}"
+        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+        echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
+        echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
+        sleep 2
+        ;;
+    *)
+        echo -e "${RED}Неверный выбор. Выход.${NC}"
+        exit 1
+        ;;
+esac
