@@ -58,7 +58,7 @@ case $choice in
         mkdir -p $HOME/pipenetwork/download_cache
 
         # Скачиваем бинарник
-        curl -o $HOME/pipenetwork/pop https://dl.pipecdn.app/v0.2.6/pop
+        curl -o $HOME/pipenetwork/pop https://dl.pipecdn.app/v0.2.8/pop
         chmod +x $HOME/pipenetwork/pop
         $HOME/pipenetwork/pop --refresh
 
@@ -125,7 +125,7 @@ EOF
     2)
         sudo systemctl stop pipe-pop
         rm -f $HOME/pipenetwork/pop
-        curl -o $HOME/pipenetwork/pop https://dl.pipecdn.app/v0.2.6/pop
+        curl -o $HOME/pipenetwork/pop https://dl.pipecdn.app/v0.2.8/pop
         chmod +x $HOME/pipenetwork/pop
         $HOME/pipenetwork/pop --refresh
         sudo systemctl restart pipe-pop && sudo journalctl -u pipe-pop -f --no-hostname -o cat
