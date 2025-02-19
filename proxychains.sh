@@ -39,9 +39,6 @@ comment_socks4() {
 # Создаём резервную копию файла
 sudo cp "$CONFIG_FILE" "$CONFIG_FILE.bak"
 
-# Комментируем строки с socks4
-comment_socks4
-
 # Меню
 echo -e "${CYAN}Выберите опцию:${NC}"
 echo -e "${YELLOW}1) Старт (начальная настройка прокси)${NC}"
@@ -50,7 +47,9 @@ echo -e "${YELLOW}2) Замена прокси${NC}"
 read -p "Введите номер опции:" choice
 
 case $choice in
-    1)
+    1)  
+        # Комментируем строки с socks4
+        comment_socks4
         # Если строка с socks5 уже существует, выводим сообщение
         if sudo grep -q "^socks5 " "$CONFIG_FILE"; then
             echo -e "${RED}Прокси уже настроен в файле. Если нужно заменить, выберите опцию 2 (Замена прокси).${NC}"
