@@ -18,6 +18,9 @@ fi
 # Отображение логотипа
 curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_club.sh | bash
 
+sudo apt update -y
+sudo apt install -y proxychains
+
 CONFIG_FILE="/etc/proxychains.conf"
 
 # Функция для запроса данных прокси
