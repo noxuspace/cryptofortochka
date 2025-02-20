@@ -147,7 +147,7 @@ EOF
         echo -e "${BLUE}Проверка поинтов Pipe...${NC}"
         cd
         cd $HOME/pipenetwork/
-        ./pop --points-route
+        ./pop --points
         ;;
 
     6)
