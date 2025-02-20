@@ -18,9 +18,6 @@ fi
 # Отображение логотипа
 curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_club.sh | bash
 
-sudo apt update -y
-sudo apt install -y proxychains
-
 CONFIG_FILE="/etc/proxychains.conf"
 
 # Функция для запроса данных прокси
@@ -50,6 +47,8 @@ read -p "Введите номер опции:" choice
 
 case $choice in
     1)  
+        sudo apt update -y
+        sudo apt install -y proxychains
         # Комментируем строки с socks4
         comment_socks4
         # Если строка с socks5 уже существует, выводим сообщение
