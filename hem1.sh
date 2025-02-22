@@ -115,6 +115,8 @@ EOT
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
         echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
         echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
+        sleep 2
+        sudo journalctl -u hemi -f
         ;;
     2)
         echo -e "${BLUE}Обновляем ноду Hemi...${NC}"
@@ -213,6 +215,8 @@ EOT
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
         echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
         echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
+        sleep 2
+        sudo journalctl -u hemi -f
         ;;
     3)
         echo -e "${YELLOW}Укажите новое значение комиссии (минимум 50):${NC}"
