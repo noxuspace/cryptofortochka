@@ -17,7 +17,7 @@ fi
 sleep 1
 
 # Отображаем логотип
-curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_forto.sh | bash
+curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_club.sh | bash
 
 # Меню
 echo -e "${YELLOW}Выберите действие:${NC}"
@@ -49,6 +49,8 @@ case $choice in
             #exit 1
         #fi
 
+        rm -f ~/install.sh ~/update.sh ~/start.sh
+        
         # Скачиваем клиент
         echo -e "${BLUE}Скачиваем клиент...${NC}"
         wget https://mdeck-download.s3.us-east-1.amazonaws.com/client/linux/install.sh
