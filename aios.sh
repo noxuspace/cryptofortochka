@@ -186,6 +186,7 @@ EOF
 
     5)
         echo -e "${BLUE}Ввывод ключей ноды...${NC}"
+        source $HOME/.bashrc
         $HOME/.aios/aios-cli hive whoami
         ;;
 
@@ -196,6 +197,7 @@ EOF
 
     7)
         echo -e "${BLUE}Просмотр поинтов...${NC}"
+        source $HOME/.bashrc
         aios-cli hive points
         ;;    
 
