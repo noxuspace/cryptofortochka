@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Путь к файлу .env
-ENV_FILE="$HOME/dkn-compute-node/.env"
+ENV_FILE="$HOME/.dria/dkn-compute-launcher/.env"
 
 # Новое значение для DKN_MODELS
 NEW_MODELS="DKN_MODELS=,gemini-1.5-flash,gemini-1.5-pro,gemini-2.0-flash"
