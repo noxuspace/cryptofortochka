@@ -155,6 +155,7 @@ EOT"
 
         # Удаление папки ноды
         rm -rf $HOME/.dria
+        rm -rf ~/dkn-compute-node
 
         echo -e "${GREEN}Нода Dria успешно удалена!${NC}"
 
