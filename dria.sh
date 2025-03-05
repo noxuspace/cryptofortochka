@@ -40,22 +40,25 @@ case $choice in
         sudo apt install git make jq build-essential gcc unzip wget lz4 aria2 -y
 
         # Проверка архитектуры системы
-        ARCH=$(uname -m)
-        if [[ "$ARCH" == "aarch64" ]]; then
-            curl -L -o dkn-compute-node.zip https://github.com/firstbatchxyz/dkn-compute-launcher/releases/latest/download/dkn-compute-launcher-linux-arm64.zip
-        elif [[ "$ARCH" == "x86_64" ]]; then
-            curl -L -o dkn-compute-node.zip https://github.com/firstbatchxyz/dkn-compute-launcher/releases/latest/download/dkn-compute-launcher-linux-amd64.zip
-        else
-            echo -e "${RED}Не поддерживаемая архитектура системы: $ARCH${NC}"
-            exit 1
-        fi
+        #ARCH=$(uname -m)
+        #if [[ "$ARCH" == "aarch64" ]]; then
+            #curl -L -o dkn-compute-node.zip https://github.com/firstbatchxyz/dkn-compute-launcher/releases/latest/download/dkn-compute-launcher-linux-arm64.zip
+        #elif [[ "$ARCH" == "x86_64" ]]; then
+            #curl -L -o dkn-compute-node.zip https://github.com/firstbatchxyz/dkn-compute-launcher/releases/latest/download/dkn-compute-launcher-linux-amd64.zip
+        #else
+            #echo -e "${RED}Не поддерживаемая архитектура системы: $ARCH${NC}"
+            #exit 1
+        #fi
 
         # Распаковываем ZIP-файл и переходим в папку
-        unzip dkn-compute-node.zip
-        cd dkn-compute-node
+        #unzip dkn-compute-node.zip
+        #cd dkn-compute-node
 
         # Запускаем приложение для ввода данных
-        ./dkn-compute-launcher
+        #./dkn-compute-launcher
+        curl -fsSL https://dria.co/launcher | bash
+        sleep 3
+        dkn-compute-launcher start
         ;;
     2)
         echo -e "${BLUE}Запускаем ноду Dria...${NC}"
@@ -72,9 +75,9 @@ After=network.target
 
 [Service]
 User=$USERNAME
-EnvironmentFile=$HOME_DIR/dkn-compute-node/.env
-ExecStart=$HOME_DIR/dkn-compute-node/dkn-compute-launcher
-WorkingDirectory=$HOME_DIR/dkn-compute-node/
+EnvironmentFile=$HOME_DIR/.dria/dkn-compute-launcher/.env
+ExecStart=/usr/local/bin/dkn-compute-launcher start
+WorkingDirectory=$HOME_DIR/.dria/dkn-compute-launcher/
 Restart=on-failure
 
 [Install]
@@ -114,7 +117,7 @@ EOT"
         read NEW_PORT
 
         # Путь к файлу .env
-        ENV_FILE="$HOME/dkn-compute-node/.env"
+        ENV_FILE="$HOME/.dria/dkn-compute-launcher/.env"
 
         # Обновляем порт в файле .env
         sed -i "s|DKN_P2P_LISTEN_ADDR=/ip4/0.0.0.0/tcp/[0-9]*|DKN_P2P_LISTEN_ADDR=/ip4/0.0.0.0/tcp/$NEW_PORT|" "$ENV_FILE"
@@ -151,7 +154,7 @@ EOT"
         sleep 2
 
         # Удаление папки ноды
-        rm -rf $HOME/dkn-compute-node
+        rm -rf $HOME/.dria
 
         echo -e "${GREEN}Нода Dria успешно удалена!${NC}"
 
