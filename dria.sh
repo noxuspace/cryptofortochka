@@ -104,7 +104,13 @@ EOT"
         sudo journalctl -u dria -f --no-hostname -o cat
         ;;
     3)
-        echo -e "${GREEN}Установлена актуальная версия${NC}"
+        echo -e "${BLUE}Обновляем ноду...${NC}"
+        sudo systemctl stop dria
+        sleep 3
+        curl -fsSL https://dria.co/launcher | bash
+        sleep 3
+        sudo systemctl restart dria
+        sudo journalctl -u dria -f --no-hostname -o cat
         ;;
     4)
         echo -e "${BLUE}Изменение порта...${NC}"
