@@ -467,7 +467,7 @@ remove_node() {
 # Функция отображения логотипа
 show_logo() {
     # Отображаем логотип
-curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_forto.sh | bash
+curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_club.sh | bash
 }
 
 # Функция главного меню
