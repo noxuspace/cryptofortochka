@@ -110,7 +110,7 @@ EOF
             # Заключительное сообщение
             echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
             echo -e "${YELLOW}Команда для проверки логов:${NC}"
-            echo "cd rl-swarm && docker compose logs -f"
+            echo "cd rl-swarm && docker-compose logs -f swarm_node"
             echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
             echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
             echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
@@ -125,7 +125,7 @@ EOF
 
         3)
             echo -e "${BLUE}Просмотр логов...${NC}"
-            cd rl-swarm && docker compose logs -f
+            cd rl-swarm && docker-compose logs -f swarm_node
             ;;
 
         4)
