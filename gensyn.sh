@@ -131,6 +131,7 @@ EOF
         4)
             echo -e "${BLUE}Рестарт ноды...${NC}"
             cd rl-swarm && docker compose restart
+            docker compose logs -f
             ;;
             
         5)
