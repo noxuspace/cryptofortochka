@@ -74,7 +74,7 @@ services:
       - OTEL_LOG_LEVEL=DEBUG
 
   swarm_node:
-    image: europe-docker.pkg.dev/gensyn-public-b7d9/public/rl-swarm:v0.0.1
+    image: europe-docker.pkg.dev/gensyn-public-b7d9/public/rl-swarm:v0.0.2
     command: ./run_hivemind_docker.sh
     #runtime: nvidia  # Enables GPU support; remove if no GPU is available
     environment:
