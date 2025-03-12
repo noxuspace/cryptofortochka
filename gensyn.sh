@@ -24,7 +24,8 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
     echo -e "${CYAN}1) Установка ноды${NC}"
     echo -e "${CYAN}2) Обновление ноды${NC}"
     echo -e "${CYAN}3) Просмотр логов${NC}"
-    echo -e "${CYAN}4) Удаление ноды${NC}"
+    echo -e "${CYAN}4) Рестарт ноды${NC}"
+    echo -e "${CYAN}5) Удаление ноды${NC}"
 
     echo -e "${YELLOW}Введите номер:${NC} "
     read choice
@@ -128,6 +129,11 @@ EOF
             ;;
 
         4)
+            echo -e "${BLUE}Рестарт ноды...${NC}"
+            cd rl-swarm && docker compose restart
+            ;;
+            
+        5)
             echo -e "${BLUE}Удаление ноды Gensyn...${NC}"
 
             # Остановка и удаление контейнера
