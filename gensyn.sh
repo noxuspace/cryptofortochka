@@ -105,6 +105,7 @@ services:
       retries: 3
 EOF
 
+            docker compose pull
             docker compose up --build -d
 
             # Заключительное сообщение
