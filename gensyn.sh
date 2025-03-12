@@ -120,7 +120,20 @@ EOF
 
         2)
             echo -e "${BLUE}Обновление ноды Gensyn...${NC}"
-            echo -e "${GREEN}Установлена актуальная версия ноды!${NC}"
+            VER=rl-swarm:v0.0.2
+            cd rl-swarm
+            sed -i "s#\(image: europe-docker.pkg.dev/gensyn-public-b7d9/public/\).*#\1$VER#g" docker-compose.yaml
+            docker compose pull
+            docker compose up -d --force-recreate
+            # Заключительное сообщение
+            echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+            echo -e "${YELLOW}Команда для проверки логов:${NC}"
+            echo "cd rl-swarm && docker-compose logs -f swarm_node"
+            echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+            echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
+            echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
+            sleep 2
+            docker-compose logs -f swarm_node
             ;;
 
         3)
