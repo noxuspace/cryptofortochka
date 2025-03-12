@@ -115,7 +115,7 @@ EOF
             echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
             echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
             sleep 2
-            docker compose logs -f
+            docker-compose logs -f swarm_node
             ;;
 
         2)
@@ -131,7 +131,7 @@ EOF
         4)
             echo -e "${BLUE}Рестарт ноды...${NC}"
             cd rl-swarm && docker compose restart
-            docker compose logs -f
+            docker-compose logs -f swarm_node
             ;;
             
         5)
