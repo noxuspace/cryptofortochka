@@ -62,7 +62,7 @@ case $choice in
 
         echo -e "${YELLOW}Введите ваш приватный ключ от кошелька:${NC} "
         read PRIV_KEY
-        echo -e "${YELLOW}Укажите желаемый размер комиссии (рекомендуем 2-3):${NC} "
+        echo -e "${YELLOW}Укажите желаемый размер комиссии (рекомендуем 1-2):${NC} "
         read FEE
 
         echo "POPM_BTC_PRIVKEY=$PRIV_KEY" > popmd.env
@@ -156,7 +156,7 @@ EOT
 
         echo -e "${YELLOW}Введите ваш приватный ключ от кошелька:${NC} "
         read PRIV_KEY
-        echo -e "${YELLOW}Укажите желаемый размер комиссии (рекомендуем 2-3):${NC} "
+        echo -e "${YELLOW}Укажите желаемый размер комиссии (рекомендуем 1-2):${NC} "
         read FEE
 
         echo "POPM_BTC_PRIVKEY=$PRIV_KEY" > popmd.env
@@ -214,7 +214,7 @@ EOT
         sudo journalctl -u hemi-main -f
         ;;
     3)
-        echo -e "${YELLOW}Укажите новое значение комиссии (рекомендуем 2-3):${NC}"
+        echo -e "${YELLOW}Укажите новое значение комиссии (рекомендуем 1-2):${NC}"
         read NEW_FEE
 
         # Проверка, что введенное значение не меньше 1
