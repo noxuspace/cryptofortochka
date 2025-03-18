@@ -53,10 +53,6 @@ case $choice in
         # Обновление и установка зависимостей
         sudo apt update
         sudo apt upgrade -y
-        sudo apt-get install figlet -y
-
-        # Лого специальное
-        figlet -f /usr/share/figlet/starwars.flf
 
         # Скачиваем бинарник
         LATEST_VERSION=$(curl -s https://api.github.com/repos/t3rn/executor-release/releases/latest | grep 'tag_name' | cut -d\" -f4)
