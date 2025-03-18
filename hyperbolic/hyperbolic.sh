@@ -90,25 +90,19 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             EOT
 
             # --- 8. Обновление конфигурации systemd и запуск сервиса ---
-            echo "Обновление конфигурации systemd..."
             sudo systemctl daemon-reload
-            echo "Включение и запуск сервиса hyper-bot..."
             sudo systemctl enable hyper-bot.service
             sudo systemctl start hyper-bot.service
             
-            echo "Установка завершена! Проверьте статус сервиса командой:"
-            echo "  sudo systemctl status hyper-bot.service"
-            echo "И просмотрите логи:"
-            echo "  sudo journalctl -u hyper-bot.service -f"
-
             # Заключительное сообщение
             echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
             echo -e "${YELLOW}Команда для проверки логов:${NC}"
-            echo "cd rl-swarm && docker compose logs -f swarm_node"
+            echo "sudo journalctl -u hyper-bot.service -f"
             echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
             echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
             echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
             sleep 2
+            sudo journalctl -u hyper-bot.service -f
             ;;
 
         2)
