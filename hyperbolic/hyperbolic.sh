@@ -107,20 +107,13 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
 
         2)
             echo -e "${BLUE}Обновление бота...${NC}"
-            # Заключительное сообщение
-            echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-            echo -e "${YELLOW}Команда для проверки логов:${NC}"
-            echo "cd rl-swarm && docker compose logs -f swarm_node"
-            echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-            echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
-            echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
             sleep 2
-            docker compose logs -f swarm_node
+            echo -e "${GREEN}Обновление бота не требуется!${NC}"
             ;;
 
         3)
             echo -e "${BLUE}Просмотр логов...${NC}"
-            cd rl-swarm && docker compose logs -f swarm_node
+            sudo journalctl -u hyper-bot.service -f
             ;;
 
         4)
