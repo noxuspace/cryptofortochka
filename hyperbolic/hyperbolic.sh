@@ -56,14 +56,14 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             curl -fsSL -o hyperbolic/hyper_bot.py "$BOT_URL"
 
             # --- 5. Запрос API-ключа и его замена в hyper_bot.py ---
-            read -p "Введите ваш API-ключ для Hyperbolic: " USER_API_KEY
+            echo -e "${YELLOW}Введите ваш API-ключ для Hyperbolic:${NC}"
+            read USER_API_KEY
             # Заменяем $API_KEY (в строке) на введённое значение. Предполагается, что в файле строка выглядит как:
             # HYPERBOLIC_API_KEY = "$API_KEY"
             sed -i "s/HYPERBOLIC_API_KEY = \"\$API_KEY\"/HYPERBOLIC_API_KEY = \"$USER_API_KEY\"/" hyper_bot.py
             
             # --- 6. Скачивание файла questions.txt ---
             QUESTIONS_URL="https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/hyperbolic/questions.txt"
-            echo "Скачивание questions.txt из GitHub..."
             curl -fsSL -o hyperbolic/questions.txt "$QUESTIONS_URL"
 
             # --- 7. Создание systemd сервиса ---
