@@ -40,7 +40,8 @@ echo -e "${YELLOW}Выберите действие:${NC}"
 echo -e "${CYAN}1) Установка ноды${NC}"
 echo -e "${CYAN}2) Обновление ноды${NC}"
 echo -e "${CYAN}3) Проверка логов${NC}"
-echo -e "${CYAN}4) Удаление ноды${NC}"
+echo -e "${CYAN}4) Рестарт ноды${NC}"
+echo -e "${CYAN}5) Удаление ноды${NC}"
 
 echo -e "${YELLOW}Введите номер:${NC} "
 read choice
@@ -72,15 +73,24 @@ case $choice in
 
         # Создаем .t3rn и записываем приватный ключ
         CONFIG_FILE="$HOME_DIR/executor/executor/bin/.t3rn"
-        echo "NODE_ENV=testnet" > $CONFIG_FILE
+        echo "ENVIRONMENT=testnet" > $CONFIG_FILE
         echo "LOG_LEVEL=debug" >> $CONFIG_FILE
         echo "LOG_PRETTY=false" >> $CONFIG_FILE
+        echo "EXECUTOR_PROCESS_BIDS_ENABLED=true" >> $CONFIG_FILE
         echo "EXECUTOR_PROCESS_ORDERS=true" >> $CONFIG_FILE
         echo "EXECUTOR_PROCESS_CLAIMS=true" >> $CONFIG_FILE
         echo "PRIVATE_KEY_LOCAL=" >> $CONFIG_FILE
-        echo "ENABLED_NETWORKS='arbitrum-sepolia,base-sepolia,optimism-sepolia,l1rn'" >> $CONFIG_FILE
-        echo "RPC_ENDPOINTS_BSSP='https://base-sepolia-rpc.publicnode.com'" >> $CONFIG_FILE
-
+        echo "EXECUTOR_MAX_L3_GAS_PRICE=50" >> $CONFIG_FILE
+        echo "ENABLED_NETWORKS='arbitrum-sepolia,base-sepolia,optimism-sepolia,l2rn'" >> $CONFIG_FILE
+        cat <<'EOF' >> $CONFIG_FILE
+export RPC_ENDPOINTS='{
+    "l2rn": ["https://b2n.rpc.caldera.xyz/http"],
+    "arbt": ["https://arbitrum-sepolia.drpc.org", "https://sepolia-rollup.arbitrum.io/rpc"],
+    "bast": ["https://base-sepolia-rpc.publicnode.com", "https://base-sepolia.drpc.org"],
+    "opst": ["https://sepolia.optimism.io", "https://optimism-sepolia.drpc.org"],
+    "unit": ["https://unichain-sepolia.drpc.org", "https://sepolia.unichain.org"]
+}'
+EOF
         if ! grep -q "ENVIRONMENT=testnet" "$HOME/executor/executor/bin/.t3rn"; then
           echo "ENVIRONMENT=testnet" >> "$HOME/executor/executor/bin/.t3rn"
         fi
@@ -149,14 +159,24 @@ EOT"
         
         # Создаем .t3rn и записываем приватный ключ
         CONFIG_FILE="$HOME_DIR/executor/executor/bin/.t3rn"
-        echo "NODE_ENV=testnet" > $CONFIG_FILE
+        echo "ENVIRONMENT=testnet" > $CONFIG_FILE
         echo "LOG_LEVEL=debug" >> $CONFIG_FILE
         echo "LOG_PRETTY=false" >> $CONFIG_FILE
+        echo "EXECUTOR_PROCESS_BIDS_ENABLED=true" >> $CONFIG_FILE
         echo "EXECUTOR_PROCESS_ORDERS=true" >> $CONFIG_FILE
         echo "EXECUTOR_PROCESS_CLAIMS=true" >> $CONFIG_FILE
         echo "PRIVATE_KEY_LOCAL=" >> $CONFIG_FILE
-        echo "ENABLED_NETWORKS='arbitrum-sepolia,base-sepolia,optimism-sepolia,l1rn'" >> $CONFIG_FILE
-        echo "RPC_ENDPOINTS_BSSP='https://base-sepolia-rpc.publicnode.com'" >> $CONFIG_FILE
+        echo "EXECUTOR_MAX_L3_GAS_PRICE=50" >> $CONFIG_FILE
+        echo "ENABLED_NETWORKS='arbitrum-sepolia,base-sepolia,optimism-sepolia,l2rn'" >> $CONFIG_FILE
+        cat <<'EOF' >> $CONFIG_FILE
+export RPC_ENDPOINTS='{
+    "l2rn": ["https://b2n.rpc.caldera.xyz/http"],
+    "arbt": ["https://arbitrum-sepolia.drpc.org", "https://sepolia-rollup.arbitrum.io/rpc"],
+    "bast": ["https://base-sepolia-rpc.publicnode.com", "https://base-sepolia.drpc.org"],
+    "opst": ["https://sepolia.optimism.io", "https://optimism-sepolia.drpc.org"],
+    "unit": ["https://unichain-sepolia.drpc.org", "https://sepolia.unichain.org"]
+}'
+EOF
 
         if ! grep -q "ENVIRONMENT=testnet" "$HOME/executor/executor/bin/.t3rn"; then
           echo "ENVIRONMENT=testnet" >> "$HOME/executor/executor/bin/.t3rn"
@@ -189,6 +209,11 @@ EOT"
         sudo journalctl -u t3rn -f
         ;;
     4)
+        # Рестарт ноды
+        sudo systemctl restart t3rn
+        sudo journalctl -u t3rn -f
+        ;;
+    5)
         echo -e "${BLUE}Удаление ноды t3rn...${NC}"
 
         # Остановка и удаление сервиса
