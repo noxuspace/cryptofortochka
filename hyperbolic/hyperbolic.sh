@@ -72,7 +72,6 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             HOME_DIR=$(eval echo ~$USERNAME)
             
             SERVICE_FILE="/etc/systemd/system/hyper-bot.service"
-            echo "Создание systemd сервиса: $SERVICE_FILE"
             sudo tee "$SERVICE_FILE" > /dev/null <<EOT
             [Unit]
             Description=Hyperbolic API Bot Service
@@ -81,7 +80,7 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             [Service]
             User=root
             WorkingDirectory=$HOME_DIR/hyperbolic
-            ExecStart=$HOME_DIR/hyperbolic/venv/bin/python $PROJECT_DIR/hyper_bot.py
+            ExecStart=$HOME_DIR/hyperbolic/venv/bin/python $HOME_DIR/hyperbolic/hyper_bot.py
             Restart=always
             Environment=PATH=$HOME_DIR/hyperbolic/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
             
@@ -91,6 +90,7 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
 
             # --- 8. Обновление конфигурации systemd и запуск сервиса ---
             sudo systemctl daemon-reload
+            sudo systemctl restart systemd-journald
             sudo systemctl enable hyper-bot.service
             sudo systemctl start hyper-bot.service
             
