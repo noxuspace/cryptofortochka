@@ -35,20 +35,16 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             echo -e "${BLUE}Установка бота...${NC}"
 
             # --- 1. Обновление системы и установка необходимых пакетов ---
-            echo "Обновление системы и установка пакетов..."
             sudo apt update && sudo apt upgrade -y
             sudo apt install -y python3 python3-venv python3-pip curl
             
             # --- 2. Создание папки проекта ---
             PROJECT_DIR="$HOME/hyperbolic"
-            echo "Создание папки проекта: $PROJECT_DIR"
             mkdir -p "$PROJECT_DIR"
             cd "$PROJECT_DIR" || exit 1
             
             # --- 3. Создание виртуального окружения и установка зависимостей ---
-            echo "Создание виртуального окружения..."
             python3 -m venv venv
-            echo "Активация виртуального окружения и установка зависимостей..."
             source venv/bin/activate
             pip install --upgrade pip
             pip install requests
@@ -57,7 +53,6 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             
             # --- 4. Скачивание файла hyper_bot.py ---
             BOT_URL="https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/hyperbolic/hyper_bot.py"
-            echo "Скачивание hyper_bot.py из GitHub..."
             curl -fsSL -o hyperbolic/hyper_bot.py "$BOT_URL"
 
             # --- 5. Запрос API-ключа и его замена в hyper_bot.py ---
