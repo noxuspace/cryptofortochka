@@ -70,23 +70,22 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             # Определяем пользователя и домашнюю директорию
             USERNAME=$(whoami)
             HOME_DIR=$(eval echo ~$USERNAME)
-            
-            SERVICE_FILE="/etc/systemd/system/hyper-bot.service"
-            sudo tee "$SERVICE_FILE" > /dev/null <<EOT
-            [Unit]
-            Description=Hyperbolic API Bot Service
-            After=network.target
-            
-            [Service]
-            User=$USERNAME
-            WorkingDirectory=$HOME_DIR/hyperbolic
-            ExecStart=$HOME_DIR/hyperbolic/venv/bin/python $HOME_DIR/hyperbolic/hyper_bot.py
-            Restart=always
-            Environment=PATH=$HOME_DIR/hyperbolic/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
-            
-            [Install]
-            WantedBy=multi-user.target
-            EOT
+
+            sudo bash -c "cat <<EOT > /etc/systemd/system/hyper-bot.service
+[Unit]
+Description=Hyperbolic API Bot Service
+After=network.target
+
+[Service]
+User=$USERNAME
+WorkingDirectory=$HOME_DIR/hyperbolic
+ExecStart=$HOME_DIR/hyperbolic/venv/bin/python $HOME_DIR/hyperbolic/hyper_bot.py
+Restart=always
+Environment=PATH=$HOME_DIR/hyperbolic/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+
+[Install]
+WantedBy=multi-user.target
+EOT"
 
             # --- 8. Обновление конфигурации systemd и запуск сервиса ---
             sudo systemctl daemon-reload
@@ -144,6 +143,6 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             ;;
 
         *)
-            echo -e "${RED}Неверный выбор. Пожалуйста, введите номер от 1 до 4!${NC}"
+            echo -e "${RED}Неверный выбор. Пожалуйста, введите номер от 1 до 5!${NC}"
             ;;
     esac
