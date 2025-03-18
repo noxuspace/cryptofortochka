@@ -125,19 +125,17 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
         5)
             echo -e "${BLUE}Удаление ноды Gensyn...${NC}"
 
-            # Остановка и удаление контейнера
-            cd rl-swarm && docker compose down -v
-
-            # Удаление папки
-            if [ -d "$HOME/rl-swarm" ]; then
-                rm -rf $HOME/rl-swarm
-                echo -e "${GREEN}Директория ноды удалена.${NC}"
-            else
-                echo -e "${RED}Директория ноды не найдена.${NC}"
-            fi
-
-            echo -e "${GREEN}Нода Gensyn успешно удалена!${NC}"
-
+            # Остановка и удаление сервиса
+            sudo systemctl stop hyper-bot.service
+            sudo systemctl disable hyper-bot.service
+            sudo rm /etc/systemd/system/hyper-bot.service
+            sudo systemctl daemon-reload
+            sleep 2
+    
+            # Удаление папки executor
+            rm -rf $HOME_DIR/hyperbolic
+    
+            echo -e "${GREEN}Бот успешно удален!${NC}"
             # Завершающий вывод
             echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
             echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
