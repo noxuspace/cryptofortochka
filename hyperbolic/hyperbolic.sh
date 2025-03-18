@@ -67,6 +67,10 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             curl -fsSL -o hyperbolic/questions.txt "$QUESTIONS_URL"
 
             # --- 7. Создание systemd сервиса ---
+            # Определяем пользователя и домашнюю директорию
+            USERNAME=$(whoami)
+            HOME_DIR=$(eval echo ~$USERNAME)
+            
             SERVICE_FILE="/etc/systemd/system/hyper-bot.service"
             echo "Создание systemd сервиса: $SERVICE_FILE"
             sudo tee "$SERVICE_FILE" > /dev/null <<EOT
@@ -76,10 +80,10 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             
             [Service]
             User=root
-            WorkingDirectory=$PROJECT_DIR
-            ExecStart=$PROJECT_DIR/venv/bin/python $PROJECT_DIR/hyper_bot.py
+            WorkingDirectory=$HOME_DIR/hyperbolic
+            ExecStart=$HOME_DIR/hyperbolic/venv/bin/python $PROJECT_DIR/hyper_bot.py
             Restart=always
-            Environment=PATH=$PROJECT_DIR/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+            Environment=PATH=$HOME_DIR/hyperbolic/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
             
             [Install]
             WantedBy=multi-user.target
