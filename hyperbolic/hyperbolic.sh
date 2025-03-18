@@ -60,7 +60,7 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             read USER_API_KEY
             # Заменяем $API_KEY (в строке) на введённое значение. Предполагается, что в файле строка выглядит как:
             # HYPERBOLIC_API_KEY = "$API_KEY"
-            sed -i "s/HYPERBOLIC_API_KEY = \"\$API_KEY\"/HYPERBOLIC_API_KEY = \"$USER_API_KEY\"/" hyper_bot.py
+            sed -i "s/HYPERBOLIC_API_KEY = \"\$API_KEY\"/HYPERBOLIC_API_KEY = \"$USER_API_KEY\"/" "$PROJECT_DIR/hyper_bot.py"
             
             # --- 6. Скачивание файла questions.txt ---
             QUESTIONS_URL="https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/hyperbolic/questions.txt"
@@ -78,7 +78,7 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             After=network.target
             
             [Service]
-            User=root
+            User=$USERNAME
             WorkingDirectory=$HOME_DIR/hyperbolic
             ExecStart=$HOME_DIR/hyperbolic/venv/bin/python $HOME_DIR/hyperbolic/hyper_bot.py
             Restart=always
@@ -123,7 +123,7 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             ;;
             
         5)
-            echo -e "${BLUE}Удаление ноды Gensyn...${NC}"
+            echo -e "${BLUE}Удаление бота...${NC}"
 
             # Остановка и удаление сервиса
             sudo systemctl stop hyper-bot.service
