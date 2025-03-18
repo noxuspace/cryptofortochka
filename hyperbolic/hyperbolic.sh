@@ -117,9 +117,9 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             ;;
 
         4)
-            echo -e "${BLUE}Рестарт ноды...${NC}"
-            cd rl-swarm && docker compose restart
-            docker compose logs -f swarm_node
+            echo -e "${BLUE}Рестарт бота...${NC}"
+            sudo systemctl restart hyper-bot.service
+            sudo journalctl -u hyper-bot.service -f
             ;;
             
         5)
