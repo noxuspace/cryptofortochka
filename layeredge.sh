@@ -191,8 +191,16 @@ EOT"
         ;;
     6)
         echo -e "${BLUE}Удаление ноды...${NC}"
+        sudo systemctl stop light-node.service
+        sudo systemctl disable light-node.service
+        sudo systemctl stop merkle.service
+        sudo systemctl disable merkle.service
 
-        
+        sudo rm /etc/systemd/system/light-node.service
+        sudo rm /etc/systemd/system/merkle.service
+        sudo systemctl daemon-reload
+
+        rm -rf ~/light-node
 
         echo -e "${GREEN}Нода успешно удалена!${NC}"
 
