@@ -108,6 +108,8 @@ case $choice in
         echo "export API_REQUEST_TIMEOUT=100" >> .env
         echo "export POINTS_API=http://127.0.0.1:8080" >> .env
         echo "export PRIVATE_KEY='$PRIV_KEY'" >> .env
+
+        cd ~
         
         echo -e "${GREEN}Зависимости установлены и настроены!${NC}"
         ;;
@@ -138,7 +140,6 @@ EOT"
         sleep 2
         sudo systemctl enable merkle.service
         sudo systemctl start merkle.service
-        cd ~
         # Проверка логов
         sudo journalctl -u merkle.service -f
         ;;
