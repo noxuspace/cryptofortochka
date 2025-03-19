@@ -74,6 +74,8 @@ case $choice in
         fi
 
         curl -L https://risczero.com/install | bash
+        source "$HOME/.bashrc"
+        sleep 5
         rzup install
 
         # Запрашиваем приватный ключ у пользователя
