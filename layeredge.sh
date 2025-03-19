@@ -111,6 +111,7 @@ After=network.target
 
 [Service]
 User=$USERNAME
+Environment=PATH=${HOME_DIR}/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
 WorkingDirectory=$HOME_DIR/light-node/risc0-merkle-service
 ExecStart=/usr/bin/env bash -c \"cargo build && cargo run --release\"
 Restart=always
