@@ -128,6 +128,15 @@ EOT"
         USERNAME=$(whoami)
         HOME_DIR=$(eval echo ~$USERNAME)
 
+        # Определяем путь к Go
+        GO_PATH=$(which go)
+        
+        # Проверяем, что GO_PATH не пустой
+        if [ -z "$GO_PATH" ]; then
+            echo "Go не найден в PATH. Проверьте установку Go."
+            exit 1
+        fi
+
         sudo bash -c "cat <<EOT > /etc/systemd/system/light-node.service
 [Unit]
 Description=LayerEdge Light Node Service
@@ -136,7 +145,7 @@ After=network.target
 [Service]
 User=$USERNAME
 WorkingDirectory=$HOME_DIR/light-node
-ExecStartPre=/usr/bin/go build
+ExecStartPre=$GO_PATH build
 ExecStart=$HOME_DIR/light-node/light-node
 Restart=always
 RestartSec=10
