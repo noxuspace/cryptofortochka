@@ -220,7 +220,7 @@ EOF
         sleep 2
 
         # Удаление папки executor
-        rm -rf $HOME_DIR/executor
+        rm -rf $HOME/executor
 
         echo -e "${GREEN}Нода t3rn успешно удалена!${NC}"
 
