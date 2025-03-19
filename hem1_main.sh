@@ -146,14 +146,6 @@ EOT
         tar --strip-components=1 -xzvf heminetwork_v1.0.0_linux_amd64.tar.gz -C hemi-main
         cd hemi-main
 
-        # Создание tBTC кошелька
-        ./keygen -secp256k1 -json  > popm-address.json
-
-        # Вывод содержимого файла popm-address.json
-        echo -e "${RED}Сохраните эти данные в надежное место:${NC}"
-        cat popm-address.json
-        echo -e "${PURPLE}Ваш pubkey_hash — это ваш адрес, на который нужно отправить BTC.${NC}"
-
         echo -e "${YELLOW}Введите ваш приватный ключ от кошелька:${NC} "
         read PRIV_KEY
         echo -e "${YELLOW}Укажите желаемый размер комиссии (рекомендуем 2-3):${NC} "
