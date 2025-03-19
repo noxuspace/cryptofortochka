@@ -79,7 +79,7 @@ case $choice in
         echo "EXECUTOR_MAX_L3_GAS_PRICE=50" >> $CONFIG_FILE
         echo "ENABLED_NETWORKS='arbitrum-sepolia,base-sepolia,optimism-sepolia,l2rn'" >> $CONFIG_FILE
         cat <<'EOF' >> $CONFIG_FILE
-export RPC_ENDPOINTS='{
+RPC_ENDPOINTS='{
     "l2rn": ["https://b2n.rpc.caldera.xyz/http"],
     "arbt": ["https://arbitrum-sepolia.drpc.org", "https://sepolia-rollup.arbitrum.io/rpc"],
     "bast": ["https://base-sepolia-rpc.publicnode.com", "https://base-sepolia.drpc.org"],
@@ -165,7 +165,7 @@ EOT"
         echo "EXECUTOR_MAX_L3_GAS_PRICE=50" >> $CONFIG_FILE
         echo "ENABLED_NETWORKS='arbitrum-sepolia,base-sepolia,optimism-sepolia,l2rn'" >> $CONFIG_FILE
         cat <<'EOF' >> $CONFIG_FILE
-export RPC_ENDPOINTS='{
+RPC_ENDPOINTS='{
     "l2rn": ["https://b2n.rpc.caldera.xyz/http"],
     "arbt": ["https://arbitrum-sepolia.drpc.org", "https://sepolia-rollup.arbitrum.io/rpc"],
     "bast": ["https://base-sepolia-rpc.publicnode.com", "https://base-sepolia.drpc.org"],
