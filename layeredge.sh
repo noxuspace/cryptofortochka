@@ -125,7 +125,7 @@ After=network.target
 
 [Service]
 User=$USERNAME
-WorkingDirectory=HOME_DIR/light-node/risc0-merkle-service
+WorkingDirectory=$HOME_DIR/light-node/risc0-merkle-service
 ExecStart=/usr/bin/env bash -c \"cargo build && cargo run --release\"
 Restart=always
 RestartSec=10
@@ -133,11 +133,36 @@ RestartSec=10
 [Install]
 WantedBy=multi-user.target
 EOT"
+
+        sudo systemctl daemon-reload
+        sleep 2
+        sudo systemctl enable merkle.service
+        sudo systemctl start merkle.service
+        cd ~
         # Проверка логов
-        
+        sudo journalctl -u merkle.service -f
         ;;
     3)
         echo -e "${BLUE}Запускаем ноду...${NC}"
+        USERNAME=$(whoami)
+        HOME_DIR=$(eval echo ~$USERNAME)
+
+        sudo bash -c "cat <<EOT > /etc/systemd/system/light-node.service
+[Unit]
+Description=LayerEdge Light Node Service
+After=network.target
+
+[Service]
+User=$USERNAME
+WorkingDirectory=$HOME_DIR/light-node
+ExecStartPre=/usr/bin/go build
+ExecStart=$HOME_DIR/light-node/light-node
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOT"
 
 
         # Заключительный вывод
