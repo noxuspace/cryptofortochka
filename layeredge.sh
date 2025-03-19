@@ -164,16 +164,20 @@ RestartSec=10
 WantedBy=multi-user.target
 EOT"
 
+        sudo systemctl daemon-reload
+        sleep 2
+        sudo systemctl enable light-node.service
+        sudo systemctl start light-node.service
 
         # Заключительный вывод
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
         echo -e "${YELLOW}Команда для проверки логов:${NC}"
-        echo "sudo journalctl -u dria -f --no-hostname -o cat"
+        echo "sudo journalctl -u light-node.service -f"
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
         echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
         echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
         sleep 2
-        
+        sudo journalctl -u light-node.service -f
         ;;
     4)
         echo -e "${BLUE}Проверяем логи ноды...${NC}"
