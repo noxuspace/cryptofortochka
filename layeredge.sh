@@ -41,10 +41,9 @@ case $choice in
         git clone https://github.com/Layer-Edge/light-node.git
         cd light-node
 
-        REQUIRED_GO_VERSION="1.18"
-        LATEST_GO_VERSION="1.20.3"  # Замените на актуальную последнюю версию, если нужно
-        
-        if ! command -v go >/dev/null 2>&1; then
+        LATEST_GO_VERSION="1.21.3"  # Замените на актуальную версию, если нужно
+
+        if ! command -v go &> /dev/null; then
             echo -e "${BLUE}Go не установлен. Устанавливаем последнюю версию ($LATEST_GO_VERSION)...${NC}"
             wget https://go.dev/dl/go${LATEST_GO_VERSION}.linux-amd64.tar.gz
             sudo rm -rf /usr/local/go
@@ -53,40 +52,25 @@ case $choice in
             export PATH=$PATH:/usr/local/go/bin
             echo -e "${GREEN}Go установлен.${NC}"
         else
-            current_version=$(go version | awk '{print $3}' | sed 's/go//')
-            echo -e "${BLUE}Установленная версия Go: $current_version${NC}"
-            if [ "$(printf '%s\n' "$REQUIRED_GO_VERSION" "$current_version" | sort -V | head -n1)" = "$current_version" ] && [ "$current_version" != "$REQUIRED_GO_VERSION" ]; then
-                echo -e "${BLUE}Версия Go ($current_version) ниже требуемой ($REQUIRED_GO_VERSION). Обновляем до версии $LATEST_GO_VERSION...${NC}"
-                wget https://go.dev/dl/go${LATEST_GO_VERSION}.linux-amd64.tar.gz
-                sudo rm -rf /usr/local/go
-                sudo tar -C /usr/local -xzf go${LATEST_GO_VERSION}.linux-amd64.tar.gz
-                rm go${LATEST_GO_VERSION}.linux-amd64.tar.gz
-                export PATH=$PATH:/usr/local/go/bin
-                echo -e "${GREEN}Go обновлён до версии $LATEST_GO_VERSION.${NC}"
-            else
-                echo -e "${GREEN}Установленная версия Go удовлетворяет требованиям.${NC}"
-            fi
+            echo -e "${BLUE}Go уже установлен. Обновляем его до версии $LATEST_GO_VERSION...${NC}"
+            wget https://go.dev/dl/go${LATEST_GO_VERSION}.linux-amd64.tar.gz
+            sudo rm -rf /usr/local/go
+            sudo tar -C /usr/local -xzf go${LATEST_GO_VERSION}.linux-amd64.tar.gz
+            rm go${LATEST_GO_VERSION}.linux-amd64.tar.gz
+            export PATH=$PATH:/usr/local/go/bin
+            echo -e "${GREEN}Go обновлён до версии $LATEST_GO_VERSION.${NC}"
         fi
 
-        REQUIRED_RUST_VERSION="1.81.0"
-
-        if ! command -v rustc >/dev/null 2>&1; then
-            echo -e "${BLUE}Rust не установлен. Устанавливаем Rust (через rustup)...${NC}"
+        if ! command -v rustc &> /dev/null; then
+            echo -e "${BLUE}Rust не установлен. Устанавливаем Rust через rustup...${NC}"
             curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
             source $HOME/.cargo/env
-            echo -e "${GREEN}Rust установлен.${NC}"
+            echo -e "${GREEN}Rust успешно установлен.${NC}"
         else
-            current_version=$(rustc --version | awk '{print $2}')
-            echo -e "${BLUE}Установленная версия Rust: $current_version${NC}"
-            # Сравниваем версии: если текущая версия меньше требуемой, обновляем.
-            if [ "$(printf '%s\n' "$REQUIRED_RUST_VERSION" "$current_version" | sort -V | head -n1)" = "$current_version" ] && [ "$current_version" != "$REQUIRED_RUST_VERSION" ]; then
-                echo -e "${BLUE}Версия Rust ($current_version) ниже требуемой ($REQUIRED_RUST_VERSION). Обновляем Rust...${NC}"
-                rustup update
-                source $HOME/.cargo/env
-                echo -e "${GREEN}Rust обновлён до последней версии.${NC}"
-            else
-                echo -e "${GREEN}Установленная версия Rust удовлетворяет требованиям.${NC}"
-            fi
+            echo -e "${BLUE}Rust уже установлен. Обновляем его через rustup update...${NC}"
+            rustup update
+            source $HOME/.cargo/env
+            echo -e "${GREEN}Rust успешно обновлён.${NC}"
         fi
 
         if ! command -v rzup >/dev/null 2>&1; then
