@@ -73,13 +73,8 @@ case $choice in
             echo -e "${GREEN}Rust успешно обновлён.${NC}"
         fi
 
-        if ! command -v rzup >/dev/null 2>&1; then
-            echo -e "${BLUE}Risc0 Toolchain не установлен. Устанавливаем Risc0 Toolchain...${NC}"
-            curl -L https://risczero.com/install | bash && rzup install
-            echo -e "${GREEN}Risc0 Toolchain установлен.${NC}"
-        else
-            echo -e "${GREEN}Risc0 Toolchain уже установлен.${NC}"
-        fi
+        curl -L https://risczero.com/install | bash
+        rzup install
 
         # Запрашиваем приватный ключ у пользователя
         echo -e "${YELLOW}Введите ваш приватный ключ:${NC} "
