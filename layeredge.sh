@@ -182,41 +182,12 @@ EOT"
         ;;
     4)
         echo -e "${BLUE}Проверяем логи ноды...${NC}"
-
-        # Остановка сервиса
-        sudo systemctl stop dria
-
-        # Запрашиваем новый порт у пользователя
-        echo -e "${YELLOW}Введите новый порт для Dria:${NC}"
-        read NEW_PORT
-
-        # Путь к файлу .env
-        ENV_FILE="$HOME/.dria/dkn-compute-launcher/.env"
-
-        # Обновляем порт в файле .env
-        sed -i "s|DKN_P2P_LISTEN_ADDR=/ip4/0.0.0.0/tcp/[0-9]*|DKN_P2P_LISTEN_ADDR=/ip4/0.0.0.0/tcp/$NEW_PORT|" "$ENV_FILE"
-
-        # Перезапуск сервиса
-        sudo systemctl daemon-reload
-        sudo systemctl restart systemd-journald
-        sudo systemctl start dria
-
-        # Заключительный вывод
-        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-        echo -e "${YELLOW}Команда для проверки логов:${NC}"
-        echo "sudo journalctl -u dria -f --no-hostname -o cat"
-        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-        echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
-        echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
-        sleep 2
-
-        # Проверка логов
-        
+        sudo journalctl -u light-node.service -f
         ;;
     5)
         echo -e "${BLUE}Перезапускаем ноду...${NC}"
-        # Проверка логов
-        
+        sudo systemctl restart light-node.service
+        sudo journalctl -u light-node.service -f
         ;;
     6)
         echo -e "${BLUE}Удаление ноды...${NC}"
