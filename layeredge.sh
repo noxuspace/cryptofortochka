@@ -118,12 +118,21 @@ case $choice in
         USERNAME=$(whoami)
         HOME_DIR=$(eval echo ~$USERNAME)
 
-        
+        sudo bash -c "cat <<EOT > /etc/systemd/system/merkle.service
+[Unit]
+Description=Merkle Service for Light Node
+After=network.target
 
-      
+[Service]
+User=$USERNAME
+WorkingDirectory=HOME_DIR/light-node/risc0-merkle-service
+ExecStart=/usr/bin/env bash -c \"cargo build && cargo run --release\"
+Restart=always
+RestartSec=10
 
-        
-
+[Install]
+WantedBy=multi-user.target
+EOT"
         # Проверка логов
         
         ;;
