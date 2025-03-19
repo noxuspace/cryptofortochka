@@ -113,7 +113,6 @@ WorkingDirectory=$HOME_DIR/light-node/risc0-merkle-service
 ExecStart=/usr/bin/env bash -c \"cargo build && cargo run --release\"
 Restart=always
 RestartSec=10
-TimeoutStartSec=600
 
 [Install]
 WantedBy=multi-user.target
@@ -152,7 +151,7 @@ ExecStartPre=$GO_PATH build
 ExecStart=$HOME_DIR/light-node/light-node
 Restart=always
 RestartSec=10
-TimeoutStartSec=600
+TimeoutStartSec=200
 
 [Install]
 WantedBy=multi-user.target
