@@ -51,7 +51,7 @@ case $choice in
             sudo tar -C /usr/local -xzf go${LATEST_GO_VERSION}.linux-amd64.tar.gz
             rm go${LATEST_GO_VERSION}.linux-amd64.tar.gz
             export PATH=$PATH:/usr/local/go/bin
-            echo -e "${BLUE}Go установлен.${NC}"
+            echo -e "${GREEN}Go установлен.${NC}"
         else
             current_version=$(go version | awk '{print $3}' | sed 's/go//')
             echo -e "${BLUE}Установленная версия Go: $current_version${NC}"
@@ -62,12 +62,42 @@ case $choice in
                 sudo tar -C /usr/local -xzf go${LATEST_GO_VERSION}.linux-amd64.tar.gz
                 rm go${LATEST_GO_VERSION}.linux-amd64.tar.gz
                 export PATH=$PATH:/usr/local/go/bin
-                echo -e "${BLUE}Go обновлён до версии $LATEST_GO_VERSION.${NC}"
+                echo -e "${GREEN}Go обновлён до версии $LATEST_GO_VERSION.${NC}"
             else
                 echo -e "${GREEN}Установленная версия Go удовлетворяет требованиям.${NC}"
             fi
         fi
 
+        REQUIRED_RUST_VERSION="1.81.0"
+
+        if ! command -v rustc >/dev/null 2>&1; then
+            echo -e "${BLUE}Rust не установлен. Устанавливаем Rust (через rustup)...${NC}"
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+            source $HOME/.cargo/env
+            echo -e "${GREEN}Rust установлен.${NC}"
+        else
+            current_version=$(rustc --version | awk '{print $2}')
+            echo -e "${BLUE}Установленная версия Rust: $current_version${NC}"
+            # Сравниваем версии: если текущая версия меньше требуемой, обновляем.
+            if [ "$(printf '%s\n' "$REQUIRED_RUST_VERSION" "$current_version" | sort -V | head -n1)" = "$current_version" ] && [ "$current_version" != "$REQUIRED_RUST_VERSION" ]; then
+                echo -e "${BLUE}Версия Rust ($current_version) ниже требуемой ($REQUIRED_RUST_VERSION). Обновляем Rust...${NC}"
+                rustup update
+                source $HOME/.cargo/env
+                echo -e "${GREEN}Rust обновлён до последней версии.${NC}"
+            else
+                echo -e "${GREEN}Установленная версия Rust удовлетворяет требованиям.${NC}"
+            fi
+        fi
+
+        if ! command -v rzup >/dev/null 2>&1; then
+            echo -e "${BLUE}Risc0 Toolchain не установлен. Устанавливаем Risc0 Toolchain...${NC}"
+            curl -L https://risczero.com/install | bash && rzup install
+            echo -e "${GREEN}Risc0 Toolchain установлен.${NC}"
+        else
+            echo -e "${GREEN}Risc0 Toolchain уже установлен.${NC}"
+        fi
+
+        
         
         ;;
     2)
