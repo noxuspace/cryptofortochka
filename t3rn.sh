@@ -80,7 +80,7 @@ case $choice in
         echo "EXECUTOR_PROCESS_ORDERS=true" >> $CONFIG_FILE
         echo "EXECUTOR_PROCESS_CLAIMS=true" >> $CONFIG_FILE
         echo "PRIVATE_KEY_LOCAL=" >> $CONFIG_FILE
-        echo "EXECUTOR_MAX_L3_GAS_PRICE=100" >> $CONFIG_FILE
+        echo "EXECUTOR_MAX_L3_GAS_PRICE=1500" >> $CONFIG_FILE
         echo "ENABLED_NETWORKS='arbitrum-sepolia,base-sepolia,optimism-sepolia,l2rn'" >> $CONFIG_FILE
         cat <<'EOF' >> $CONFIG_FILE
 RPC_ENDPOINTS='{
@@ -170,7 +170,7 @@ EOT"
         echo "EXECUTOR_PROCESS_ORDERS=true" >> $CONFIG_FILE
         echo "EXECUTOR_PROCESS_CLAIMS=true" >> $CONFIG_FILE
         echo "PRIVATE_KEY_LOCAL=" >> $CONFIG_FILE
-        echo "EXECUTOR_MAX_L3_GAS_PRICE=100" >> $CONFIG_FILE
+        echo "EXECUTOR_MAX_L3_GAS_PRICE=1500" >> $CONFIG_FILE
         echo "ENABLED_NETWORKS='arbitrum-sepolia,base-sepolia,optimism-sepolia,l2rn'" >> $CONFIG_FILE
         cat <<'EOF' >> $CONFIG_FILE
 RPC_ENDPOINTS='{
