@@ -26,7 +26,8 @@ echo -e "${CYAN}2) Запуск Merkle-сервиса${NC}"
 echo -e "${CYAN}3) Запуск ноды${NC}"
 echo -e "${CYAN}4) Проверка логов ноды${NC}"
 echo -e "${CYAN}5) Перезапуск ноды${NC}"
-echo -e "${CYAN}6) Удаление ноды${NC}"
+echo -e "${CYAN}6) Обновление ноды${NC}"
+echo -e "${CYAN}7) Удаление ноды${NC}"
 
 echo -e "${YELLOW}Введите номер:${NC} "
 read choice
@@ -173,6 +174,31 @@ EOT"
         sudo journalctl -u light-node.service -f
         ;;
     6)
+        echo -e "${BLUE}Обновляем ноду...${NC}"
+        cd light-node
+        sudo systemctl stop light-node.service
+
+        rm -f .env
+
+        # Запрашиваем приватный ключ у пользователя
+        echo -e "${YELLOW}Введите ваш приватный ключ без 0x:${NC} "
+        read PRIV_KEY
+        
+        # Создаем файл .env с нужным содержимым
+        echo "GRPC_URL=grpc.testnet.layeredge.io:9090" > .env
+        echo "CONTRACT_ADDR=cosmos1ufs3tlq4umljk0qfe8k5ya0x6hpavn897u2cnf9k0en9jr7qarqqt56709" >> .env
+        echo "ZK_PROVER_URL=http://127.0.0.1:3001" >> .env
+        echo "ZK_PROVER_URL=https://layeredge.mintair.xyz/" >> .env
+        echo "API_REQUEST_TIMEOUT=100" >> .env
+        echo "POINTS_API=https://light-node.layeredge.io" >> .env
+        echo "PRIVATE_KEY='$PRIV_KEY'" >> .env
+
+        cd ~
+        
+        sudo systemctl restart light-node.service
+        sudo journalctl -u light-node.service -f
+        ;;
+    7)
         echo -e "${BLUE}Удаление ноды...${NC}"
         sudo systemctl stop light-node.service
         sudo systemctl disable light-node.service
@@ -194,6 +220,6 @@ EOT"
         sleep 1
         ;;
     *)
-        echo -e "${RED}Неверный выбор. Пожалуйста, введите номер от 1 до 6.${NC}"
+        echo -e "${RED}Неверный выбор. Пожалуйста, введите номер от 1 до 7.${NC}"
         ;;
 esac
