@@ -5,7 +5,7 @@ import logging
 # Конфигурация API Hyperbolic
 HYPERBOLIC_API_URL = "https://api.hyperbolic.xyz/v1/chat/completions"
 HYPERBOLIC_API_KEY = "$API_KEY"  # Замените на ваш API-ключ
-MODEL = "NousResearch/Hermes-3-Llama-3.1-70B"      # Или укажите нужную модель
+MODEL = "meta-llama/Llama-3.3-70B-Instruct"      # Или укажите нужную модель
 MAX_TOKENS = 2048
 TEMPERATURE = 0.7
 TOP_P = 0.9
