@@ -49,3 +49,26 @@ cd /root/t3rn/executor/executor/bin/
 # Перезапускаем сервис и проверяем логи
 echo -e "${GREEN}Перезапуск сервиса и проверка логов...${NC}"
 sudo systemctl restart t3rn.service && sudo journalctl -u t3rn -f
+
+
+
+
+
+# Устновка
+        # Скачиваем бинарник
+        LATEST_VERSION=$(curl -s https://api.github.com/repos/t3rn/executor-release/releases/latest | grep 'tag_name' | cut -d\" -f4)
+        EXECUTOR_URL="https://github.com/t3rn/executor-release/releases/download/${LATEST_VERSION}/executor-linux-${LATEST_VERSION}.tar.gz"
+        curl -L -o executor-linux-${LATEST_VERSION}.tar.gz $EXECUTOR_URL
+
+        # Извлекаем
+        tar -xzvf executor-linux-${LATEST_VERSION}.tar.gz
+        rm -rf executor-linux-${LATEST_VERSION}.tar.gz
+
+
+# Обновление
+        # Скачиваем новый бинарник
+        LATEST_VERSION=$(curl -s https://api.github.com/repos/t3rn/executor-release/releases/latest | grep 'tag_name' | cut -d\" -f4)
+        EXECUTOR_URL="https://github.com/t3rn/executor-release/releases/download/${LATEST_VERSION}/executor-linux-${LATEST_VERSION}.tar.gz"
+        curl -L -o executor-linux-${LATEST_VERSION}.tar.gz $EXECUTOR_URL
+        tar -xzvf executor-linux-${LATEST_VERSION}.tar.gz
+        rm -rf executor-linux-${LATEST_VERSION}.tar.gz
