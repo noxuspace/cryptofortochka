@@ -73,11 +73,12 @@ case $choice in
         read PRIV_KEY
         
         # Создаем файл .env с нужным содержимым
-        echo "GRPC_URL=34.31.74.109:9090" > .env
+        echo "GRPC_URL=grpc.testnet.layeredge.io:9090" > .env
         echo "CONTRACT_ADDR=cosmos1ufs3tlq4umljk0qfe8k5ya0x6hpavn897u2cnf9k0en9jr7qarqqt56709" >> .env
         echo "ZK_PROVER_URL=http://127.0.0.1:3001" >> .env
+        echo "ZK_PROVER_URL=https://layeredge.mintair.xyz/" >> .env
         echo "API_REQUEST_TIMEOUT=100" >> .env
-        echo "POINTS_API=http://127.0.0.1:8080" >> .env
+        echo "POINTS_API=https://light-node.layeredge.io" >> .env
         echo "PRIVATE_KEY='$PRIV_KEY'" >> .env
 
         cd ~
