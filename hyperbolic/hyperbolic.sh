@@ -25,7 +25,8 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
     echo -e "${CYAN}2) Обновление бота${NC}"
     echo -e "${CYAN}3) Просмотр логов${NC}"
     echo -e "${CYAN}4) Рестарт бота${NC}"
-    echo -e "${CYAN}5) Удаление бота${NC}"
+    echo -e "${CYAN}5) Заменить на свои вопросы${NC}"
+    echo -e "${CYAN}6) Удаление бота${NC}"
 
     echo -e "${YELLOW}Введите номер:${NC} "
     read choice
@@ -120,8 +121,24 @@ EOT"
             sudo systemctl restart hyper-bot.service
             sudo journalctl -u hyper-bot.service -f
             ;;
-            
         5)
+            sudo systemctl stop hyper-bot.service
+            sleep 2
+            QUESTIONS_FILE="$HOME/hyperbolic/questions.txt"
+
+            # Очищаем содержимое файла
+            > "$QUESTIONS_FILE"
+            
+            echo -e "${YELLOW}Вставьте ваши вопросы (каждая строка — отдельный вопрос)${NC}"
+            echo -e "${RED}Когда закончите, нажмите Ctrl+D:${NC}"
+            
+            # Читаем все строки из STDIN и записываем в файл
+            cat > "$QUESTIONS_FILE"
+
+            sudo systemctl restart hyper-bot.service
+            sudo journalctl -u hyper-bot.service -f           
+            ;;
+        6)
             echo -e "${BLUE}Удаление бота...${NC}"
 
             # Остановка и удаление сервиса
@@ -143,6 +160,6 @@ EOT"
             ;;
 
         *)
-            echo -e "${RED}Неверный выбор. Пожалуйста, введите номер от 1 до 5!${NC}"
+            echo -e "${RED}Неверный выбор. Пожалуйста, введите номер от 1 до 6!${NC}"
             ;;
     esac
