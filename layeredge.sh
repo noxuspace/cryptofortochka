@@ -41,25 +41,15 @@ case $choice in
         git clone https://github.com/Layer-Edge/light-node.git
         cd light-node
 
-        LATEST_GO_VERSION="1.21.3"  # Замените на актуальную версию, если нужно
-
-        if ! command -v go &> /dev/null; then
-            echo -e "${BLUE}Go не установлен. Устанавливаем последнюю версию ($LATEST_GO_VERSION)...${NC}"
-            wget https://go.dev/dl/go${LATEST_GO_VERSION}.linux-amd64.tar.gz
-            sudo rm -rf /usr/local/go
-            sudo tar -C /usr/local -xzf go${LATEST_GO_VERSION}.linux-amd64.tar.gz
-            rm go${LATEST_GO_VERSION}.linux-amd64.tar.gz
-            export PATH=$PATH:/usr/local/go/bin
-            echo -e "${GREEN}Go установлен.${NC}"
-        else
-            echo -e "${BLUE}Go уже установлен. Обновляем его до версии $LATEST_GO_VERSION...${NC}"
-            wget https://go.dev/dl/go${LATEST_GO_VERSION}.linux-amd64.tar.gz
-            sudo rm -rf /usr/local/go
-            sudo tar -C /usr/local -xzf go${LATEST_GO_VERSION}.linux-amd64.tar.gz
-            rm go${LATEST_GO_VERSION}.linux-amd64.tar.gz
-            export PATH=$PATH:/usr/local/go/bin
-            echo -e "${GREEN}Go обновлён до версии $LATEST_GO_VERSION.${NC}"
-        fi
+        VER="1.21.3"
+        wget "https://golang.org/dl/go$VER.linux-amd64.tar.gz"
+        sudo rm -rf /usr/local/go
+        sudo tar -C /usr/local -xzf "go$VER.linux-amd64.tar.gz"
+        rm "go$VER.linux-amd64.tar.gz"
+        [ ! -f ~/.bash_profile ] && touch ~/.bash_profile
+        echo "export PATH=$PATH:/usr/local/go/bin:~/go/bin" >> ~/.bash_profile
+        source $HOME/.bash_profile
+        [ ! -d ~/go/bin ] && mkdir -p ~/go/bin
 
         if ! command -v rustc &> /dev/null; then
             echo -e "${BLUE}Rust не установлен. Устанавливаем Rust через rustup...${NC}"
