@@ -38,6 +38,7 @@ case $choice in
 
         # Обновление и установка зависимостей
         sudo apt update && sudo apt-get upgrade -y
+        sudo apt install -y git screen htop curl wget build-essential
 
         git clone https://github.com/Layer-Edge/light-node.git
         cd light-node
