@@ -5,7 +5,7 @@ import os
 
 # URL API Gaia
 API_URL = "https://$NODE_ID.gaia.domains/v1/chat/completions"
-GAIA_API_KEY = os.getenv("GAIA_API_KEY")
+GAIA_API_KEY = "$GAIA_API_KEY"
 
 # Заголовки запроса
 HEADERS = {
