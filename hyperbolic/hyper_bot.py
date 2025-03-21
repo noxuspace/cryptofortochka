@@ -9,7 +9,7 @@ MODEL = "meta-llama/Llama-3.3-70B-Instruct"      # Или укажите нуж�
 MAX_TOKENS = 2048
 TEMPERATURE = 0.7
 TOP_P = 0.9
-DELAY_BETWEEN_QUESTIONS = 15  # задержка между вопросами в секундах
+DELAY_BETWEEN_QUESTIONS = 30  # задержка между вопросами в секундах
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
