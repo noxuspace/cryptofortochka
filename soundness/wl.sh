@@ -1,9 +1,10 @@
 #!/bin/bash
 
 if ! command -v docker &> /dev/null; then
-            sudo apt install docker.io -y
+    sudo apt install docker.io -y
+fi
 
-https://github.com/icodragon/soundness-layer -b feat/docker-soundness-cli && cd soundness-layer/soundness-cli
+git clone https://github.com/icodragon/soundness-layer -b feat/docker-soundness-cli && cd soundness-layer/soundness-cli
 sleep 1
 
 docker compose build
