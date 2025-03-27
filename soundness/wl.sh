@@ -1,13 +1,20 @@
 #!/bin/bash
 
-if ! command -v docker &> /dev/null; then
-    sudo apt install docker.io -y
-fi
+if ! command -v rustc &> /dev/null; then
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+            source $HOME/.cargo/env
+        else
+            rustup update
+            source $HOME/.cargo/env
+        fi
 
-git clone https://github.com/icodragon/soundness-layer -b feat/docker-soundness-cli && cd soundness-layer/soundness-cli
-sleep 1
+source $HOME/.cargo/env
 
-docker compose build
+curl -sSL https://raw.githubusercontent.com/soundnesslabs/soundness-layer/main/soundnessup/install | bash
+source ~/.bashrc
+
+soundnessup install
 sleep 2
+soundnessup update
 
-docker compose run --rm soundness-cli generate-key --name my-key
+soundness-cli generate-key --name my-key
