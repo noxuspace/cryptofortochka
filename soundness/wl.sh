@@ -13,8 +13,4 @@ source $HOME/.cargo/env
 curl -sSL https://raw.githubusercontent.com/soundnesslabs/soundness-layer/main/soundnessup/install | bash
 source ~/.bashrc
 
-soundnessup install
-sleep 2
-soundnessup update
 
-soundness-cli generate-key --name my-key
