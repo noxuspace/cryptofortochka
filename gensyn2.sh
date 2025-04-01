@@ -92,8 +92,7 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
         4)
             echo -e "${BLUE}Удаление ноды Gensyn...${NC}"
 
-            # Остановка и удаление контейнера
-            cd rl-swarm && docker compose down -v
+            screen -XS swarm quit
 
             # Удаление папки
             if [ -d "$HOME/rl-swarm" ]; then
