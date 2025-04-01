@@ -69,15 +69,8 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
             source ~/.bashrc
 
-            screen -S gensyn
-
             cd
             git clone https://github.com/gensyn-ai/rl-swarm/
-            cd rl-swarm
-
-            python3 -m venv .venv
-            source .venv/bin/activate
-            ./run_rl_swarm.sh
             ;;
 
         2)
