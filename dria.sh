@@ -58,6 +58,7 @@ case $choice in
         #./dkn-compute-launcher
         curl -fsSL https://dria.co/launcher | bash
         sleep 3
+        mkdir -p "$HOME/.dria/dkn-compute-launcher" && wget -O "$HOME/.dria/dkn-compute-launcher/.env" https://raw.githubusercontent.com/firstbatchxyz/dkn-compute-launcher/master/.env.example
         dkn-compute-launcher start
         ;;
     2)
