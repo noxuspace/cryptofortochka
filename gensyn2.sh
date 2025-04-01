@@ -71,6 +71,8 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
 
             cd
             git clone https://github.com/gensyn-ai/rl-swarm/
+
+            echo -e "${RED}Вернитесь к текстовому гайду и следуйте дальнейшим инструкциям!${NC}"
             ;;
 
         2)
