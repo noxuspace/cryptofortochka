@@ -65,21 +65,7 @@ case $choice in
         screen -S dria
         ;;
     3)
-        echo -e "${BLUE}Обновляем ноду...${NC}"
-        sudo systemctl stop dria
-        sleep 3
-        # Если старая версия есть, можно удалить её по пути, указанному в сервисе.
-        # Если $(which dkn-compute-launcher) пустой, эта строка можно убрать или заменить проверкой.
-        sudo rm /usr/local/bin/dkn-compute-launcher 2>/dev/null
-        curl -fsSL https://dria.co/launcher | bash
-        sleep 3
-        # Явно копируем бинарник из нового пути в /usr/local/bin
-        sudo cp $HOME/.dria/bin/dkn-compute-launcher /usr/local/bin/dkn-compute-launcher
-        sudo chmod +x /usr/local/bin/dkn-compute-launcher
-        sudo systemctl daemon-reload
-        sleep 3
-        sudo systemctl restart dria
-        sudo journalctl -u dria -f --no-hostname -o cat
+        echo -e "${GREEN}У вас актуальная версия ноды Dria.${NC}"
         ;;
     4)
         echo -e "${BLUE}Изменение порта...${NC}"
