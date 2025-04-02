@@ -68,13 +68,18 @@ case $choice in
     4)
         echo -e "${BLUE}Удаление ноды Dria...${NC}"
 
-        # Остановка и удаление сервиса
-        sudo systemctl stop dria
-        sudo systemctl disable dria
-        sudo rm /etc/systemd/system/dria.service
-        sudo systemctl daemon-reload
-        sleep 2
+        SERVICE_FILE="/etc/systemd/system/dria.service"
+        
+        if [ -f "$SERVICE_FILE" ]; then
+            sudo systemctl stop dria
+            sudo systemctl disable dria
+            sudo rm "$SERVICE_FILE"
+            sudo systemctl daemon-reload
+        fi
 
+        # Если сессии найдены, удаляем их
+        
+        
         # Удаление папки ноды
         rm -rf $HOME/.dria
         rm -rf ~/dkn-compute-node
