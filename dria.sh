@@ -22,10 +22,9 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
 # Меню
 echo -e "${YELLOW}Выберите действие:${NC}"
 echo -e "${CYAN}1) Установка ноды${NC}"
-echo -e "${CYAN}2) Запуск ноды${NC}"
-echo -e "${CYAN}3) Обновление ноды${NC}"
-echo -e "${CYAN}4) Проверка логов${NC}"
-echo -e "${CYAN}5) Удаление ноды${NC}"
+echo -e "${CYAN}2) Обновление ноды${NC}"
+echo -e "${CYAN}3) Проверка логов${NC}"
+echo -e "${CYAN}4) Удаление ноды${NC}"
 
 echo -e "${YELLOW}Введите номер:${NC} "
 read choice
@@ -61,16 +60,13 @@ case $choice in
         dkn-compute-launcher start
         ;;
     2)
-        screen -S dria
-        ;;
-    3)
         echo -e "${GREEN}У вас актуальная версия ноды Dria.${NC}"
         ;;
-    4)
+    3)
         # Проверка логов
         screen -r dria
         ;;
-    5)
+    4)
         echo -e "${BLUE}Удаление ноды Dria...${NC}"
 
         # Остановка и удаление сервиса
@@ -93,6 +89,6 @@ case $choice in
         sleep 1
         ;;
     *)
-        echo -e "${RED}Неверный выбор. Пожалуйста, введите номер от 1 до 5.${NC}"
+        echo -e "${RED}Неверный выбор. Пожалуйста, введите номер от 1 до 4.${NC}"
         ;;
 esac
