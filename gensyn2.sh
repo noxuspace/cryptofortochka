@@ -87,7 +87,7 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
         4)
             echo -e "${BLUE}Удаление ноды Gensyn...${NC}"
 
-            # Находим все сессии screen, содержащие "hemi"
+            # Находим все сессии screen, содержащие "gensyn"
             SESSION_IDS=$(screen -ls | grep "gensyn" | awk '{print $1}' | cut -d '.' -f 1)
     
             # Если сессии найдены, удаляем их
