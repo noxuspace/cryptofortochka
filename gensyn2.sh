@@ -87,7 +87,18 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
         4)
             echo -e "${BLUE}Удаление ноды Gensyn...${NC}"
 
-            screen -XS swarm quit
+            # Находим все сессии screen, содержащие "hemi"
+            SESSION_IDS=$(screen -ls | grep "gensyn" | awk '{print $1}' | cut -d '.' -f 1)
+    
+            # Если сессии найдены, удаляем их
+            if [ -n "$SESSION_IDS" ]; then
+                echo -e "${BLUE}Завершение сессий screen с идентификаторами: $SESSION_IDS${NC}"
+                for SESSION_ID in $SESSION_IDS; do
+                    screen -S "$SESSION_ID" -X quit
+                done
+            else
+                echo -e "${BLUE}Сессии screen для ноды Gensyn не найдены, продолжаем удаление${NC}"
+            fi
 
             # Удаление папки
             if [ -d "$HOME/rl-swarm" ]; then
