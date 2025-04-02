@@ -24,9 +24,8 @@ echo -e "${YELLOW}Выберите действие:${NC}"
 echo -e "${CYAN}1) Установка ноды${NC}"
 echo -e "${CYAN}2) Запуск ноды${NC}"
 echo -e "${CYAN}3) Обновление ноды${NC}"
-echo -e "${CYAN}4) Изменение порта${NC}"
-echo -e "${CYAN}5) Проверка логов${NC}"
-echo -e "${CYAN}6) Удаление ноды${NC}"
+echo -e "${CYAN}4) Проверка логов${NC}"
+echo -e "${CYAN}5) Удаление ноды${NC}"
 
 echo -e "${YELLOW}Введите номер:${NC} "
 read choice
@@ -68,43 +67,10 @@ case $choice in
         echo -e "${GREEN}У вас актуальная версия ноды Dria.${NC}"
         ;;
     4)
-        echo -e "${BLUE}Изменение порта...${NC}"
-
-        # Остановка сервиса
-        sudo systemctl stop dria
-
-        # Запрашиваем новый порт у пользователя
-        echo -e "${YELLOW}Введите новый порт для Dria:${NC}"
-        read NEW_PORT
-
-        # Путь к файлу .env
-        ENV_FILE="$HOME/.dria/dkn-compute-launcher/.env"
-
-        # Обновляем порт в файле .env
-        sed -i "s|DKN_P2P_LISTEN_ADDR=/ip4/0.0.0.0/tcp/[0-9]*|DKN_P2P_LISTEN_ADDR=/ip4/0.0.0.0/tcp/$NEW_PORT|" "$ENV_FILE"
-
-        # Перезапуск сервиса
-        sudo systemctl daemon-reload
-        sudo systemctl restart systemd-journald
-        sudo systemctl start dria
-
-        # Заключительный вывод
-        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-        echo -e "${YELLOW}Команда для проверки логов:${NC}"
-        echo "sudo journalctl -u dria -f --no-hostname -o cat"
-        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-        echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
-        echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
-        sleep 2
-
         # Проверка логов
-        sudo journalctl -u dria -f --no-hostname -o cat
+        screen -r dria
         ;;
     5)
-        # Проверка логов
-        sudo journalctl -u dria -f --no-hostname -o cat
-        ;;
-    6)
         echo -e "${BLUE}Удаление ноды Dria...${NC}"
 
         # Остановка и удаление сервиса
@@ -127,6 +93,6 @@ case $choice in
         sleep 1
         ;;
     *)
-        echo -e "${RED}Неверный выбор. Пожалуйста, введите номер от 1 до 6.${NC}"
+        echo -e "${RED}Неверный выбор. Пожалуйста, введите номер от 1 до 5.${NC}"
         ;;
 esac
