@@ -62,47 +62,7 @@ case $choice in
         dkn-compute-launcher start
         ;;
     2)
-        echo -e "${BLUE}Запускаем ноду Dria...${NC}"
-
-        # Определяем имя текущего пользователя и его домашнюю директорию
-        USERNAME=$(whoami)
-        HOME_DIR=$(eval echo ~$USERNAME)
-
-        # Создание файла сервиса
-        sudo bash -c "cat <<EOT > /etc/systemd/system/dria.service
-[Unit]
-Description=Dria Compute Node Service
-After=network.target
-
-[Service]
-User=$USERNAME
-EnvironmentFile=$HOME_DIR/.dria/dkn-compute-launcher/.env
-ExecStart=/usr/local/bin/dkn-compute-launcher start
-WorkingDirectory=$HOME_DIR/.dria/dkn-compute-launcher/
-Restart=on-failure
-
-[Install]
-WantedBy=multi-user.target
-EOT"
-
-        # Перезагрузка и старт сервиса
-        sudo systemctl daemon-reload
-        sudo systemctl restart systemd-journald
-        sleep 1
-        sudo systemctl enable dria
-        sudo systemctl start dria
-
-        # Заключительный вывод
-        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-        echo -e "${YELLOW}Команда для проверки логов:${NC}"
-        echo "sudo journalctl -u dria -f --no-hostname -o cat"
-        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-        echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
-        echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
-        sleep 2
-
-        # Проверка логов
-        sudo journalctl -u dria -f --no-hostname -o cat
+        screen -S dria
         ;;
     3)
         echo -e "${BLUE}Обновляем ноду...${NC}"
