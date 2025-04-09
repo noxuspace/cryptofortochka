@@ -109,7 +109,7 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             echo -e "${BLUE}Обновление ноды Waku...${NC}"
             cd $HOME/nwaku-compose
             docker-compose down
-            sudo rm -r keystore rln_tree
+            sudo rm -fr rln_tree keystore
             git pull origin master
             ./register_rln.sh
             docker-compose up -d
