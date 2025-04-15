@@ -88,7 +88,15 @@ case $choice in
         ;;
     3)
         echo -e "${BLUE}Установка ноды...${NC}"
-
+        # Путь к файлу drosera.toml
+        TARGET_FILE="$HOME/my-drosera-trap/drosera.toml"
+        
+        # Запрос адреса EVM кошелька у пользователя
+        read -p "${YELLOW}Введите адрес вашего EVM кошелька:${NC}" WALLET_ADDRESS
+        
+        # Добавление строк в конец файла
+        echo "private_trap = true" >> "$TARGET_FILE"
+        echo "whitelist = [\"$WALLET_ADDRESS\"]" >> "$TARGET_FILE"
 
 
         # Заключительное сообщение
