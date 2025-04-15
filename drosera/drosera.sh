@@ -120,6 +120,8 @@ case $choice in
         echo "private_trap = true" >> "$TARGET_FILE"
         echo "whitelist = [\"$WALLET_ADDRESS\"]" >> "$TARGET_FILE"
 
+        cd my-drosera-trap
+
         # Запрос приватного ключа от EVM-кошелька
         echo -e "${YELLOW}Введите ваш приватный ключ от EVM кошелька:${NC} "
         read PRIV_KEY
@@ -136,6 +138,7 @@ case $choice in
         echo -e "${YELLOW}Вернитесь к текстовому гайду!${NC}"
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
         sleep 2
+        cd
         ;;
     4)
         echo -e "${BLUE}Запуск ноды...${NC}"
