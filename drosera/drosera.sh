@@ -111,6 +111,12 @@ case $choice in
         
         # Путь к файлу drosera.toml
         TARGET_FILE="$HOME/my-drosera-trap/drosera.toml"
+
+        # Если файл существует, удаляем строки, начинающиеся с private_trap и whitelist
+        [ -f "$TARGET_FILE" ] && {
+            sed -i '/^private_trap/d' "$TARGET_FILE"
+            sed -i '/^whitelist/d' "$TARGET_FILE"
+        }
         
         # Запрос адреса EVM кошелька у пользователя
         echo -e "${YELLOW}Введите адрес вашего EVM кошелька:${NC} "
