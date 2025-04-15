@@ -142,7 +142,9 @@ case $choice in
         WantedBy=multi-user.target
         EOF"
 
-        
+        sudo systemctl daemon-reload
+        sudo systemctl enable drosera
+        sudo systemctl start drosera
         
         # Заключительное сообщение
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
