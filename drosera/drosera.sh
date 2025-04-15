@@ -108,6 +108,7 @@ case $choice in
         ;;
     3)
         echo -e "${BLUE}Установка ноды...${NC}"
+        
         # Путь к файлу drosera.toml
         TARGET_FILE="$HOME/my-drosera-trap/drosera.toml"
         
@@ -118,6 +119,16 @@ case $choice in
         # Добавление строк в конец файла
         echo "private_trap = true" >> "$TARGET_FILE"
         echo "whitelist = [\"$WALLET_ADDRESS\"]" >> "$TARGET_FILE"
+
+        # Запрос приватного ключа от EVM-кошелька
+        echo -e "${YELLOW}Введите ваш приватный ключ от EVM кошелька:${NC} "
+        read PRIV_KEY
+        
+        # Устанавливаем переменную окружения
+        export DROSERA_PRIVATE_KEY="$PRIV_KEY"
+        
+        # Выполняем команду drosera apply с подставленным ключом
+        drosera apply
 
 
         # Заключительное сообщение
