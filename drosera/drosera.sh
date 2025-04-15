@@ -42,6 +42,23 @@ case $choice in
         curl -L https://app.drosera.io/install | bash
         curl -L https://foundry.paradigm.xyz | bash
         curl -fsSL https://bun.sh/install | bash
+
+        echo "Проверка порта 31313..."
+        # Проверяем правило для порта 31313. Если правило отсутствует, то команда iptables -C вернет ошибку.
+        if ! sudo iptables -C INPUT -p tcp --dport 31313 -j ACCEPT 2>/dev/null; then
+            echo "Порт 31313 закрыт. Открываем его..."
+            sudo iptables -I INPUT -p tcp --dport 31313 -j ACCEPT && echo "Порт 31313 открыт."
+        else
+            echo "Порт 31313 уже открыт."
+        fi
+        
+        echo "Проверка порта 31314..."
+        if ! sudo iptables -C INPUT -p tcp --dport 31314 -j ACCEPT 2>/dev/null; then
+            echo "Порт 31314 закрыт. Открываем его..."
+            sudo iptables -I INPUT -p tcp --dport 31314 -j ACCEPT && echo "Порт 31314 открыт."
+        else
+            echo "Порт 31314 уже открыт."
+        fi
         
         # Заключительное сообщение
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
