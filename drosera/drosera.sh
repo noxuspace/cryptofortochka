@@ -57,6 +57,20 @@ case $choice in
         mkdir my-drosera-trap
         cd my-drosera-trap
 
+        # Запрос Email
+        read -p "${YELLOW}Введите вашу Github почту:${NC}" GITHUB_EMAIL
+        # Запрос Username
+        read -p "${YELLOW}Введите ваш Github юзернейм:${NC}" GITHUB_USERNAME
+        
+        # Применяем настройки git
+        git config --global user.email "$GITHUB_EMAIL"
+        git config --global user.name "$GITHUB_USERNAME"
+
+        forge init -t drosera-network/trap-foundry-template
+
+        bun install
+        forge build
+
         
       
 
