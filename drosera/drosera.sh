@@ -51,7 +51,13 @@ case $choice in
         ;;
     2)
         echo -e "${BLUE}Деплой Trap...${NC}"
+        droseraup
+        foundryup
 
+        mkdir my-drosera-trap
+        cd my-drosera-trap
+
+        
       
 
         # Заключительное сообщение
