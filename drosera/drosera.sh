@@ -92,8 +92,19 @@ case $choice in
     8)
         echo -e "${BLUE}Удаление ноды Drosera...${NC}"
 
-        
+        # Остановка и удаление сервиса Hemi
+        sudo systemctl stop drosera.service
+        sudo systemctl disable drosera.service
+        sudo rm /etc/systemd/system/drosera.service
+        sudo systemctl daemon-reload
+        sleep 1
 
+        # Удаление папки с названием, содержащим "hemi"
+        echo -e "${BLUE}Удаляем файлы ноды Drosera...${NC}"
+        rm -rf my-drosera-trap
+        
+        echo -e "${GREEN}Нода Drosera успешно удалена!${NC}"
+        
         # Заключительное сообщение
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
         echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
