@@ -71,9 +71,15 @@ case $choice in
         bun install
         forge build
 
+        # Запрос приватного ключа от EVM-кошелька
+        read -p "${YELLOW}Введите ваш приватный ключ от EVM кошелька: ${NC}" PRIV_KEY
         
+        # Устанавливаем переменную окружения
+        export DROSERA_PRIVATE_KEY="$PRIV_KEY"
+        
+        # Выполняем команду drosera apply с подставленным ключом
+        drosera apply
       
-
         # Заключительное сообщение
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
         echo -e "${YELLOW}Вернитесь к текстовому гайду!${NC}"
