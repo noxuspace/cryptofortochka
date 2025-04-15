@@ -36,7 +36,12 @@ read choice
 case $choice in
     1)
         echo -e "${BLUE}Установка зависимостей...${NC}"
+        sudo apt-get update && sudo apt-get upgrade -y
+        sudo apt install curl ufw iptables build-essential git wget lz4 jq make gcc nano automake autoconf tmux htop nvme-cli libgbm1 pkg-config libssl-dev libleveldb-dev tar clang bsdmainutils ncdu unzip libleveldb-dev  -y
 
+        curl -L https://app.drosera.io/install | bash
+        curl -L https://foundry.paradigm.xyz | bash
+        curl -fsSL https://bun.sh/install | bash
         
         # Заключительное сообщение
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
