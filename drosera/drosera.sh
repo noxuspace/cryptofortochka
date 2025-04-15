@@ -75,9 +75,11 @@ case $choice in
         cd my-drosera-trap
 
         # Запрос Email
-        read -p "${YELLOW}Введите вашу Github почту:${NC}" GITHUB_EMAIL
+        echo -e "${YELLOW}Введите вашу Github почту:${NC} "
+        read GITHUB_EMAIL
         # Запрос Username
-        read -p "${YELLOW}Введите ваш Github юзернейм:${NC}" GITHUB_USERNAME
+        echo -e "${YELLOW}Введите ваш Github юзернейм:${NC} "
+        read GITHUB_USERNAME
         
         # Применяем настройки git
         git config --global user.email "$GITHUB_EMAIL"
@@ -89,7 +91,8 @@ case $choice in
         forge build
 
         # Запрос приватного ключа от EVM-кошелька
-        read -p "${YELLOW}Введите ваш приватный ключ от EVM кошелька: ${NC}" PRIV_KEY
+        echo -e "${YELLOW}Введите ваш приватный ключ от EVM кошелька:${NC} "
+        read PRIV_KEY
         
         # Устанавливаем переменную окружения
         export DROSERA_PRIVATE_KEY="$PRIV_KEY"
@@ -109,7 +112,8 @@ case $choice in
         TARGET_FILE="$HOME/my-drosera-trap/drosera.toml"
         
         # Запрос адреса EVM кошелька у пользователя
-        read -p "${YELLOW}Введите адрес вашего EVM кошелька:${NC}" WALLET_ADDRESS
+        echo -e "${YELLOW}Введите адрес вашего EVM кошелька:${NC} "
+        read WALLET_ADDRESS
         
         # Добавление строк в конец файла
         echo "private_trap = true" >> "$TARGET_FILE"
