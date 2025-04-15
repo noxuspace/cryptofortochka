@@ -149,6 +149,13 @@ case $choice in
                
         sudo cp drosera-operator /usr/bin
 
+        # Запрос приватного ключа от EVM-кошелька
+        echo -e "${YELLOW}Введите ваш приватный ключ от EVM кошелька:${NC} "
+        read PRIV_KEY
+        
+        # Устанавливаем переменную окружения
+        export DROSERA_PRIVATE_KEY="$PRIV_KEY"
+
         drosera-operator register --eth-rpc-url https://ethereum-holesky-rpc.publicnode.com --eth-private-key $DROSERA_PRIVATE_KEY
 
         SERVER_IP=$(curl -s https://api.ipify.org)
