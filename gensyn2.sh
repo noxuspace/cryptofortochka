@@ -80,13 +80,7 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             ;;
 
         2)
-            screen -r gensyn
-            cd
-            cd rl-swarm
-            python3 -m venv .venv
-            source .venv/bin/activate
-            git fetch --all && git checkout tags/v0.3.0
-            ./run_rl_swarm.sh
+            echo -e "${BLUE}Перейдите в текстовый гайд и выполните инструкции с раздела с обновлением!${NC}"
             ;;
 
         3)
