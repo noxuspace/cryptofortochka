@@ -79,7 +79,9 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             ;;
 
         2)
-            
+            sudo -u geth_holesky /home/geth_holesky/eth-docker/ethd down -v
+            rm -rf /home/geth_holesky
+            sudo deluser --remove-home geth_holesky
             ;;
 
 
