@@ -1,19 +1,28 @@
 #!/bin/bash
 set -e
 
-# Перейти в папку с docker-compose
+# Определяем, какой синтаксис compose доступен
+if command -v docker-compose &> /dev/null; then
+  DC="docker-compose"
+elif docker compose version &> /dev/null; then
+  DC="docker compose"
+else
+  echo "Ошибка: не найдено ни команды 'docker-compose', ни команды 'docker compose'." >&2
+  exit 1
+fi
+
+# Переходим в папку проекта
 cd mee-node-deployment
 
-# Остановить контейнеры
-docker compose down
+# Останавливаем
+$DC down
 sleep 5
 
-# Обновить версию образа в docker-compose.yml
-# Любую строку вида "image: bcnmy/mee-node:<текущая-версия>" заменяем на "...:1.1.14"
+# Обновляем образ в compose-файле
 sed -i -E 's#^(\s*image:\s*bcnmy/mee-node:).*#\11.1.14#' docker-compose.yml
 
-# Запустить заново в фоне
-docker compose up -d
+# Запускаем
+$DC up -d
 
-# Подключиться к логам контейнера
+# Показываем логи
 docker logs -f mee-node-deployment-node-1
