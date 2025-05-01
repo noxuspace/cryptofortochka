@@ -2,12 +2,12 @@ import time
 import requests
 import logging
 
-# Конфигурация API Hyperbolic
-HYPERBOLIC_API_URL = "https://api.hyperbolic.xyz/v1/chat/completions"
-HYPERBOLIC_API_KEY = "$API_KEY"  # Замените на ваш API-ключ
-MODEL = "deepseek-ai/DeepSeek-V3"      # Или укажите нужную модель
-MAX_TOKENS = 2048
-TEMPERATURE = 0.7
+# Конфигурация API Nous
+NOUS_API_URL = "https://inference-api.nousresearch.com/v1/chat/completions"
+NOUS_API_KEY = "$API_KEY"  # Замените на ваш API-ключ
+MODEL = "Hermes-3-Llama-3.1-70B"      # Или укажите нужную модель
+MAX_TOKENS = 60
+TEMPERATURE = 0.8
 TOP_P = 0.9
 DELAY_BETWEEN_QUESTIONS = 30  # задержка между вопросами в секундах
 
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 def get_response(question: str) -> str:
     headers = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {HYPERBOLIC_API_KEY}"
+        "Authorization": f"Bearer {NOUS_API_KEY}"
     }
     data = {
         "messages": [{"role": "user", "content": question}],
@@ -26,7 +26,7 @@ def get_response(question: str) -> str:
         "temperature": TEMPERATURE,
         "top_p": TOP_P
     }
-    response = requests.post(HYPERBOLIC_API_URL, headers=headers, json=data, timeout=30)
+    response = requests.post(NOUS_API_URL, headers=headers, json=data, timeout=30)
     response.raise_for_status()
     json_response = response.json()
     # Предполагается, что ответ имеет структуру, аналогичную OpenAI API:
