@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Цвета
 RED=$'\033[0;31m'
 GREEN=$'\033[0;32m'
 NC=$'\033[0m'
@@ -20,7 +19,6 @@ if ! [[ "$BLOCK_NUMBER" =~ ^[0-9]+$ ]]; then
 fi
 
 echo -e "${GREEN}Успешно получили высоту блока: $BLOCK_NUMBER${NC}"
-
 sleep 2
 
 # 2) Запрашиваем proof — передаём числа без кавычек!
