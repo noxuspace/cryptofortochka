@@ -76,12 +76,12 @@ case $choice in
         
         # 2) Записать всё это в файл .evm
         cat > .evm <<EOF
-        ETHEREUM_HOSTS=$RPC
-        L1_CONSENSUS_HOST_URLS=$CONSENSUS
-        VALIDATOR_PRIVATE_KEY=$PRIVATE_KEY
-        P2P_IP=$SERVER_IP
-        WALLET=$WALLET
-        EOF
+ETHEREUM_HOSTS=$RPC
+L1_CONSENSUS_HOST_URLS=$CONSENSUS
+VALIDATOR_PRIVATE_KEY=$PRIVATE_KEY
+P2P_IP=$SERVER_IP
+WALLET=$WALLET
+EOF
         
         # 3) Запуск контейнера (разовый, с привязкой тома и env-файлом)
         docker run -d \
