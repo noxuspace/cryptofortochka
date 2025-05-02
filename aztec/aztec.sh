@@ -120,10 +120,20 @@ EOF
         docker logs --tail 100 -f aztec-sequencer     
         ;;
     2)
-        bash -ic "curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/aztec/role.sh | bash"
+        # создаём временный файл
+        tmpf=$(mktemp) && \
+        # скачиваем role.sh в этот файл
+        curl -fsSL https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/aztec/role.sh > "$tmpf" && \
+        # исполняем его
+        bash "$tmpf" && \
+        # удаляем временный файл
+        rm -f "$tmpf"
         ;;
     3)
-        bash -ic "curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/aztec/validator.sh | bash"
+        tmpf=$(mktemp) &&
+        curl -fsSL https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/aztec/validator.sh >"$tmpf" &&
+        bash "$tmpf" &&
+        rm -f "$tmpf"
         ;;
     4)
         echo -e "${GREEN}У вас актуальная версия ноды Aztec!${NC}"
