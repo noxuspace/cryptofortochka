@@ -136,7 +136,35 @@ EOF
         rm -f "$tmpf"
         ;;
     4)
-        echo -e "${GREEN}У вас актуальная версия ноды Aztec!${NC}"
+        echo -e "${BLUE}Обновление ноды Aztec...${NC}"
+        # 1) Подтягиваем новую версию образа
+        docker pull aztecprotocol/aztec:alpha-testnet
+
+        # 2) Останавливаем и удаляем старый контейнер (тома и .evm сохранятся)
+        docker stop aztec-sequencer
+        docker rm aztec-sequencer
+
+        # 3) Запускаем контейнер заново с теми же параметрами, но новым тегом
+        docker run -d \
+          --name aztec-sequencer \
+          --network host \
+          --env-file "$HOME/aztec-sequencer/.evm" \
+          -e DATA_DIRECTORY=/data \
+          -e LOG_LEVEL=debug \
+          -v "$HOME/my-node/node":/data \
+          aztecprotocol/aztec:alpha-testnet \
+          sh -c 'node --no-warnings /usr/src/yarn-project/aztec/dest/bin/index.js \
+            start --network alpha-testnet --node --archiver --sequencer'
+
+        # Завершающий вывод
+        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+        echo -e "${YELLOW}Команда для проверки логов:${NC}" 
+        echo "docker logs --tail 100 -f aztec-sequencer"
+        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+        echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
+        echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
+        sleep 2
+        docker logs --tail 100 -f aztec-sequencer
         ;;
     5)
         docker logs --tail 100 -f aztec-sequencer
