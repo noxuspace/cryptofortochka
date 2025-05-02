@@ -36,7 +36,65 @@ case $choice in
     1)
         echo -e "${BLUE}Установка зависимостей...${NC}"
         sudo apt-get update && sudo apt-get upgrade -y
+        sudo apt install curl iptables build-essential git wget lz4 jq make gcc nano automake autoconf tmux htop nvme-cli libgbm1 pkg-config libssl-dev libleveldb-dev tar clang bsdmainutils ncdu unzip libleveldb-dev  -y
         
+        # 1. Установка Docker, если не установлен
+        if ! command -v docker &> /dev/null; then
+          curl -fsSL https://get.docker.com -o get-docker.sh
+          sh get-docker.sh
+          sudo usermod -aG docker $USER
+          rm get-docker.sh
+        fi
+        
+        # 2. Создание группы docker, если её нет
+        if ! getent group docker > /dev/null; then
+          sudo groupadd docker
+        fi
+        
+        # 3. Добавление пользователя в группу docker (на всякий случай ещё раз)
+        sudo usermod -aG docker $USER
+        
+        # 4. Настройка прав на сокет
+        if [ -S /var/run/docker.sock ]; then
+          sudo chmod 666 /var/run/docker.sock
+        else
+          sudo systemctl start docker
+          sudo chmod 666 /var/run/docker.sock
+        fi
+
+        # 1) Создать папку и спросить у пользователя все параметры
+        mkdir -p "$HOME/aztec-sequencer"
+        cd "$HOME/aztec-sequencer"
+        
+        read -p "Вставьте ваш URL RPC Sepolia: " RPC
+        read -p "Вставьте ваш URL Beacon Sepolia: " CONSENSUS
+        read -p "Вставьте приватный ключ от вашего кошелька: " PRIVATE_KEY
+        read -p "Вставьте адрес вашего кошелька (0x…): " WALLET
+        
+        # Автоматически подтянем наружний IP сервера
+        SERVER_IP=$(curl -s https://api.ipify.org)
+        
+        # 2) Записать всё это в файл .evm
+        cat > .evm <<EOF
+        ETHEREUM_HOSTS=$RPC
+        L1_CONSENSUS_HOST_URLS=$CONSENSUS
+        VALIDATOR_PRIVATE_KEY=$PRIVATE_KEY
+        P2P_IP=$SERVER_IP
+        WALLET=$WALLET
+        EOF
+        
+        # 3) Запуск контейнера (разовый, с привязкой тома и env-файлом)
+        docker run -d \
+          --name aztec-sequencer \
+          --network host \
+          --env-file "$HOME/aztec-sequencer/.evm" \
+          -e DATA_DIRECTORY=/data \
+          -e LOG_LEVEL=debug \
+          -v "$HOME/my-node/node":/data \
+          aztecprotocol/aztec:0.85.0-alpha-testnet.5 \
+          sh -c 'node --no-warnings /usr/src/yarn-project/aztec/dest/bin/index.js \
+            start --network alpha-testnet --node --archiver --sequencer'
+
         
         # Заключительное сообщение
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
