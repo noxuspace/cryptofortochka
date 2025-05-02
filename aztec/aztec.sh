@@ -81,7 +81,7 @@ case $choice in
         
         read -p "Вставьте ваш URL RPC Sepolia: " RPC
         read -p "Вставьте ваш URL Beacon Sepolia: " CONSENSUS
-        read -p "Вставьте приватный ключ от вашего кошелька: " PRIVATE_KEY
+        read -p "Вставьте приватный ключ от вашего кошелька (0x…): " PRIVATE_KEY
         read -p "Вставьте адрес вашего кошелька (0x…): " WALLET
         
         # Автоматически подтянем наружний IP сервера
@@ -121,37 +121,26 @@ EOF
         ;;
     2)
         curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/aztec/role.sh | bash
-      
-        # Заключительное сообщение
-        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-        echo -e "${YELLOW}Вернитесь к текстовому гайду!${NC}"
-        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-        sleep 2
         ;;
     3)
-        
-
-
-        # Заключительное сообщение
-        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-        echo -e "${YELLOW}Вернитесь к текстовому гайду!${NC}"
-        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-        sleep 2
-        cd
+    
         ;;
     4)
         echo -e "${GREEN}У вас актуальная версия ноды Aztec!${NC}"
         ;;
     5)
-        
+        docker logs --tail 100 -f aztec-sequencer
         ;;
     6)
-        
+        docker restart aztec-sequencer
+        docker logs --tail 100 -f aztec-sequencer
         ;;
     7)
-        echo -e "${BLUE}Удаление ноды Drosera...${NC}"
+        echo -e "${BLUE}Удаление ноды Aztec...${NC}"
+        docker stop aztec-sequencer
+        docker rm aztec-sequencer
 
-        
+        rm -rf $HOME/aztec-sequencer
         
         # Заключительное сообщение
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
