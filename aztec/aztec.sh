@@ -123,7 +123,7 @@ EOF
         curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/aztec/role.sh | bash
         ;;
     3)
-    
+        curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/aztec/validator.sh | bash
         ;;
     4)
         echo -e "${GREEN}У вас актуальная версия ноды Aztec!${NC}"
