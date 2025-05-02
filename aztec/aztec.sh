@@ -103,7 +103,7 @@ case $choice in
         sleep 2      
         ;;
     2)
-        
+        curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/aztec/role.sh | bash
       
         # Заключительное сообщение
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
