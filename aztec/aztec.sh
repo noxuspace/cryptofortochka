@@ -62,9 +62,22 @@ case $choice in
           sudo chmod 666 /var/run/docker.sock
         fi
 
+        # Проверка наличия iptables и установка, если отсутствует
+        if ! command -v iptables &> /dev/null; then
+          sudo apt-get update -y
+          sudo apt-get install -y iptables
+        fi
+
+        sudo iptables -I INPUT -p tcp --dport 40400 -j ACCEPT
+        sudo iptables -I INPUT -p udp --dport 40400 -j ACCEPT
+        sudo iptables -I INPUT -p tcp --dport 8080 -j ACCEPT
+        sudo sh -c "iptables-save > /etc/iptables/rules.v4"
+
         # 1) Создать папку и спросить у пользователя все параметры
         mkdir -p "$HOME/aztec-sequencer"
         cd "$HOME/aztec-sequencer"
+
+        docker pull aztecprotocol/aztec:0.85.0-alpha-testnet.5
         
         read -p "Вставьте ваш URL RPC Sepolia: " RPC
         read -p "Вставьте ваш URL Beacon Sepolia: " CONSENSUS
@@ -82,7 +95,7 @@ VALIDATOR_PRIVATE_KEY=$PRIVATE_KEY
 P2P_IP=$SERVER_IP
 WALLET=$WALLET
 EOF
-        
+
         # 3) Запуск контейнера (разовый, с привязкой тома и env-файлом)
         docker run -d \
           --name aztec-sequencer \
@@ -95,12 +108,16 @@ EOF
           sh -c 'node --no-warnings /usr/src/yarn-project/aztec/dest/bin/index.js \
             start --network alpha-testnet --node --archiver --sequencer'
 
-        
-        # Заключительное сообщение
+        cd ~
+        # Завершающий вывод
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-        echo -e "${YELLOW}Вернитесь к текстовому гайду!${NC}"
+        echo -e "${YELLOW}Команда для проверки логов:${NC}" 
+        echo "docker logs --tail 100 -f aztec-sequencer"
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-        sleep 2      
+        echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
+        echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
+        sleep 2
+        docker logs --tail 100 -f aztec-sequencer     
         ;;
     2)
         curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/aztec/role.sh | bash
