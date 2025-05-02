@@ -11,6 +11,12 @@ NC='\033[0m' # Нет цвета (сброс цвета)
 
 set -euo pipefail
 
+# Проверяем наличие jq и устанавливаем его при отсутствии
+if ! command -v jq &> /dev/null; then
+    sudo apt update -y
+    sudo apt install -y jq
+fi
+
 # Запрашиваем высоту последнего проверенного блока
 TIP_RESPONSE=$(curl -s -X POST -H 'Content-Type: application/json' \
   -d '{"jsonrpc":"2.0","method":"node_getL2Tips","params":[],"id":67}' \
