@@ -104,7 +104,7 @@ EOF
           -e DATA_DIRECTORY=/data \
           -e LOG_LEVEL=debug \
           -v "$HOME/my-node/node":/data \
-          aztecprotocol/aztec:0.85.0-alpha-testnet.5 \
+          aztecprotocol/aztec:alpha-testnet \
           sh -c 'node --no-warnings /usr/src/yarn-project/aztec/dest/bin/index.js \
             start --network alpha-testnet --node --archiver --sequencer'
 
