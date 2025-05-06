@@ -77,7 +77,7 @@ case $choice in
         mkdir -p "$HOME/aztec-sequencer"
         cd "$HOME/aztec-sequencer"
 
-        docker pull aztecprotocol/aztec:0.85.0-alpha-testnet.5
+        docker pull aztecprotocol/aztec:0.85.0-alpha-testnet.8
         
         read -p "Вставьте ваш URL RPC Sepolia: " RPC
         read -p "Вставьте ваш URL Beacon Sepolia: " CONSENSUS
@@ -138,11 +138,13 @@ EOF
     4)
         echo -e "${BLUE}Обновление ноды Aztec...${NC}"
         # 1) Подтягиваем новую версию образа
-        docker pull aztecprotocol/aztec:alpha-testnet
+        docker pull aztecprotocol/aztec:0.85.0-alpha-testnet.8
 
         # 2) Останавливаем и удаляем старый контейнер (тома и .evm сохранятся)
         docker stop aztec-sequencer
         docker rm aztec-sequencer
+
+        rm -rf "$HOME/my-node/node/"*
 
         # 3) Запускаем контейнер заново с теми же параметрами, но новым тегом
         docker run -d \
@@ -178,6 +180,7 @@ EOF
         docker stop aztec-sequencer
         docker rm aztec-sequencer
 
+        rm -rf "$HOME/my-node/node/"*
         rm -rf $HOME/aztec-sequencer
         
         # Заключительное сообщение
