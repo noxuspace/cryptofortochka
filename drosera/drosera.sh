@@ -215,6 +215,7 @@ EOF"
 
         grep -q '^drosera_team' $HOME/my-drosera-trap/drosera.toml || sed -i 's|^drosera_rpc.*|drosera_team = "https://relay.testnet.drosera.io/"|' $HOME/my-drosera-trap/drosera.toml
 
+        cd my-drosera-trap
         # Запрос приватного ключа от EVM-кошелька
         echo -e "${YELLOW}Введите ваш приватный ключ от EVM кошелька:${NC} "
         read PRIV_KEY
@@ -225,7 +226,8 @@ EOF"
         # Выполняем команду drosera apply с подставленным ключом
         drosera apply
         sleep 3
-        
+
+        cd ~
         sudo systemctl restart drosera
         journalctl -u drosera.service -f
         ;;
