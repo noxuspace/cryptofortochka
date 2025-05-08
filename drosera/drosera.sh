@@ -209,10 +209,23 @@ EOF"
         sleep 2
         curl -LO https://github.com/drosera-network/releases/releases/download/v1.17.1/drosera-operator-v1.17.1-x86_64-unknown-linux-gnu.tar.gz
         tar -xvf drosera-operator-v1.17.1-x86_64-unknown-linux-gnu.tar.gz
-
         sudo cp drosera-operator /usr/bin
         drosera-operator --version
         sleep 3
+
+        grep -q '^drosera_team' $HOME/my-drosera-trap/drosera.toml || sed -i 's|^drosera_rpc.*|drosera_team = "https://relay.testnet.drosera.io/"|' $HOME/my-drosera-trap/drosera.toml
+
+        # Запрос приватного ключа от EVM-кошелька
+        echo -e "${YELLOW}Введите ваш приватный ключ от EVM кошелька:${NC} "
+        read PRIV_KEY
+        
+        # Устанавливаем переменную окружения
+        export DROSERA_PRIVATE_KEY="$PRIV_KEY"
+        
+        # Выполняем команду drosera apply с подставленным ключом
+        drosera apply
+        sleep 3
+        
         sudo systemctl restart drosera
         journalctl -u drosera.service -f
         ;;
