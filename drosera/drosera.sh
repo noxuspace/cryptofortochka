@@ -214,6 +214,7 @@ EOF"
         drosera-operator --version
         sleep 3
         sudo systemctl restart drosera
+        journalctl -u drosera.service -f
         ;;
     6)
         journalctl -u drosera.service -f
