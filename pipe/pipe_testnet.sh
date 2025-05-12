@@ -55,15 +55,33 @@ case $choice in
     mkdir -p "$HOME/pipe-node" && cd "$HOME/pipe-node"
 
     # Запрос параметров
-    read -rp "${YELLOW}Введите ваш invite-код: ${NC}" INVITE
-    read -rp "${YELLOW}pop_name: ${NC}" POP_NAME
-    read -rp "${YELLOW}pop_location: ${NC}" POP_LOCATION
-    read -rp "${YELLOW}Телеграм (telegram handle): ${NC}" TELEGRAM
-    read -rp "${YELLOW}Discord (username#0000): ${NC}" DISCORD
-    read -rp "${YELLOW}Email: ${NC}" EMAIL
-    read -rp "${YELLOW}Solana pubkey: ${NC}" SOLANA_PUBKEY
-    read -rp "${YELLOW}Введите размер оперативной памяти (GB): ${NC}" RAM_GB
-    read -rp "${YELLOW}Введите максимальный размер кеша на диске (GB): ${NC}" DISK_GB
+    echo -e "${YELLOW}Введите ваш invite-код:${NC}"
+    read INVITE
+    
+    echo -e "${YELLOW}Придумайте имя для ноды:${NC}"
+    read POP_NAME
+    
+    echo -e "${YELLOW}Введите локацию сервера:${NC}"
+    read POP_LOCATION
+    
+    echo -e "${YELLOW}Введите Telegram (telegram handle):${NC}"
+    read TELEGRAM
+    
+    echo -e "${YELLOW}Введите Discord (username#0000):${NC}"
+    read DISCORD
+    
+    echo -e "${YELLOW}Введите Email:${NC}"
+    read EMAIL
+    
+    echo -e "${YELLOW}Введите Solana pubkey:${NC}"
+    read SOLANA_PUBKEY
+    
+    echo -e "${YELLOW}Введите объём оперативной памяти (GB):${NC}"
+    read RAM_GB
+    
+    echo -e "${YELLOW}Введите максимальный размер кеша на диске (GB):${NC}"
+    read DISK_GB
+
 
     # Настройки ядра через sysctl
     sudo bash -c 'cat > /etc/sysctl.d/99-popcache.conf << EOL
