@@ -93,7 +93,7 @@ case $choice in
     city=$(echo "$response" | jq -r '.city')
     
     # Формируем переменную
-    POP_LOCATION="$country, $city"
+    POP_LOCATION="$city, $country"
 
     # Настройки ядра через sysctl
     sudo bash -c 'cat > /etc/sysctl.d/99-popcache.conf << EOL
