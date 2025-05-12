@@ -228,7 +228,7 @@ EOL
     ;;
   7)
     docker stop popnode && docker rm popnode
-    rm -rf /opt/popcache
+    sudo rm -rf /opt/popcache
 
     docker rmi popnode:latest
 
