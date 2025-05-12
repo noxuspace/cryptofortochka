@@ -212,6 +212,13 @@ EOF
   7)
     docker stop pipe-node && docker rm pipe-node
     rm -rf "$HOME/pipe-node"
+
+    # Удаляем sysctl-конфигурацию и применяем изменения
+    sudo rm -f /etc/sysctl.d/99-popcache.conf
+    sudo sysctl --system
+
+    # Удаляем limits-конфиг
+    sudo rm -f /etc/security/limits.d/popcache.conf
     ;;
   *)
     echo -e "${RED}Неверный выбор${NC}"
