@@ -69,7 +69,7 @@ case $choice in
     sudo apt install -y iptables-persistent
     
     # Создание рабочей директории
-    mkdir -p "$HOME/pipe-node" && cd "$HOME/pipe-node"
+    sudo mkdir -p /opt/popcache && cd /opt/popcache
 
     # Запрос параметров
     echo -e "${YELLOW}Введите ваш invite-код:${NC}"
@@ -133,9 +133,6 @@ EOL'
 *    soft nofile 65535
 EOL'
 
-    # Создание папки кеша
-    mkdir -p cache
-
     # Определение архитектуры и загрузка бинаря
     ARCH=$(uname -m)
     if [[ "$ARCH" == "x86_64" ]]; then
@@ -146,6 +143,7 @@ EOL'
     wget -q "$URL" -O pop.tar.gz
     tar -xzf pop.tar.gz && rm pop.tar.gz
     chmod +x pop
+    chmod 755 /opt/popcache/pop
 
     # Генерация config.json
     MB=$(( RAM_GB * 1024 ))
@@ -168,41 +166,59 @@ EOL
     sudo sh -c "iptables-save > /etc/iptables/rules.v4"
 
     # Dockerfile
-    cat > Dockerfile <<EOF
+    cat > Dockerfile << EOL
 FROM ubuntu:24.04
-RUN apt update && apt install -y ca-certificates && rm -rf /var/lib/apt/lists/*
-COPY pop /usr/local/bin/pop
-COPY config.json /etc/popcache/config.json
-COPY cache /data/cache
-RUN mkdir -p /var/log/popcache
-ENTRYPOINT ["/usr/local/bin/pop"]
-CMD ["--config","/etc/popcache/config.json"]
-EOF
+
+# Install dependensi dasar
+RUN apt update && apt install -y \\
+    ca-certificates \\
+    curl \\
+    libssl-dev \\
+    && rm -rf /var/lib/apt/lists/*
+
+# Buat direktori untuk pop
+WORKDIR /opt/popcache
+
+# Salin file konfigurasi & binary dari host
+COPY pop .
+COPY config.json .
+
+# Berikan izin eksekusi
+RUN chmod +x ./pop
+
+# Jalankan node
+CMD ["./pop", "--config", "config.json"]
+EOL
 
     # Сборка и запуск контейнера
-    docker build -t pipe-node-image .
+    docker build -t popnode .
     cd ~
 
-    docker run -d --name pipe-node --network host pipe-node-image
+    docker run -d \
+      --name popnode \
+      -p 80:80 \
+      -p 443:443 \
+      --restart unless-stopped \
+      popnode
     
     # Завершающий вывод
     echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
     echo -e "${YELLOW}Команда для проверки логов:${NC}" 
-    echo "docker logs --tail 100 -f pipe-node"
+    echo "docker logs --tail 100 -f popnode"
     echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
     echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
     echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
     sleep 2
-    docker logs --tail 100 -f pipe-node
+    docker logs --tail 100 -f popnode
     ;;
   2)
     echo -e "${GREEN}У вас актуальная версия ноды Pipe!${NC}"
     ;;
   3)
-    docker logs --tail 100 -f pipe-node
+    docker logs --tail 100 -f popnode
     ;;
   4)
-    docker restart pipe-node && docker logs --tail 100 -f pipe-node
+    docker restart popnode && docker logs --tail 100 -f popnode
     ;;
   5)
     curl http://localhost/metrics
@@ -211,10 +227,10 @@ EOF
     curl http://localhost/health
     ;;
   7)
-    docker stop pipe-node && docker rm pipe-node
-    rm -rf "$HOME/pipe-node"
+    docker stop popnode && docker rm popnode
+    rm -rf /opt/popcache
 
-    docker rmi pipe-node-image:latest
+    docker rmi popnode:latest
 
     # Удаляем sysctl-конфигурацию и применяем изменения
     sudo rm -f /etc/sysctl.d/99-popcache.conf
