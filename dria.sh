@@ -59,7 +59,7 @@ case $choice in
         mkdir -p "$HOME/.dria/dkn-compute-launcher" && wget -O "$HOME/.dria/dkn-compute-launcher/.env" https://raw.githubusercontent.com/firstbatchxyz/dkn-compute-launcher/master/.env.example
         ;;
     2)
-        echo -e "${GREEN}У вас актуальная версия ноды Dria.${NC}"
+        echo -e "${RED}Эту ноду невозможно обновить в автоматическом режиме, перейдите в тестовый гайд!${NC}"
         ;;
     3)
         # Проверка логов
