@@ -40,7 +40,7 @@ fi
 
 # Меню действий
 echo -e ${YELLOW}Выберите действие:${NC}
-echo -e ${CYAN}1) Установка ноды Pipe (Testnet) через Docker${NC}
+echo -e ${CYAN}1) Установка ноды${NC}
 echo -e ${CYAN}2) Обновление ноды${NC}
 echo -e ${CYAN}3) Просмотр логов${NC}
 echo -e ${CYAN}4) Рестарт ноды${NC}
