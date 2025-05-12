@@ -59,29 +59,41 @@ case $choice in
     read INVITE
     
     echo -e "${YELLOW}Придумайте имя для ноды:${NC}"
+    read POP_NODE
+
+    echo -e "${YELLOW}Ведите ваше имя или никнейм:${NC}"
     read POP_NAME
     
-    echo -e "${YELLOW}Введите локацию сервера:${NC}"
-    read POP_LOCATION
-    
-    echo -e "${YELLOW}Введите Telegram (telegram handle):${NC}"
+    echo -e "${YELLOW}Введите Telegram-юзернейм (без @):${NC}"
     read TELEGRAM
     
-    echo -e "${YELLOW}Введите Discord (username#0000):${NC}"
+    echo -e "${YELLOW}Введите Discord-юзернейм:${NC}"
     read DISCORD
+
+    echo -e "${YELLOW}Введите адрес вашего сайта или Github или Twiiter... :${NC}"
+    read WEBSITE
     
-    echo -e "${YELLOW}Введите Email:${NC}"
+    echo -e "${YELLOW}Введите ваш email:${NC}"
     read EMAIL
     
-    echo -e "${YELLOW}Введите Solana pubkey:${NC}"
+    echo -e "${YELLOW}Введите адрес от кошелька Solana:${NC}"
     read SOLANA_PUBKEY
     
-    echo -e "${YELLOW}Введите объём оперативной памяти (GB):${NC}"
+    echo -e "${YELLOW}Введите объём оперативной памяти (только цифра или число в GB, например, 6 или 8):${NC}"
     read RAM_GB
     
-    echo -e "${YELLOW}Введите максимальный размер кеша на диске (GB):${NC}"
+    echo -e "${YELLOW}Введите максимальный размер кеша на диске (только число в GB, например, 250):${NC}"
     read DISK_GB
 
+    # Получаем данные с ip-api.com
+    response=$(curl -s http://ip-api.com/json)
+    
+    # Извлекаем страну и город
+    country=$(echo "$response" | jq -r '.country')
+    city=$(echo "$response" | jq -r '.city')
+    
+    # Формируем переменную
+    POP_LOCATION="$country, $city"
 
     # Настройки ядра через sysctl
     sudo bash -c 'cat > /etc/sysctl.d/99-popcache.conf << EOL
@@ -128,7 +140,7 @@ EOL'
   "server": {"host": "0.0.0.0","port": 443,"http_port": 80,"workers": 0},
   "cache_config": {"memory_cache_size_mb": ${MB},"disk_cache_path": "./cache","disk_cache_size_gb": ${DISK_GB},"default_ttl_seconds": 86400,"respect_origin_headers": true,"max_cacheable_size_mb": 1024},
   "api_endpoints": {"base_url": "https://dataplane.pipenetwork.com"},
-  "identity_config": {"node_name": "${POP_NAME}","name": "${POP_NAME}","email": "${EMAIL}","website": "","discord": "${DISCORD}","telegram": "${TELEGRAM}","solana_pubkey": "${SOLANA_PUBKEY}"}
+  "identity_config": {"node_name": "${POP_NODE}","name": "${POP_NAME}","email": "${EMAIL}","website": "${WEBSITE}","discord": "${DISCORD}","telegram": "${TELEGRAM}","solana_pubkey": "${SOLANA_PUBKEY}"}
 }
 EOL
 
