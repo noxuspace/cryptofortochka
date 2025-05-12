@@ -218,6 +218,8 @@ EOF
     docker stop pipe-node && docker rm pipe-node
     rm -rf "$HOME/pipe-node"
 
+    docker rmi pipe-node-image:latest
+
     # Удаляем sysctl-конфигурацию и применяем изменения
     sudo rm -f /etc/sysctl.d/99-popcache.conf
     sudo sysctl --system
