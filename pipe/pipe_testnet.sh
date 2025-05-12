@@ -38,7 +38,7 @@ case $choice in
   1)
     echo -e "${BLUE}Установка ноды Pipe (Testnet)...${NC}"
     sudo apt-get update
-    sudo apt install -y libssl-dev ca-certificates
+    sudo apt install -y libssl-dev ca-certificates jq
     
     if ! command -v docker &> /dev/null; then
     sudo apt update && sudo apt install -y docker.io
