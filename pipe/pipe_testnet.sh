@@ -11,25 +11,30 @@ NC='\033[0m'  # Сброс цвета
 
 set -euo pipefail
 
-# Установка зависимостей
+# Проверка наличия curl и установка, если не установлен
 if ! command -v curl &> /dev/null; then
-    sudo apt update && sudo apt install -y curl
+    sudo apt update
+    sudo apt install curl -y
 fi
+sleep 1
+
+# Отображаем логотип
+curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_club.sh | bash
 
 # Меню действий
-cat <<EOF
-${YELLOW}Выберите действие:${NC}
-${CYAN}1) Установка ноды Pipe (Testnet) через Docker${NC}
-${CYAN}2) Обновление ноды${NC}
-${CYAN}3) Просмотр логов${NC}
-${CYAN}4) Рестарт ноды${NC}
-${CYAN}5) Статус контейнера${NC}
-${CYAN}6) Проверка здоровья${NC}
-${CYAN}7) Удаление ноды${NC}
-EOF
-read -rp "${YELLOW}Введите номер: ${NC}" choice
+echo -e ${YELLOW}Выберите действие:${NC}
+echo -e ${CYAN}1) Установка ноды Pipe (Testnet) через Docker${NC}
+echo -e ${CYAN}2) Обновление ноды${NC}
+echo -e ${CYAN}3) Просмотр логов${NC}
+echo -e ${CYAN}4) Рестарт ноды${NC}
+echo -e ${CYAN}5) Статус ноды${NC}
+echo -e ${CYAN}6) Проверка здоровья ноды${NC}
+echo -e ${CYAN}7) Удаление ноды${NC}
 
-case "$choice" in
+echo -e "${YELLOW}Введите номер:${NC} "
+read choice
+
+case $choice in
   1)
     echo -e "${BLUE}Установка ноды Pipe (Testnet)...${NC}"
     if ! command -v docker &> /dev/null; then
