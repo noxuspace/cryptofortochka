@@ -21,6 +21,23 @@ sleep 1
 # Отображаем логотип
 curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_club.sh | bash
 
+# Проверка наличия bc и установка, если не установлен
+echo -e "${BLUE}Проверяем версию вашей OS...${NC}"
+if ! command -v bc &> /dev/null; then
+    sudo apt update
+    sudo apt install bc -y
+fi
+sleep 1
+
+# Проверка версии Ubuntu
+UBUNTU_VERSION=$(lsb_release -rs)
+REQUIRED_VERSION=22.04
+
+if (( $(echo "$UBUNTU_VERSION < $REQUIRED_VERSION" | bc -l) )); then
+    echo -e "${RED}Для этой ноды нужна минимальная версия Ubuntu 22.04${NC}"
+    exit 1
+fi
+
 # Меню действий
 echo -e ${YELLOW}Выберите действие:${NC}
 echo -e ${CYAN}1) Установка ноды Pipe (Testnet) через Docker${NC}
@@ -164,16 +181,27 @@ EOF
 
     # Сборка и запуск контейнера
     docker build -t pipe-node-image .
+    cd ~
     docker run -d --name pipe-node --network host pipe-node-image
+    
+    # Завершающий вывод
+    echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+    echo -e "${YELLOW}Команда для проверки логов:${NC}" 
+    echo "docker logs --tail 100 -f pipe-node"
+    echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+    echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
+    echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
+    sleep 2
+    docker logs --tail 100 -f pipe-node
     ;;
   2)
     echo -e "${GREEN}У вас актуальная версия ноды Pipe!${NC}"
     ;;
   3)
-    docker logs -f pipe-node
+    docker logs --tail 100 -f pipe-node
     ;;
   4)
-    docker restart pipe-node
+    docker restart pipe-node && docker logs --tail 100 -f pipe-node
     ;;
   5)
     curl http://localhost/metrics
