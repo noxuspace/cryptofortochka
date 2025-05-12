@@ -196,8 +196,8 @@ EOL
 
     docker run -d \
       --name popnode \
-      -p 80:80 \
-      -p 443:443 \
+      -p 8071:80 \
+      -p 17443:443 \
       --restart unless-stopped \
       popnode
     
