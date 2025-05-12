@@ -39,14 +39,14 @@ if (( $(echo "$UBUNTU_VERSION < $REQUIRED_VERSION" | bc -l) )); then
 fi
 
 # Меню действий
-echo -e ${YELLOW}Выберите действие:${NC}
-echo -e ${CYAN}1) Установка ноды${NC}
-echo -e ${CYAN}2) Обновление ноды${NC}
-echo -e ${CYAN}3) Просмотр логов${NC}
-echo -e ${CYAN}4) Рестарт ноды${NC}
-echo -e ${CYAN}5) Проверка метрик ноды${NC}
-echo -e ${CYAN}6) Проверка здоровья ноды${NC}
-echo -e ${CYAN}7) Удаление ноды${NC}
+echo -e "${YELLOW}Выберите действие:${NC}"
+echo -e "${CYAN}1) Установка ноды${NC}"
+echo -e "${CYAN}2) Обновление ноды${NC}"
+echo -e "${CYAN}3) Просмотр логов${NC}"
+echo -e "${CYAN}4) Рестарт ноды${NC}"
+echo -e "${CYAN}5) Проверка метрик ноды${NC}"
+echo -e "${CYAN}6) Проверка здоровья ноды${NC}"
+echo -e "${CYAN}7) Удаление ноды${NC}"
 
 echo -e "${YELLOW}Введите номер:${NC} "
 read choice
