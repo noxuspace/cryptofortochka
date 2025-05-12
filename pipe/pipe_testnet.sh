@@ -74,6 +74,8 @@ case $choice in
     # Запрос параметров
     echo -e "${YELLOW}Введите ваш invite-код:${NC}"
     read INVITE
+
+    echo "POP_INVITE_CODE=$INVITE" >> "$HOME/pipe-node/.env"
     
     echo -e "${YELLOW}Придумайте имя для ноды:${NC}"
     read POP_NODE
@@ -153,7 +155,6 @@ EOL'
 {
   "pop_name": "${POP_NAME}",
   "pop_location": "${POP_LOCATION}",
-  "invite_code": "${INVITE}",
   "server": {"host": "0.0.0.0","port": 443,"http_port": 80,"workers": 0},
   "cache_config": {"memory_cache_size_mb": ${MB},"disk_cache_path": "./cache","disk_cache_size_gb": ${DISK_GB},"default_ttl_seconds": 86400,"respect_origin_headers": true,"max_cacheable_size_mb": 1024},
   "api_endpoints": {"base_url": "https://dataplane.pipenetwork.com"},
@@ -182,7 +183,12 @@ EOF
     # Сборка и запуск контейнера
     docker build -t pipe-node-image .
     cd ~
-    docker run -d --name pipe-node --network host pipe-node-image
+
+    docker run -d \
+      --name pipe-node \
+      --network host \
+      --env-file "$HOME/pipe-node/.env" \
+      pipe-node-image
     
     # Завершающий вывод
     echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
