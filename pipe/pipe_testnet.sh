@@ -27,7 +27,7 @@ echo -e ${CYAN}1) Установка ноды Pipe (Testnet) через Docker${
 echo -e ${CYAN}2) Обновление ноды${NC}
 echo -e ${CYAN}3) Просмотр логов${NC}
 echo -e ${CYAN}4) Рестарт ноды${NC}
-echo -e ${CYAN}5) Статус ноды${NC}
+echo -e ${CYAN}5) Проверка метрик ноды${NC}
 echo -e ${CYAN}6) Проверка здоровья ноды${NC}
 echo -e ${CYAN}7) Удаление ноды${NC}
 
@@ -176,10 +176,10 @@ EOF
     docker restart pipe-node
     ;;
   5)
-    docker ps --filter "name=pipe-node"
+    curl http://localhost/metrics
     ;;
   6)
-    curl -s http://localhost/health | jq .
+    curl http://localhost/health
     ;;
   7)
     docker stop pipe-node && docker rm pipe-node
