@@ -74,8 +74,6 @@ case $choice in
     # Запрос параметров
     echo -e "${YELLOW}Введите ваш invite-код:${NC}"
     read INVITE
-
-    echo "POP_INVITE_CODE=$INVITE" >> "$HOME/pipe-node/.env"
     
     echo -e "${YELLOW}Придумайте имя для ноды:${NC}"
     read POP_NODE
@@ -187,7 +185,8 @@ EOF
     docker run -d \
       --name pipe-node \
       --network host \
-      --env-file "$HOME/pipe-node/.env" \
+      -e POP_INVITE_CODE="$INVITE" \
+      -v "$HOME/pipe-node/config.json":/etc/popcache/config.json \
       pipe-node-image
     
     # Завершающий вывод
