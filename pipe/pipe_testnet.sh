@@ -221,10 +221,10 @@ EOL
     docker restart popnode && docker logs --tail 100 -f popnode
     ;;
   5)
-    curl http://localhost/metrics
+    curl http://localhost:8071/metrics
     ;;
   6)
-    curl http://localhost/health
+    curl http://localhost:8071/health
     ;;
   7)
     docker stop popnode && docker rm popnode
