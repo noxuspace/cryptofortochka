@@ -149,13 +149,13 @@ EOL'
     MB=$(( RAM_GB * 1024 ))
     cat > config.json <<EOL
 {
-  "pop_name": "${POP_NAME}",
+  "pop_name": "${POP_NODE}",
   "pop_location": "${POP_LOCATION}",
   "invite_code": "${INVITE}",
   "server": {"host": "0.0.0.0","port": 443,"http_port": 80,"workers": 0},
   "cache_config": {"memory_cache_size_mb": ${MB},"disk_cache_path": "./cache","disk_cache_size_gb": ${DISK_GB},"default_ttl_seconds": 86400,"respect_origin_headers": true,"max_cacheable_size_mb": 1024},
   "api_endpoints": {"base_url": "https://dataplane.pipenetwork.com"},
-  "identity_config": {"node_name": "${POP_NAME}","name": "${POP_NODE}","email": "${EMAIL}","website": "${WEBSITE}","discord": "${DISCORD}","telegram": "${TELEGRAM}","solana_pubkey": "${SOLANA_PUBKEY}"}
+  "identity_config": {"node_name": "${POP_NODE}","name": "${POP_NAME}","email": "${EMAIL}","website": "${WEBSITE}","discord": "${DISCORD}","telegram": "${TELEGRAM}","solana_pubkey": "${SOLANA_PUBKEY}"}
 }
 EOL
 
