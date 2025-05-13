@@ -159,10 +159,19 @@ EOL'
 }
 EOL
 
+    # Удаляем существующие правила, если они уже есть
+    sudo iptables -D INPUT -p tcp --dport 443 -j ACCEPT 2>/dev/null
+    sudo iptables -D INPUT -p tcp --dport 80 -j ACCEPT  2>/dev/null
+    sudo iptables -D INPUT -p tcp --dport 8003 -j ACCEPT 2>/dev/null
+    sudo iptables -D INPUT -p tcp --dport 8071 -j ACCEPT 2>/dev/null
+    sudo iptables -D INPUT -p tcp --dport 17443 -j ACCEPT 2>/dev/null
+    
     # Настройка iptables
     sudo iptables -I INPUT -p tcp --dport 443 -j ACCEPT
     sudo iptables -I INPUT -p tcp --dport 80 -j ACCEPT
     sudo iptables -I INPUT -p tcp --dport 8003 -j ACCEPT
+    sudo iptables -I INPUT -p tcp --dport 8071 -j ACCEPT
+    sudo iptables -I INPUT -p tcp --dport 17443 -j ACCEPT
     sudo sh -c "iptables-save > /etc/iptables/rules.v4"
 
     # Dockerfile
