@@ -159,32 +159,21 @@ EOL'
 }
 EOL
 
-    # Удаляем существующие правила, если они уже есть
-    #sudo iptables -D INPUT -p tcp --dport 443 -j ACCEPT 2>/dev/null
-    #sudo iptables -D INPUT -p tcp --dport 80 -j ACCEPT  2>/dev/null
-    #sudo iptables -D INPUT -p tcp --dport 8003 -j ACCEPT 2>/dev/null
-    #sudo iptables -D INPUT -p tcp --dport 8071 -j ACCEPT 2>/dev/null
-    #sudo iptables -D INPUT -p tcp --dport 17443 -j ACCEPT 2>/dev/null
+    # Освобождение портов 80 и 443, если они заняты
+    for PORT in 80 443; do
+      if sudo ss -tulpen | awk '{print $5}' | grep -q ":$PORT\$"; then
+        echo -e "${BLUE}🔒 Порт $PORT занят. Завершаем процесс...${NC}"
+        sudo fuser -k ${PORT}/tcp
+        echo -e "${GREEN}✅ Порт $PORT успешно освобождён.${NC}"
+      else
+        echo -e "${GREEN}✅ Порт $PORT уже свободен.${NC}"
+      fi
+    done
     
     # Настройка iptables
     sudo iptables -I INPUT -p tcp --dport 443 -j ACCEPT
     sudo iptables -I INPUT -p tcp --dport 80 -j ACCEPT
     sudo sh -c "iptables-save > /etc/iptables/rules.v4"
-
-    echo -e "${BLUE}Очищаем порты 80 и 443 от процессов...${NC}"
-
-    # Завершаем процессы, которые используют порты 80 и 443
-    sudo lsof -i :80 -t | xargs -r sudo kill -9
-    sudo lsof -i :443 -t | xargs -r sudo kill -9
-    
-    # Проверяем, свободны ли порты теперь
-    if ss -tulpen | grep -qE ':80|:443'; then
-      echo -e "${RED}⚠️ Порты 80 или 443 всё ещё заняты!${NC}"
-    else
-      echo -e "${GREEN}✅ Порты 80 и 443 успешно освобождены.${NC}"
-    fi
-    
-    sleep 2
 
     # Dockerfile
     cat > Dockerfile << EOL
