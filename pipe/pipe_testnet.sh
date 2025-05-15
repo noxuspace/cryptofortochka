@@ -169,9 +169,6 @@ EOL
     # Настройка iptables
     sudo iptables -I INPUT -p tcp --dport 443 -j ACCEPT
     sudo iptables -I INPUT -p tcp --dport 80 -j ACCEPT
-    sudo iptables -I INPUT -p tcp --dport 8003 -j ACCEPT
-    sudo iptables -I INPUT -p tcp --dport 8071 -j ACCEPT
-    sudo iptables -I INPUT -p tcp --dport 17443 -j ACCEPT
     sudo sh -c "iptables-save > /etc/iptables/rules.v4"
 
     # Dockerfile
@@ -205,8 +202,8 @@ EOL
 
     docker run -d \
       --name popnode \
-      -p 8071:80 \
-      -p 17443:443 \
+      -p 80:80 \
+      -p 443:443 \
       --restart unless-stopped \
       popnode
     
@@ -230,10 +227,10 @@ EOL
     docker restart popnode && docker logs --tail 100 -f popnode
     ;;
   5)
-    curl http://localhost:8071/metrics
+    curl http://localhost/metrics
     ;;
   6)
-    curl http://localhost:8071/health
+    curl http://localhos/health
     ;;
   7)
     docker stop popnode && docker rm popnode
