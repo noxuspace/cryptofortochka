@@ -171,8 +171,20 @@ EOL
       fi
     done
 
-    sudo systemctl stop apache2
-    sudo systemctl disable apache2
+    # Проверяем, что unit-файл apache2.service есть в системе
+    if systemctl list-unit-files --type=service | grep -q '^apache2\.service'; then
+    
+      # Если apache2 сейчас активен (запущен) — останавливаем его
+      if systemctl is-active --quiet apache2; then
+        sudo systemctl stop apache2
+      fi
+    
+      # Если apache2 включён на автозапуск — отключаем его
+      if systemctl is-enabled --quiet apache2; then
+        sudo systemctl disable apache2
+      fi
+    
+    fi
     
     # Настройка iptables
     sudo iptables -I INPUT -p tcp --dport 443 -j ACCEPT
