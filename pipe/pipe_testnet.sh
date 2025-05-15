@@ -160,15 +160,9 @@ EOL'
 EOL
 
     # Освобождение портов 80 и 443, если они заняты
-    for PORT in 80 443; do
-      if sudo ss -tulpen | awk '{print $5}' | grep -q ":$PORT\$"; then
-        echo -e "${BLUE}🔒 Порт $PORT занят. Завершаем процесс...${NC}"
-        sudo fuser -k ${PORT}/tcp
-        echo -e "${GREEN}✅ Порт $PORT успешно освобождён.${NC}"
-      else
-        echo -e "${GREEN}✅ Порт $PORT уже свободен.${NC}"
-      fi
-    done
+    sudo fuser -k 80/tcp
+    sudo fuser -k 443/tcp
+    sleep 5
     
     # Настройка iptables
     sudo iptables -I INPUT -p tcp --dport 443 -j ACCEPT
