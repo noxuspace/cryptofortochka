@@ -171,6 +171,21 @@ EOL
     sudo iptables -I INPUT -p tcp --dport 80 -j ACCEPT
     sudo sh -c "iptables-save > /etc/iptables/rules.v4"
 
+    echo -e "${BLUE}Очищаем порты 80 и 443 от процессов...${NC}"
+
+    # Завершаем процессы, которые используют порты 80 и 443
+    sudo lsof -i :80 -t | xargs -r sudo kill -9
+    sudo lsof -i :443 -t | xargs -r sudo kill -9
+    
+    # Проверяем, свободны ли порты теперь
+    if ss -tulpen | grep -qE ':80|:443'; then
+      echo -e "${RED}⚠️ Порты 80 или 443 всё ещё заняты!${NC}"
+    else
+      echo -e "${GREEN}✅ Порты 80 и 443 успешно освобождены.${NC}"
+    fi
+    
+    sleep 2
+
     # Dockerfile
     cat > Dockerfile << EOL
 FROM ubuntu:24.04
