@@ -44,8 +44,8 @@ echo -e "${CYAN}1) Установка ноды${NC}"
 echo -e "${CYAN}2) Обновление ноды${NC}"
 echo -e "${CYAN}3) Просмотр логов${NC}"
 echo -e "${CYAN}4) Рестарт ноды${NC}"
-echo -e "${CYAN}5) Проверка метрик ноды${NC}"
-echo -e "${CYAN}6) Проверка здоровья ноды${NC}"
+echo -e "${CYAN}5) Проверка здоровья ноды${NC}"
+echo -e "${CYAN}6) Информация о ноде${NC}"
 echo -e "${CYAN}7) Удаление ноды${NC}"
 
 echo -e "${YELLOW}Введите номер:${NC} "
@@ -227,10 +227,10 @@ EOL
     docker restart popnode && docker logs --tail 100 -f popnode
     ;;
   5)
-    curl http://localhost/metrics
+    curl -sk https://localhost/health | jq
     ;;
   6)
-    curl http://localhost/health
+    curl -sk https://localhost/state | jq
     ;;
   7)
     docker stop popnode && docker rm popnode
