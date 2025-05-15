@@ -230,7 +230,7 @@ EOL
     curl http://localhost/metrics
     ;;
   6)
-    curl http://localhos/health
+    curl http://localhost/health
     ;;
   7)
     docker stop popnode && docker rm popnode
