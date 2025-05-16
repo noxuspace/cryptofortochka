@@ -19,19 +19,28 @@ fi
 echo -e "${YELLOW}Вставьте адрес новой RPC Sepolia (Enter — оставить прежний):${NC}"
 read SEP_RPC
 
-echo -e "${YELLOW}Вставьте адрес новой RPC Base (Enter — оставить прежний):${NC}"
+echo -e "${YELLOW}Вставьте адрес новой RPC Base Sepolia (Enter — оставить прежний):${NC}"
+read BASE_SEP_RPC
+
+echo -e "${YELLOW}Вставьте адрес новой RPC Optimism Sepolia (Enter — оставить прежний):${NC}"
+read OP_SEP_RPC
+
+echo -e "${YELLOW}Вставьте адрес новой RPC Arbitrum Sepolia (Enter — оставить прежний):${NC}"
+read ARB_SEP_RPC
+
+echo -e "${YELLOW}Вставьте адрес новой RPC Base Mainnet (Enter — оставить прежний):${NC}"
 read BASE_RPC
 
-echo -e "${YELLOW}Вставьте адрес новой RPC Ethereum (Enter — оставить прежний):${NC}"
+echo -e "${YELLOW}Вставьте адрес новой RPC Ethereum Mainnet (Enter — оставить прежний):${NC}"
 read ETH_RPC
 
-echo -e "${YELLOW}Вставьте адрес новой RPC Optimism (Enter — оставить прежний):${NC}"
+echo -e "${YELLOW}Вставьте адрес новой RPC Optimism Mainnet (Enter — оставить прежний):${NC}"
 read OPT_RPC
 
-echo -e "${YELLOW}Вставьте адрес новой RPC Arbitrum (Enter — оставить прежний):${NC}"
+echo -e "${YELLOW}Вставьте адрес новой RPC Arbitrum Mainnet (Enter — оставить прежний):${NC}"
 read ARB_RPC
 
-echo -e "${YELLOW}Вставьте адрес новой RPC Polygon (Enter — оставить прежний):${NC}"
+echo -e "${YELLOW}Вставьте адрес новой RPC Polygon Mainnet (Enter — оставить прежний):${NC}"
 read POLY_RPC
 
 # Переход в папку проекта
@@ -39,40 +48,63 @@ cd "$HOME/mee-node-deployment"
 
 # Останавливаем контейнеры
 $DC down
-sleep 5
+sleep 3
 
-# Меняем Sepolia
+# ——— TESTNET ———
+
+# Sepolia
 if [[ -n "$SEP_RPC" ]]; then
   sed -i -E "s#(\"rpc\":\s*\")[^\"]*(\")#\1$SEP_RPC\2#" chains-testnet/11155111.json
 fi
 
-# Меняем Base
+# Base Sepolia
+if [[ -n "$BASE_SEP_RPC" ]]; then
+  sed -i -E "s#(\"rpc\":\s*\")[^\"]*(\")#\1$BASE_SEP_RPC\2#" chains-testnet/84532.json
+fi
+
+# Optimism Sepolia
+if [[ -n "$OP_SEP_RPC" ]]; then
+  sed -i -E "s#(\"rpc\":\s*\")[^\"]*(\")#\1$OP_SEP_RPC\2#" chains-testnet/11155420.json
+fi
+
+# Arbitrum Sepolia
+if [[ -n "$ARB_SEP_RPC" ]]; then
+  sed -i -E "s#(\"rpc\":\s*\")[^\"]*(\")#\1$ARB_SEP_RPC\2#" chains-testnet/421614.json
+fi
+
+# копируем обновлённые тестнет-файлы в папку sepolia рядом
+cp chains-testnet/84532.json   chains-testnet/
+cp chains-testnet/11155420.json chains-testnet/
+cp chains-testnet/421614.json  chains-testnet/
+
+# ——— MAINNET ———
+
+# Base
 if [[ -n "$BASE_RPC" ]]; then
   sed -i -E "s#(\"rpc\":\s*\")[^\"]*(\")#\1$BASE_RPC\2#" chains-prod/8453.json
 fi
 
-# Меняем Ethereum
+# Ethereum
 if [[ -n "$ETH_RPC" ]]; then
   sed -i -E "s#(\"rpc\":\s*\")[^\"]*(\")#\1$ETH_RPC\2#" chains-prod/1.json
 fi
 
-# Меняем Optimism
+# Optimism
 if [[ -n "$OPT_RPC" ]]; then
   sed -i -E "s#(\"rpc\":\s*\")[^\"]*(\")#\1$OPT_RPC\2#" chains-prod/10.json
 fi
 
-# Меняем Arbitrum
+# Arbitrum
 if [[ -n "$ARB_RPC" ]]; then
   sed -i -E "s#(\"rpc\":\s*\")[^\"]*(\")#\1$ARB_RPC\2#" chains-prod/42161.json
 fi
 
-# Меняем Polygon
+# Polygon
 if [[ -n "$POLY_RPC" ]]; then
   sed -i -E "s#(\"rpc\":\s*\")[^\"]*(\")#\1$POLY_RPC\2#" chains-prod/137.json
 fi
 
-# ——— Копируем обновлённые файлы мейнов в папку с Sepolia ———
-# при повторном запуске cp перезапишет их, сохраняя актуальный RPC
+# копируем мейннет-файлы в папку sepolia
 cp chains-prod/8453.json   chains-testnet/
 cp chains-prod/1.json      chains-testnet/
 cp chains-prod/10.json     chains-testnet/
@@ -82,6 +114,6 @@ cp chains-prod/137.json    chains-testnet/
 # Запускаем ноду
 $DC up -d
 
+# Возвращаемся в домашнюю и показываем логи Sepolia-ноды
 cd ~
-# Показываем логи
 docker logs -f mee-node-deployment-node-1
