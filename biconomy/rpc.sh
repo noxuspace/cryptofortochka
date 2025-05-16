@@ -99,12 +99,24 @@ if [[ -n "$POLY_RPC" ]]; then
   sed -i -E "s#(\"rpc\":\s*\")[^\"]*(\")#\1$POLY_RPC\2#" chains-prod/137.json
 fi
 
-# копируем мейннет-файлы в папку chains-testnet
-cp chains-prod/8453.json   chains-testnet/
-cp chains-prod/1.json      chains-testnet/
-cp chains-prod/10.json     chains-testnet/
-cp chains-prod/42161.json  chains-testnet/
-cp chains-prod/137.json    chains-testnet/
+# Спрашиваем, планирует ли пользователь пополнять основные сети нативными токенами
+echo -en "${YELLOW}Вы планируете пополнять основные сети реальными нативными токенами? (y/n): ${NC}"
+read -n1 FILL_MAIN; echo
+
+if [[ "$FILL_MAIN" =~ ^[Yy]$ ]]; then
+  # копируем обновлённые мейннет-файлы в папку chains-testnet
+  cp chains-prod/8453.json   chains-testnet/
+  cp chains-prod/1.json      chains-testnet/
+  cp chains-prod/10.json     chains-testnet/
+  cp chains-prod/42161.json  chains-testnet/
+  cp chains-prod/137.json    chains-testnet/
+else
+  # удаляем файлы мейннетов из chains-testnet, кроме 1.json
+  rm -f chains-testnet/8453.json
+  rm -f chains-testnet/10.json
+  rm -f chains-testnet/42161.json
+  rm -f chains-testnet/137.json
+fi
 
 # Запускаем ноду
 $DC up -d
