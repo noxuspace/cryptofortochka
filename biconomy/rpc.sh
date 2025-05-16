@@ -72,11 +72,6 @@ if [[ -n "$ARB_SEP_RPC" ]]; then
   sed -i -E "s#(\"rpc\":\s*\")[^\"]*(\")#\1$ARB_SEP_RPC\2#" chains-testnet/421614.json
 fi
 
-# копируем обновлённые тестнет-файлы в папку sepolia рядом
-cp chains-testnet/84532.json   chains-testnet/
-cp chains-testnet/11155420.json chains-testnet/
-cp chains-testnet/421614.json  chains-testnet/
-
 # ——— MAINNET ———
 
 # Base
@@ -104,7 +99,7 @@ if [[ -n "$POLY_RPC" ]]; then
   sed -i -E "s#(\"rpc\":\s*\")[^\"]*(\")#\1$POLY_RPC\2#" chains-prod/137.json
 fi
 
-# копируем мейннет-файлы в папку sepolia
+# копируем мейннет-файлы в папку chains-testnet
 cp chains-prod/8453.json   chains-testnet/
 cp chains-prod/1.json      chains-testnet/
 cp chains-prod/10.json     chains-testnet/
