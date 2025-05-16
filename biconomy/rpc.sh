@@ -71,6 +71,14 @@ if [[ -n "$POLY_RPC" ]]; then
   sed -i -E "s#(\"rpc\":\s*\")[^\"]*(\")#\1$POLY_RPC\2#" chains-prod/137.json
 fi
 
+# ——— Копируем обновлённые файлы мейнов в папку с Sepolia ———
+# при повторном запуске cp перезапишет их, сохраняя актуальный RPC
+cp chains-prod/8453.json   chains-testnet/
+cp chains-prod/1.json      chains-testnet/
+cp chains-prod/10.json     chains-testnet/
+cp chains-prod/42161.json  chains-testnet/
+cp chains-prod/137.json    chains-testnet/
+
 # Запускаем ноду
 $DC up -d
 
