@@ -34,7 +34,7 @@ fi
 # 3) Восстанавливаем COMPOSE_FILE в .env
 echo -e "${BLUE}Восстанавливаю COMPOSE_FILE в .env...${NC}"
 sudo -u geth_sepolia sed -i \
-    -e "s|^COMPOSE_FILE=.*|COMPOSE_FILE=geth.yml:grafana.yml:grafana-shared.yml:el-shared.yml|" \
+    -e "s|^COMPOSE_FILE=.*|COMPOSE_FILE=teku-cl-only.yml:geth.yml:grafana.yml:grafana-shared.yml:el-shared.yml|" \
     -e "/^JWT_SECRET_PATH=/d" \
     "$ENVFILE"
 
