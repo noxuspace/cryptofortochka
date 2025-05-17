@@ -58,13 +58,12 @@ sudo -u $USER "$ETHDOCKER/ethd" up -d
 HOST_IP=$(hostname -I | awk '{print $1}')
 BEACON_BIND="${HOST_IP}:5052"
 
+echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
 echo -e "${GREEN}Beacon-нода запущена!${NC}"
-echo -e "${CYAN}Beacon RPC endpoint: ${HOST_IP}:${5052}${NC}"
-echo "  $BEACON_BIND"
-echo
+echo -e "${CYAN}Beacon RPC endpoint: $BEACON_BIND${NC}"
+echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
 echo -e "${CYAN}Чтобы посмотреть статус (должно вернуть OK):${NC}"
 echo "sudo -u geth_sepolia docker exec eth-docker-consensus-1 curl -s http://localhost:5052/eth/v1/node/health"
-
 echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
 # Команда для проверки логов Beacon-ноды
 echo -e "${YELLOW}Команда для проверки логов Beacon-ноды:${NC}"
