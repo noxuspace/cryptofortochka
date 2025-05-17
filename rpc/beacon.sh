@@ -10,6 +10,16 @@ PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
+# Проверка наличия curl и установка, если не установлен
+if ! command -v curl &> /dev/null; then
+    sudo apt update
+    sudo apt install curl -y
+fi
+sleep 1
+
+# Отображаем логотип
+curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_club.sh | bash
+
 ETHDOCKER="/home/geth_sepolia/eth-docker"
 ENVFILE="$ETHDOCKER/.env"
 JWTFILE="$ETHDOCKER/jwtsecret"
@@ -18,6 +28,7 @@ USER="geth_sepolia"
 echo -e "${BLUE}-----------------------------------------------------------------------------${NC}"
 echo -e "${BLUE}Добавление Beacon-ноды (Teku) к вашему стэку Sepolia RPC${NC}"
 echo -e "${BLUE}-----------------------------------------------------------------------------${NC}"
+sleep 3
 
 # Останавливаем текущие сервисы
 echo -e "${BLUE}Останавливаю все контейнеры RPC...${NC}"
