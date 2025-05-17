@@ -44,11 +44,13 @@ else
 fi
 sudo chown $USER:docker "$JWTFILE"
 
-# Настройка COMPOSE_FILE и JWT_SECRET_PATH в .env
-echo -e "${BLUE}Конфигурирую .env для Beacon-ноды...${NC}"
-sudo -u $USER sed -i \
-    -e "s|^#*JWT_SECRET_PATH=.*|JWT_SECRET_PATH=$JWTFILE|" \
-    "$ENVFILE"
+# Настройка JWT в .env
+echo -e "${BLUE}Настраиваю .env для Beacon-ноды…${NC}"
+if grep -q '^JWT_SECRET=' "$ENVFILE"; then
+  sudo -u $USER sed -i "s|^JWT_SECRET=.*|JWT_SECRET=$(cat $JWTFILE)|" "$ENVFILE"
+else
+  echo "JWT_SECRET=$(cat $JWTFILE)" | sudo -u $USER tee -a "$ENVFILE" >/dev/null
+fi
 
 # Запуск всех сервисов
 echo -e "${BLUE}Запускаю все контейнеры...${NC}"
