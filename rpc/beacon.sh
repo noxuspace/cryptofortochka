@@ -47,7 +47,6 @@ sudo chown $USER:docker "$JWTFILE"
 # Настройка COMPOSE_FILE и JWT_SECRET_PATH в .env
 echo -e "${BLUE}Конфигурирую .env для Beacon-ноды...${NC}"
 sudo -u $USER sed -i \
-    -e "s|^COMPOSE_FILE=.*|COMPOSE_FILE=teku-cl-only.yml:geth.yml:grafana.yml:grafana-shared.yml:el-shared.yml|" \
     -e "s|^#*JWT_SECRET_PATH=.*|JWT_SECRET_PATH=$JWTFILE|" \
     "$ENVFILE"
 
