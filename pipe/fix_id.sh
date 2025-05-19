@@ -38,4 +38,4 @@ sleep 1
 cd ~
 
 # Просмотр последних логов в реальном времени
-docker logs --tail 100 -f popnode
+docker logs -f popnode
