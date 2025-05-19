@@ -69,6 +69,9 @@ case $choice in
           sudo apt-get install -y iptables
         fi
 
+        sudo apt update
+        sudo apt install -y iptables-persistent
+
         sudo iptables -I INPUT -p tcp --dport 40400 -j ACCEPT
         sudo iptables -I INPUT -p udp --dport 40400 -j ACCEPT
         sudo iptables -I INPUT -p tcp --dport 8080 -j ACCEPT
