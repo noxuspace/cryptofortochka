@@ -16,7 +16,7 @@ read NEW_POP_NAME
 # Обновление поля pop_name в конфиге
 CONFIG_FILE="/opt/popcache/config.json"
 if [ -f "$CONFIG_FILE" ]; then
-  sudo sed -i "s/\"pop_name\": *\"[^"]*\"/\"pop_name\": \"${NEW_POP_NAME}\"/" "$CONFIG_FILE"
+  sudo sed -i "s/\"pop_name\": *\"[^\"]*\"/\"pop_name\": \"${NEW_POP_NAME}\"/" "$CONFIG_FILE"
 else
   echo -e "${RED}Файл $CONFIG_FILE не найден!${NC}" >&2
   exit 1
