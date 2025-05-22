@@ -18,7 +18,7 @@ fi
 
 curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_club.sh | bash
 
-echo -e "${BLUE}Настаиваем конфигурацию...${NC}"
+echo -e "${BLUE}Настраиваем конфигурацию...${NC}"
 
 # Останавливаем и удаляем старый контейнер
 docker stop aztec-sequencer &> /dev/null || true
