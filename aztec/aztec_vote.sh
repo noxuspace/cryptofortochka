@@ -42,7 +42,7 @@ if grep -Fxq "$LINE" "$EVM_FILE"; then
 else
   echo -e "${BLUE}Добавляем строку в $EVM_FILE…${NC}"
   echo "$LINE" >> "$EVM_FILE"
-  echo -e "${GREEN}Строка успешно добавлена.${NC}"
+  echo -e "${GREEN}Настройка успешно завершена!${NC}"
 fi
 
 # Запускаем новый контейнер
