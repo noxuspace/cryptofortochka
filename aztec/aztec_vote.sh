@@ -24,10 +24,7 @@ echo -e "${BLUE}Настраиваем конфигурацию...${NC}"
 docker stop aztec-sequencer &> /dev/null || true
 docker rm   aztec-sequencer &> /dev/null || true
 
-# Определяем, от какого пользователя лежит папка aztec-sequencer
-REAL_USER="${SUDO_USER:-$USER}"
-HOME_DIR="$(eval echo "~$REAL_USER")"
-EVM_FILE="$HOME_DIR/aztec-sequencer/.evm"
+EVM_FILE="$HOME/aztec-sequencer/.evm"
 LINE="GOVERNANCE_PROPOSER_PAYLOAD_ADDRESS=0x54F7fe24E349993b363A5Fa1bccdAe2589D5E5Ef"
 
 # Диагностика пути
