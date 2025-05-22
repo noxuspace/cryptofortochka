@@ -16,11 +16,7 @@ if ! command -v curl &> /dev/null; then
   sudo apt install -y curl
 fi
 
-# (необязательно) отобразить логотип
-if ! [ -t 0 ]; then
-  # если запущено в терминале, показывать
-  curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_club.sh | bash
-fi
+curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_club.sh | bash
 
 echo -e "${BLUE}Настаиваем конфигурацию...${NC}"
 
