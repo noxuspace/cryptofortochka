@@ -36,12 +36,12 @@ if [[ ! -f "$EVM_FILE" ]]; then
   exit 1
 fi
 
-# Добавляем строку, если её ещё нет
+# Проверяем, нет ли уже нужной строки
 if grep -Fxq "$LINE" "$EVM_FILE"; then
   echo -e "${GREEN}Строка уже есть в $EVM_FILE, пропускаем настройку конфигурации!${NC}"
 else
   echo -e "${BLUE}Добавляем строку в $EVM_FILE…${NC}"
-  echo "$LINE" >> "$EVM_FILE"
+  printf "\n%s\n" "$LINE" >> "$EVM_FILE"
   echo -e "${GREEN}Настройка успешно завершена!${NC}"
 fi
 
