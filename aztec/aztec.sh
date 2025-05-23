@@ -105,13 +105,15 @@ EOF
         docker run -d \
           --name aztec-sequencer \
           --network host \
+          --entrypoint /bin/sh \
           --env-file "$HOME/aztec-sequencer/.evm" \
           -e DATA_DIRECTORY=/data \
           -e LOG_LEVEL=debug \
           -v "$HOME/my-node/node":/data \
           aztecprotocol/aztec:0.87.2 \
-          sh -c 'node --no-warnings /usr/src/yarn-project/aztec/dest/bin/index.js \
+          -c 'node --no-warnings /usr/src/yarn-project/aztec/dest/bin/index.js \
             start --network alpha-testnet --node --archiver --sequencer'
+
 
         cd ~
         # Завершающий вывод
@@ -155,13 +157,15 @@ EOF
         docker run -d \
           --name aztec-sequencer \
           --network host \
+          --entrypoint /bin/sh \
           --env-file "$HOME/aztec-sequencer/.evm" \
           -e DATA_DIRECTORY=/data \
           -e LOG_LEVEL=debug \
           -v "$HOME/my-node/node":/data \
           aztecprotocol/aztec:0.87.2 \
-          sh -c 'node --no-warnings /usr/src/yarn-project/aztec/dest/bin/index.js \
+          -c 'node --no-warnings /usr/src/yarn-project/aztec/dest/bin/index.js \
             start --network alpha-testnet --node --archiver --sequencer'
+
 
         # Завершающий вывод
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
