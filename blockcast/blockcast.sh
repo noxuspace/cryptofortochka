@@ -50,93 +50,48 @@ case $choice in
         echo -e "${BLUE}Проверяем Docker и Docker-Compose...${NC}"
         bash <(curl -fsSL https://raw.githubusercontent.com/noxusspace/cryptofortochka/main/docker/docker_main.sh)
 
+        git clone https://github.com/Blockcast/beacon-docker-compose.git
+        cd beacon-docker-compose
+        docker compose up -d
       
-
         cd ~
         # Завершающий вывод
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
         echo -e "${YELLOW}Команда для проверки логов:${NC}" 
-        echo "docker logs --tail 100 -f aztec-sequencer"
+        echo "docker logs -f blockcastd"
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
         echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
         echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
         sleep 2
-        docker logs --tail 100 -f aztec-sequencer     
+        docker logs -f blockcastd   
         ;;
     2)
-        # создаём временный файл
-        tmpf=$(mktemp) && \
-        # скачиваем role.sh в этот файл
-        curl -fsSL https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/aztec/role.sh > "$tmpf" && \
-        # исполняем его
-        bash "$tmpf" && \
-        # удаляем временный файл
-        rm -f "$tmpf"
+        echo -e "${BLUE}Получаю данные для регистрации...${NC}"
+        cd beacon-docker-compose
+        sleep 2
+        docker compose exec blockcastd blockcastd init
+        cd ~
         ;;
     3)
-        tmpf=$(mktemp) &&
-        curl -fsSL https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/aztec/validator.sh >"$tmpf" &&
-        bash "$tmpf" &&
-        rm -f "$tmpf"
+        docker logs -f blockcastd
         ;;
     4)
-        echo -e "${BLUE}Обновление ноды Aztec...${NC}"
-        # 1) Подтягиваем новую версию образа
-        docker pull aztecprotocol/aztec:0.87.2
-
-        # 2) Останавливаем и удаляем старый контейнер (тома и .evm сохранятся)
-        docker stop aztec-sequencer
-        docker rm aztec-sequencer
-
-        rm -rf "$HOME/my-node/node/"*
-
-        # 3) Запускаем контейнер заново с теми же параметрами, но новым тегом
-        docker run -d \
-          --name aztec-sequencer \
-          --network host \
-          --entrypoint /bin/sh \
-          --env-file "$HOME/aztec-sequencer/.evm" \
-          -e DATA_DIRECTORY=/data \
-          -e LOG_LEVEL=debug \
-          -v "$HOME/my-node/node":/data \
-          aztecprotocol/aztec:0.87.2 \
-          -c 'node --no-warnings /usr/src/yarn-project/aztec/dest/bin/index.js \
-            start --network alpha-testnet --node --archiver --sequencer'
-
-
-        # Завершающий вывод
-        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-        echo -e "${YELLOW}Команда для проверки логов:${NC}" 
-        echo "docker logs --tail 100 -f aztec-sequencer"
-        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-        echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
-        echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
+        echo -e "${BLUE}Перезапускаю контейнеры ноды...${NC}"
+        cd beacon-docker-compose
+        docker compose restart
+        cd ~
         sleep 2
-        docker logs --tail 100 -f aztec-sequencer
+        docker logs -f blockcastd
         ;;
     5)
-        docker logs --tail 100 -f aztec-sequencer
+        echo -e "${GREEN}У вас актуальная версия ноды!${NC}"
         ;;
     6)
-        docker restart aztec-sequencer
-        docker logs --tail 100 -f aztec-sequencer
-        ;;
-    7)
-        echo -e "${BLUE}Удаление ноды Aztec...${NC}"
-        docker stop aztec-sequencer
-        docker rm aztec-sequencer
-
-        rm -rf "$HOME/my-node/node/"*
-        rm -rf $HOME/aztec-sequencer
+        echo -e "${BLUE}Удаление ноды Blockcast...${NC}"
         
-        # Заключительное сообщение
-        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-        echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
-        echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
-        sleep 1
         ;;
     *)
-        echo -e "${RED}Неверный выбор. Пожалуйста, выберите пункт из меню.${NC}"
+        echo -e "${RED}Неверный выбор! Пожалуйста, выберите пункт из меню.${NC}"
         ;;
 esac
 
