@@ -38,21 +38,26 @@ case $choice in
         sudo apt install iptables-persistent
         sudo apt install curl iptables build-essential git wget lz4 jq make gcc nano automake autoconf tmux htop nvme-cli libgbm1 pkg-config libssl-dev libleveldb-dev tar clang bsdmainutils ncdu unzip libleveldb-dev  -y
         
-      # Проверка наличия iptables и установка, если отсутствует
-        if ! command -v iptables &> /dev/null; then
-          sudo apt-get update -y
-          sudo apt-get install -y iptables
-        fi
-
-        sudo apt update
-        sudo apt install -y iptables-persistent
-
         echo -e "${BLUE}Проверяем Docker и Docker-Compose...${NC}"
-        bash <(curl -fsSL https://raw.githubusercontent.com/noxusspace/cryptofortochka/main/docker/docker_main.sh)
-
+        if ! bash <(curl -fsSL https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/docker/docker_main.sh); then
+          echo -e "${RED}Не удалось установить Docker/Compose${NC}" >&2
+          exit 1
+        fi
+        
         git clone https://github.com/Blockcast/beacon-docker-compose.git
         cd beacon-docker-compose
-        docker compose up -d
+
+        # Определяем, какой синтаксис compose доступен
+        if command -v docker-compose &> /dev/null; then
+          DC="docker-compose"
+        elif docker compose version &> /dev/null; then
+          DC="docker compose"
+        else
+          echo "Ошибка: не найдено ни команды 'docker-compose', ни команды 'docker compose'." >&2
+          exit 1
+        fi
+        
+        $DC up -d
       
         cd ~
         # Завершающий вывод
@@ -69,7 +74,18 @@ case $choice in
         echo -e "${BLUE}Получаю данные для регистрации...${NC}"
         cd beacon-docker-compose
         sleep 2
-        docker compose exec blockcastd blockcastd init
+
+        # Определяем, какой синтаксис compose доступен
+        if command -v docker-compose &> /dev/null; then
+          DC="docker-compose"
+        elif docker compose version &> /dev/null; then
+          DC="docker compose"
+        else
+          echo "Ошибка: не найдено ни команды 'docker-compose', ни команды 'docker compose'." >&2
+          exit 1
+        fi
+        
+        $DC exec blockcastd blockcastd init
         cd ~
         ;;
     3)
@@ -78,7 +94,18 @@ case $choice in
     4)
         echo -e "${BLUE}Перезапускаю контейнеры ноды...${NC}"
         cd beacon-docker-compose
-        docker compose restart
+
+        # Определяем, какой синтаксис compose доступен
+        if command -v docker-compose &> /dev/null; then
+          DC="docker-compose"
+        elif docker compose version &> /dev/null; then
+          DC="docker compose"
+        else
+          echo "Ошибка: не найдено ни команды 'docker-compose', ни команды 'docker compose'." >&2
+          exit 1
+        fi
+        
+        $DC restart
         cd ~
         sleep 2
         docker logs -f blockcastd
@@ -89,7 +116,18 @@ case $choice in
     6)
         echo -e "${BLUE}Удаление ноды Blockcast...${NC}"
         cd ~/beacon-docker-compose
-        docker compose down --rmi all --volumes --remove-orphans
+
+        # Определяем, какой синтаксис compose доступен
+        if command -v docker-compose &> /dev/null; then
+          DC="docker-compose"
+        elif docker compose version &> /dev/null; then
+          DC="docker compose"
+        else
+          echo "Ошибка: не найдено ни команды 'docker-compose', ни команды 'docker compose'." >&2
+          exit 1
+        fi
+        
+        $DC down --rmi all --volumes --remove-orphans
         cd ~
         rm -rf beacon-docker-compose
         rm -rf ~/.blockcast
