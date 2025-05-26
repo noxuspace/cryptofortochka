@@ -88,7 +88,11 @@ case $choice in
         ;;
     6)
         echo -e "${BLUE}Удаление ноды Blockcast...${NC}"
-        
+        cd ~/beacon-docker-compose
+        docker compose down --rmi all --volumes --remove-orphans
+        cd ~
+        rm -rf beacon-docker-compose
+        rm -rf ~/.blockcast
         ;;
     *)
         echo -e "${RED}Неверный выбор! Пожалуйста, выберите пункт из меню.${NC}"
