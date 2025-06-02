@@ -29,6 +29,7 @@ cd "$PROJECT_DIR"
 # Запрашиваем Discord-юзернейм
 echo -e "${YELLOW}Введите ваш Discord-юзернейм:${NC}"
 read DISCORD
+export DISCORD
 
 # Генерируем файл src/Trap.sol с подстановкой Discord-имени
 cat > src/Trap.sol <<EOF
