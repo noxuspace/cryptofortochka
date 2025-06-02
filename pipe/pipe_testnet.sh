@@ -136,9 +136,9 @@ EOL'
     # Определение архитектуры и загрузка бинаря
     ARCH=$(uname -m)
     if [[ "$ARCH" == "x86_64" ]]; then
-      URL="https://download.pipe.network/static/pop-v0.3.0-linux-x64.tar.gz"
+      URL="https://download.pipe.network/static/pop-v0.3.1-linux-x64.tar.gz"
     else
-      URL="https://download.pipe.network/static/pop-v0.3.0-linux-arm64.tar.gz"
+      URL="https://download.pipe.network/static/pop-v0.3.1-linux-arm64.tar.gz"
     fi
     wget -q "$URL" -O pop.tar.gz
     tar -xzf pop.tar.gz && rm pop.tar.gz
