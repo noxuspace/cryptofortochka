@@ -81,7 +81,7 @@ case $choice in
         mkdir -p "$HOME/aztec-sequencer"
         cd "$HOME/aztec-sequencer"
 
-        docker pull aztecprotocol/aztec:0.87.6
+        docker pull aztecprotocol/aztec:0.87.7
         
         read -p "Вставьте ваш URL RPC Sepolia: " RPC
         read -p "Вставьте ваш URL Beacon Sepolia: " CONSENSUS
@@ -110,7 +110,7 @@ EOF
           -e DATA_DIRECTORY=/data \
           -e LOG_LEVEL=debug \
           -v "$HOME/my-node/node":/data \
-          aztecprotocol/aztec:0.87.6 \
+          aztecprotocol/aztec:0.87.7 \
           -c 'node --no-warnings /usr/src/yarn-project/aztec/dest/bin/index.js \
             start --network alpha-testnet --node --archiver --sequencer'
 
@@ -145,7 +145,7 @@ EOF
     4)
         echo -e "${BLUE}Обновление ноды Aztec...${NC}"
         # 1) Подтягиваем новую версию образа
-        docker pull aztecprotocol/aztec:0.87.6
+        docker pull aztecprotocol/aztec:0.87.7
 
         # 2) Останавливаем и удаляем старый контейнер (тома и .evm сохранятся)
         docker stop aztec-sequencer
@@ -162,7 +162,7 @@ EOF
           -e DATA_DIRECTORY=/data \
           -e LOG_LEVEL=debug \
           -v "$HOME/my-node/node":/data \
-          aztecprotocol/aztec:0.87.6 \
+          aztecprotocol/aztec:0.87.7 \
           -c 'node --no-warnings /usr/src/yarn-project/aztec/dest/bin/index.js \
             start --network alpha-testnet --node --archiver --sequencer'
 
