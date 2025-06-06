@@ -19,7 +19,7 @@ $DC down
 sleep 5
 
 # Обновляем образ в compose-файле
-sed -i -E 's#^(\s*image:\s*bcnmy/mee-node:).*#\11.1.19#' docker-compose.yml
+sed -i -E 's#^(\s*image:\s*bcnmy/mee-node:).*#\11.1.70#' docker-compose.yml
 
 # Запускаем
 $DC up -d
