@@ -31,7 +31,7 @@ read choice
 
 case $choice in
     1)
-        echo -e "${BLUE}Устанавливаем ноду Dria...${NC}"
+        echo -e "${BLUE}Устанавливаем ноду Datagram...${NC}"
 
         # Обновление и установка зависимостей
         sudo apt update
