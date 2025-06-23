@@ -7,6 +7,7 @@ if ! command -v docker &>/dev/null; then
   sudo apt update
   sudo apt install -y \
     curl \
+    screen \
     ca-certificates \
     apt-transport-https \
     gnupg \
