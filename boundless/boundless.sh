@@ -1706,8 +1706,6 @@ EOF
 
 # Main installation flow
 main() {
-    echo -e "${BOLD}${CYAN}Установка Boundless Prover Node от 0xMoei${RESET}"
-    echo "========================================"
     mkdir -p "$(dirname "$LOG_FILE")"
     touch "$LOG_FILE"
     touch "$ERROR_LOG"
