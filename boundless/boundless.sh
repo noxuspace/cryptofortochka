@@ -824,9 +824,9 @@ configure_network() {
     info "Выбрано: $NETWORK_NAME"
     echo -e "\n${BOLD}Настройка RPC:${RESET}"
     echo "RPC должен поддерживать eth_newBlockFilter. Рекомендуемые провайдеры:"
-    echo "- Alchemy (установите lookback_block=<120>)"
-    echo "- BlockPi (бесплатно для сетей Base)"
-    echo "- Chainstack (установите lookback_blocks=0)"
+    echo "- Alchemy"
+    echo "- BlockPi"
+    echo "- Chainstack"
     echo "- Ваш собственный RPC узел"
     prompt "Введите RPC URL: "
     read -r RPC_URL
