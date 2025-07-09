@@ -1454,9 +1454,9 @@ change_network() {
         # Ask for new RPC URL
         echo -e "\n${BOLD}Настройка RPC для новой сети:${RESET}"
         echo "RPC должен поддерживать eth_newBlockFilter. Рекомендуемые провайдеры:"
-        echo "- BlockPi (бесплатно для Base)"
+        echo "- BlockPi"
         echo "- Alchemy"
-        echo "- Chainstack (установите lookback_blocks=0)"
+        echo "- Chainstack"
         echo "- Ваш собственный RPC"
         read -p "Введите RPC URL: " new_rpc
 
