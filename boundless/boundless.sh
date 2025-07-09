@@ -1258,7 +1258,7 @@ analyze_broker_errors() {
         echo -e "${RED}✗ Проблема с соединением RPC${RESET}"
         echo -e "  ${YELLOW}→ Убедитесь, что RPC URL указан верно и доступен${RESET}"
         echo -e "  ${YELLOW}→ Проверьте, поддерживает ли RPC eth_newBlockFilter${RESET}"
-        echo -e "  ${YELLOW}→ Рекомендуется использовать BlockPi, Alchemy или свой нод${RESET}"
+        echo -e "  ${YELLOW}→ Рекомендуется использовать BlockPi, Alchemy или свою RPC${RESET}"
     fi
 
     if echo "$last_errors" | grep -q "database.*connection\|postgres"; then
