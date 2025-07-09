@@ -526,7 +526,7 @@ clone_repository() {
                 rm -rf "$INSTALL_DIR"
             else
                 cd "$INSTALL_DIR"
-                if ! git pull origin release-0.10 2>&1 >> "$LOG_FILE"; then
+                if ! git pull origin release-0.12 2>&1 >> "$LOG_FILE"; then
                     error "Не удалось обновить репозиторий"
                     exit $EXIT_DEPENDENCY_FAILED
                 fi
@@ -540,8 +540,8 @@ clone_repository() {
             exit $EXIT_DEPENDENCY_FAILED
         fi
         cd "$INSTALL_DIR"
-        if ! git checkout release-0.10 2>&1; then
-            error "Не удалось переключиться на release-0.10"
+        if ! git checkout release-0.12 2>&1; then
+            error "Не удалось переключиться на release-0.12"
             exit $EXIT_DEPENDENCY_FAILED
         fi
         if ! git submodule update --init --recursive 2>&1; then
