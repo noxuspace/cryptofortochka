@@ -81,7 +81,7 @@ case $choice in
         mkdir -p "$HOME/aztec-sequencer"
         cd "$HOME/aztec-sequencer"
 
-        docker pull aztecprotocol/aztec:0.87.9
+        docker pull aztecprotocol/aztec:1.1.0
         
         read -p "Вставьте ваш URL RPC Sepolia: " RPC
         read -p "Вставьте ваш URL Beacon Sepolia: " CONSENSUS
@@ -105,15 +105,19 @@ EOF
         docker run -d \
           --name aztec-sequencer \
           --network host \
-          --entrypoint /bin/sh \
           --env-file "$HOME/aztec-sequencer/.evm" \
           -e DATA_DIRECTORY=/data \
           -e LOG_LEVEL=debug \
           -v "$HOME/my-node/node":/data \
-          aztecprotocol/aztec:0.87.9 \
-          -c 'node --no-warnings /usr/src/yarn-project/aztec/dest/bin/index.js \
-            start --network alpha-testnet --node --archiver --sequencer'
-
+          --entrypoint /bin/sh \
+          aztecprotocol/aztec:1.1.0 \
+          -c "node --no-warnings /usr/src/yarn-project/aztec/dest/bin/index.js \
+            start --network alpha-testnet --node --archiver --sequencer \
+            --sequencer.validatorPrivateKeys \"\$VALIDATOR_PRIVATE_KEY\" \
+            --l1-rpc-urls \"\$ETHEREUM_HOSTS\" \
+            --l1-consensus-host-urls \"\$L1_CONSENSUS_HOST_URLS\" \
+            --sequencer.coinbase \"\$WALLET\" \
+            --p2p.p2pIp \"\$P2P_IP\""
 
         cd ~
         # Завершающий вывод
@@ -145,27 +149,31 @@ EOF
     4)
         echo -e "${BLUE}Обновление ноды Aztec...${NC}"
         # 1) Подтягиваем новую версию образа
-        docker pull aztecprotocol/aztec:0.87.9
+        docker pull aztecprotocol/aztec:1.1.0
 
         # 2) Останавливаем и удаляем старый контейнер (тома и .evm сохранятся)
         docker stop aztec-sequencer
         docker rm aztec-sequencer
 
-        rm -rf "$HOME/my-node/node/"*
+        #rm -rf "$HOME/my-node/node/"*
 
         # 3) Запускаем контейнер заново с теми же параметрами, но новым тегом
         docker run -d \
           --name aztec-sequencer \
           --network host \
-          --entrypoint /bin/sh \
           --env-file "$HOME/aztec-sequencer/.evm" \
           -e DATA_DIRECTORY=/data \
           -e LOG_LEVEL=debug \
           -v "$HOME/my-node/node":/data \
-          aztecprotocol/aztec:0.87.9 \
-          -c 'node --no-warnings /usr/src/yarn-project/aztec/dest/bin/index.js \
-            start --network alpha-testnet --node --archiver --sequencer'
-
+          --entrypoint /bin/sh \
+          aztecprotocol/aztec:1.1.0 \
+          -c "node --no-warnings /usr/src/yarn-project/aztec/dest/bin/index.js \
+            start --network alpha-testnet --node --archiver --sequencer \
+            --sequencer.validatorPrivateKeys \"\$VALIDATOR_PRIVATE_KEY\" \
+            --l1-rpc-urls \"\$ETHEREUM_HOSTS\" \
+            --l1-consensus-host-urls \"\$L1_CONSENSUS_HOST_URLS\" \
+            --sequencer.coinbase \"\$WALLET\" \
+            --p2p.p2pIp \"\$P2P_IP\""
 
         # Завершающий вывод
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
@@ -202,6 +210,3 @@ EOF
         echo -e "${RED}Неверный выбор. Пожалуйста, выберите пункт из меню.${NC}"
         ;;
 esac
-
-
-       
