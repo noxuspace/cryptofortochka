@@ -90,6 +90,31 @@ case $choice in
         bun install
         forge build
 
+        # Путь для drosera.toml
+        DROSERA_TOML_PATH="$HOME/my-drosera-trap/drosera.toml"
+        
+        # Скачиваем файл с GitHub
+        echo -e "${BLUE}Скачиваем файл drosera.toml...${NC}"
+        if curl -fsSL "https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/drosera/drosera.toml" -o "$DROSERA_TOML_PATH"; then
+            echo -e "${GREEN}Файл drosera.toml успешно скачан!${NC}"
+        else
+            echo -e "${RED}Ошибка при скачивании файла drosera.toml${NC}"
+            exit 1
+        fi
+
+        # Запрос адреса EVM кошелька у пользователя
+        echo -e "${YELLOW}Введите адрес вашего EVM кошелька:${NC} "
+        read WALLET_ADDRESS
+        
+        # Подставляем адрес кошелька в файл
+        echo -e "${BLUE}Добавляем адрес кошелька в drosera.toml...${NC}"
+        if sed -i "s|\$WALLET_ADDRESS|$WALLET_ADDRESS|g" "$DROSERA_TOML_PATH"; then
+            echo -e "${GREEN}Адрес кошелька успешно добавлен в drosera.toml!${NC}"
+        else
+            echo -e "${RED}Ошибка при добавлении адрес кошелька!${NC}"
+            exit 1
+        fi
+
         # Запрос приватного ключа от EVM-кошелька
         echo -e "${YELLOW}Введите ваш приватный ключ от EVM кошелька:${NC} "
         read PRIV_KEY
