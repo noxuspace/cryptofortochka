@@ -134,8 +134,8 @@ case $choice in
         echo -e "${BLUE}Запуск ноды...${NC}"
         cd ~
 
-        curl -LO https://github.com/drosera-network/releases/releases/download/v1.19.0/drosera-operator-v1.19.0-x86_64-unknown-linux-gnu.tar.gz
-        tar -xvf drosera-operator-v1.19.0-x86_64-unknown-linux-gnu.tar.gz
+        curl -LO https://github.com/drosera-network/releases/releases/download/v1.20.0/drosera-operator-v1.20.0-x86_64-unknown-linux-gnu.tar.gz
+        tar -xvf drosera-operator-v1.20.0-x86_64-unknown-linux-gnu.tar.gz
                
         sudo cp drosera-operator /usr/bin
 
@@ -146,7 +146,7 @@ case $choice in
         # Устанавливаем переменную окружения
         export DROSERA_PRIVATE_KEY="$PRIV_KEY"
 
-        drosera-operator register --eth-rpc-url https://ethereum-holesky-rpc.publicnode.com --eth-private-key $DROSERA_PRIVATE_KEY
+        drosera-operator register --eth-rpc-url https://ethereum-hoodi-rpc.publicnode.com --eth-private-key $DROSERA_PRIVATE_KEY --drosera-address 0x91cB447BaFc6e0EA0F4Fe056F5a9b1F14bb06e5D
 
         SERVER_IP=$(curl -s https://api.ipify.org)
 
@@ -161,13 +161,14 @@ Restart=always
 RestartSec=15
 LimitNOFILE=65535
 ExecStart=$(which drosera-operator) node --db-file-path \$HOME/.drosera.db --network-p2p-port 31313 --server-port 31314 \\
-    --eth-rpc-url https://ethereum-holesky-rpc.publicnode.com \\
-    --eth-backup-rpc-url https://1rpc.io/holesky \\
-    --drosera-address 0xea08f7d533C2b9A62F40D5326214f39a8E3A32F8 \\
+    --eth-rpc-url https://ethereum-hoodi-rpc.publicnode.com \\
+    --eth-backup-rpc-url https://rpc.hoodi.ethpandaops.io \\
+    --drosera-address 0x91cB447BaFc6e0EA0F4Fe056F5a9b1F14bb06e5D \\
     --eth-private-key $DROSERA_PRIVATE_KEY \\
     --listen-address 0.0.0.0 \\
     --network-external-p2p-address $SERVER_IP \\
-    --disable-dnr-confirmation true
+    --disable-dnr-confirmation true \\
+    --eth-chain-id 560048
 
 [Install]
 WantedBy=multi-user.target
@@ -191,8 +192,8 @@ EOF"
         echo -e "${BLUE}Обновляем ноду Drosera...${NC}"
         sudo systemctl stop drosera
         sleep 2
-        curl -LO https://github.com/drosera-network/releases/releases/download/v1.19.0/drosera-operator-v1.19.0-x86_64-unknown-linux-gnu.tar.gz
-        tar -xvf drosera-operator-v1.19.0-x86_64-unknown-linux-gnu.tar.gz
+        curl -LO https://github.com/drosera-network/releases/releases/download/v1.20.0/drosera-operator-v1.20.0-x86_64-unknown-linux-gnu.tar.gz
+        tar -xvf drosera-operator-v1.20.0-x86_64-unknown-linux-gnu.tar.gz
         sudo cp drosera-operator /usr/bin
         drosera-operator --version
         sleep 3
