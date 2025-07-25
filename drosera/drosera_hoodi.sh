@@ -23,12 +23,11 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
 echo -e "${YELLOW}Выберите действие:${NC}"
 echo -e "${CYAN}1) Установка зависимостей${NC}"
 echo -e "${CYAN}2) Деплой Trap${NC}"
-echo -e "${CYAN}3) Установка ноды${NC}"
-echo -e "${CYAN}4) Запуск ноды${NC}"
-echo -e "${CYAN}5) Обновление ноды${NC}"
-echo -e "${CYAN}6) Просмотр логов ноды${NC}"
-echo -e "${CYAN}7) Перезапуск ноды${NC}"
-echo -e "${CYAN}8) Удаление ноды${NC}"
+echo -e "${CYAN}3) Запуск ноды${NC}"
+echo -e "${CYAN}4) Обновление ноды${NC}"
+echo -e "${CYAN}5) Просмотр логов ноды${NC}"
+echo -e "${CYAN}6) Перезапуск ноды${NC}"
+echo -e "${CYAN}7) Удаление ноды${NC}"
 
 echo -e "${YELLOW}Введите номер:${NC} "
 read choice
@@ -132,46 +131,6 @@ case $choice in
         sleep 2
         ;;
     3)
-        echo -e "${BLUE}Установка ноды...${NC}"
-        
-        # Путь к файлу drosera.toml
-        TARGET_FILE="$HOME/my-drosera-trap/drosera.toml"
-
-        # Если файл существует, удаляем строки, начинающиеся с private_trap и whitelist
-        [ -f "$TARGET_FILE" ] && {
-            sed -i '/^private_trap/d' "$TARGET_FILE"
-            sed -i '/^whitelist/d' "$TARGET_FILE"
-        }
-        
-        # Запрос адреса EVM кошелька у пользователя
-        echo -e "${YELLOW}Введите адрес вашего EVM кошелька:${NC} "
-        read WALLET_ADDRESS
-        
-        # Добавление строк в конец файла
-        echo "private_trap = true" >> "$TARGET_FILE"
-        echo "whitelist = [\"$WALLET_ADDRESS\"]" >> "$TARGET_FILE"
-
-        cd my-drosera-trap
-
-        # Запрос приватного ключа от EVM-кошелька
-        echo -e "${YELLOW}Введите ваш приватный ключ от EVM кошелька:${NC} "
-        read PRIV_KEY
-        
-        # Устанавливаем переменную окружения
-        export DROSERA_PRIVATE_KEY="$PRIV_KEY"
-        
-        # Выполняем команду drosera apply с подставленным ключом
-        drosera apply
-
-
-        # Заключительное сообщение
-        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-        echo -e "${YELLOW}Вернитесь к текстовому гайду!${NC}"
-        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-        sleep 2
-        cd
-        ;;
-    4)
         echo -e "${BLUE}Запуск ноды...${NC}"
         cd ~
 
@@ -228,7 +187,7 @@ EOF"
         sleep 2
         journalctl -u drosera.service -f
         ;;
-    5)
+    4)
         echo -e "${BLUE}Обновляем ноду Drosera...${NC}"
         sudo systemctl stop drosera
         sleep 2
@@ -256,13 +215,13 @@ EOF"
         sudo systemctl restart drosera
         journalctl -u drosera.service -f
         ;;
-    6)
+    5)
         journalctl -u drosera.service -f
         ;;
-    7)
+    6)
         sudo systemctl restart drosera && journalctl -u drosera.service -f
         ;;
-    8)
+    7)
         echo -e "${BLUE}Удаление ноды Drosera...${NC}"
 
         # Остановка и удаление сервиса Hemi
