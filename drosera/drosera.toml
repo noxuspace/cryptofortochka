@@ -14,7 +14,7 @@ min_number_of_operators = 1
 max_number_of_operators = 2
 block_sample_size = 10
 private_trap = true
-whitelist = "$WALLET_ADDRESS"
+whitelist = ["$WALLET_ADDRESS"]
 
 # New Users/Migrate:
 # address = "DELETE THIS LINE WHEN APPLYING" (it will generate address after apply trap config)
