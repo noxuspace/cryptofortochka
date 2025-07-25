@@ -190,31 +190,62 @@ EOF"
         ;;
     4)
         echo -e "${BLUE}Обновляем ноду Drosera...${NC}"
-        sudo systemctl stop drosera
-        sleep 2
+        cd ~
+
         curl -LO https://github.com/drosera-network/releases/releases/download/v1.20.0/drosera-operator-v1.20.0-x86_64-unknown-linux-gnu.tar.gz
         tar -xvf drosera-operator-v1.20.0-x86_64-unknown-linux-gnu.tar.gz
+               
         sudo cp drosera-operator /usr/bin
-        drosera-operator --version
-        sleep 3
 
-        grep -q '^drosera_team' $HOME/my-drosera-trap/drosera.toml || sed -i 's|^drosera_rpc.*|drosera_team = "https://relay.testnet.drosera.io/"|' $HOME/my-drosera-trap/drosera.toml
-
-        cd my-drosera-trap
         # Запрос приватного ключа от EVM-кошелька
         echo -e "${YELLOW}Введите ваш приватный ключ от EVM кошелька:${NC} "
         read PRIV_KEY
         
         # Устанавливаем переменную окружения
         export DROSERA_PRIVATE_KEY="$PRIV_KEY"
-        
-        # Выполняем команду drosera apply с подставленным ключом
-        drosera apply
-        sleep 3
 
-        cd ~
-        sudo systemctl restart drosera
+        drosera-operator register --eth-rpc-url https://ethereum-hoodi-rpc.publicnode.com --eth-private-key $DROSERA_PRIVATE_KEY --drosera-address 0x91cB447BaFc6e0EA0F4Fe056F5a9b1F14bb06e5D
+
+        SERVER_IP=$(curl -s https://api.ipify.org)
+
+sudo bash -c "cat <<EOF > /etc/systemd/system/drosera.service
+[Unit]
+Description=drosera node service
+After=network-online.target
+
+[Service]
+User=$USER
+Restart=always
+RestartSec=15
+LimitNOFILE=65535
+ExecStart=$(which drosera-operator) node --db-file-path \$HOME/.drosera.db --network-p2p-port 31313 --server-port 31314 \\
+    --eth-rpc-url https://ethereum-hoodi-rpc.publicnode.com \\
+    --eth-backup-rpc-url https://rpc.hoodi.ethpandaops.io \\
+    --drosera-address 0x91cB447BaFc6e0EA0F4Fe056F5a9b1F14bb06e5D \\
+    --eth-private-key $DROSERA_PRIVATE_KEY \\
+    --listen-address 0.0.0.0 \\
+    --network-external-p2p-address $SERVER_IP \\
+    --disable-dnr-confirmation true \\
+    --eth-chain-id 560048
+
+[Install]
+WantedBy=multi-user.target
+EOF"
+
+        sudo systemctl daemon-reload
+        sudo systemctl enable drosera
+        sudo systemctl start drosera
+        
+        # Заключительное сообщение
+        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+        echo -e "${YELLOW}Команда для проверки логов:${NC}"
+        echo "journalctl -u drosera.service -f"
+        echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+        echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
+        echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
+        sleep 2
         journalctl -u drosera.service -f
+        ;;
         ;;
     5)
         journalctl -u drosera.service -f
