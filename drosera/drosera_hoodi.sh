@@ -246,7 +246,6 @@ EOF"
         sleep 2
         journalctl -u drosera.service -f
         ;;
-        ;;
     5)
         journalctl -u drosera.service -f
         ;;
