@@ -68,6 +68,7 @@ EOF
 sed -i 's|^path = .*|path = "out/Trap.sol/Trap.json"|' drosera.toml
 sed -i 's|^response_contract = .*|response_contract = "0x25E2CeF36020A736CF8a4D2cAdD2EBE3940F4608"|' drosera.toml
 sed -i 's|^response_function = .*|response_function = "respondWithDiscordName(string)"|' drosera.toml
+sed -i 's/^\[traps\..*\]/[traps.mytrap]/' drosera.toml
 
 # Собираем контракт
 echo -e "${BLUE}Запускаем forge build...${NC}"
