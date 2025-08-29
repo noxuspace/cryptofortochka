@@ -206,7 +206,7 @@ EOF"
         # Устанавливаем переменную окружения
         export DROSERA_PRIVATE_KEY="$PRIV_KEY"
 
-        drosera-operator register --eth-rpc-url https://ethereum-hoodi-rpc.publicnode.com --eth-private-key $DROSERA_PRIVATE_KEY --drosera-address 0x91cB447BaFc6e0EA0F4Fe056F5a9b1F14bb06e5D
+        #drosera-operator register --eth-rpc-url https://ethereum-hoodi-rpc.publicnode.com --eth-private-key $DROSERA_PRIVATE_KEY --drosera-address 0x91cB447BaFc6e0EA0F4Fe056F5a9b1F14bb06e5D
 
         SERVER_IP=$(curl -s https://api.ipify.org)
 
