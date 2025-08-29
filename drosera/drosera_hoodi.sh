@@ -134,8 +134,8 @@ case $choice in
         echo -e "${BLUE}Запуск ноды...${NC}"
         cd ~
 
-        curl -LO https://github.com/drosera-network/releases/releases/download/v1.20.0/drosera-operator-v1.20.0-x86_64-unknown-linux-gnu.tar.gz
-        tar -xvf drosera-operator-v1.20.0-x86_64-unknown-linux-gnu.tar.gz
+        curl -LO https://github.com/drosera-network/releases/releases/download/v1.21.2/drosera-operator-v1.21.2-x86_64-unknown-linux-gnu.tar.gz
+        tar -xvf drosera-operator-v1.21.2-x86_64-unknown-linux-gnu.tar.gz
                
         sudo cp drosera-operator /usr/bin
 
@@ -192,8 +192,8 @@ EOF"
         echo -e "${BLUE}Обновляем ноду Drosera...${NC}"
         cd ~
 
-        curl -LO https://github.com/drosera-network/releases/releases/download/v1.20.0/drosera-operator-v1.20.0-x86_64-unknown-linux-gnu.tar.gz
-        tar -xvf drosera-operator-v1.20.0-x86_64-unknown-linux-gnu.tar.gz
+        curl -LO https://github.com/drosera-network/releases/releases/download/v1.21.2/drosera-operator-v1.21.2-x86_64-unknown-linux-gnu.tar.gz
+        tar -xvf drosera-operator-v1.21.2-x86_64-unknown-linux-gnu.tar.gz
                
         sudo cp drosera-operator /usr/bin
 
