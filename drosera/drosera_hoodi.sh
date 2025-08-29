@@ -190,6 +190,8 @@ EOF"
         ;;
     4)
         echo -e "${BLUE}Обновляем ноду Drosera...${NC}"
+        sudo systemctl stop drosera
+        sleep 4
         cd ~
 
         curl -LO https://github.com/drosera-network/releases/releases/download/v1.21.2/drosera-operator-v1.21.2-x86_64-unknown-linux-gnu.tar.gz
