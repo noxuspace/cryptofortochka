@@ -81,7 +81,7 @@ case $choice in
         mkdir -p "$HOME/aztec-sequencer"
         cd "$HOME/aztec-sequencer"
 
-        docker pull aztecprotocol/aztec:1.2.1
+        docker pull aztecprotocol/aztec:latest
         
         read -p "Вставьте ваш URL RPC Sepolia: " RPC
         read -p "Вставьте ваш URL Beacon Sepolia: " CONSENSUS
@@ -101,7 +101,7 @@ WALLET=$WALLET
 GOVERNANCE_PROPOSER_PAYLOAD_ADDRESS=0x54F7fe24E349993b363A5Fa1bccdAe2589D5E5Ef
 EOF
 
-        # 3) Запуск контейнера (разовый, с привязкой тома и env-файлом)
+        # 3) Запуск контейнера с увеличенной памятью для Node.js
         docker run -d \
           --name aztec-sequencer \
           --network host \
@@ -110,9 +110,9 @@ EOF
           -e LOG_LEVEL=debug \
           -v "$HOME/my-node/node":/data \
           --entrypoint /bin/sh \
-          aztecprotocol/aztec:1.2.1 \
-          -c "node --no-warnings /usr/src/yarn-project/aztec/dest/bin/index.js \
-            start --network alpha-testnet --node --archiver --sequencer \
+          aztecprotocol/aztec:latest \
+          -c "node --max-old-space-size=4096 --no-warnings /usr/src/yarn-project/aztec/dest/bin/index.js \
+            start --network testnet --node --archiver --sequencer \
             --sequencer.validatorPrivateKeys \"\$VALIDATOR_PRIVATE_KEY\" \
             --l1-rpc-urls \"\$ETHEREUM_HOSTS\" \
             --l1-consensus-host-urls \"\$L1_CONSENSUS_HOST_URLS\" \
@@ -149,7 +149,7 @@ EOF
     4)
         echo -e "${BLUE}Обновление ноды Aztec...${NC}"
         # 1) Подтягиваем новую версию образа
-        docker pull aztecprotocol/aztec:1.2.1
+        docker pull aztecprotocol/aztec:latest
 
         # 2) Останавливаем и удаляем старый контейнер (тома и .evm сохранятся)
         docker stop aztec-sequencer
@@ -157,18 +157,21 @@ EOF
 
         #rm -rf "$HOME/my-node/node/"*
 
-        # 3) Запускаем контейнер заново с теми же параметрами, но новым тегом
+        # 3) Запускаем контейнер заново с увеличенной памятью для Node.js
         docker run -d \
           --name aztec-sequencer \
           --network host \
+          --memory=10g \
+          --memory-swap=12g \
           --env-file "$HOME/aztec-sequencer/.evm" \
           -e DATA_DIRECTORY=/data \
           -e LOG_LEVEL=debug \
+          -e NODE_OPTIONS="--max-old-space-size=8192 --max-semi-space-size=1024" \
           -v "$HOME/my-node/node":/data \
           --entrypoint /bin/sh \
-          aztecprotocol/aztec:1.2.1 \
-          -c "node --no-warnings /usr/src/yarn-project/aztec/dest/bin/index.js \
-            start --network alpha-testnet --node --archiver --sequencer \
+          aztecprotocol/aztec:latest \
+          -c "node --max-old-space-size=8192 --max-semi-space-size=1024 --optimize-for-size --no-warnings /usr/src/yarn-project/aztec/dest/bin/index.js \
+            start --network testnet --node --archiver --sequencer \
             --sequencer.validatorPrivateKeys \"\$VALIDATOR_PRIVATE_KEY\" \
             --l1-rpc-urls \"\$ETHEREUM_HOSTS\" \
             --l1-consensus-host-urls \"\$L1_CONSENSUS_HOST_URLS\" \
