@@ -108,4 +108,4 @@ sudo apt-get autoremove -y
 sudo apt-get clean
 
 echo "-----------------------------------------------------------------------"
-echo "Готово! Docker и Compose установлены."
+echo "Готово! Система обновлена, утилиты, Docker и Compose установлены."
