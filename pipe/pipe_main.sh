@@ -240,10 +240,9 @@ EOF
   7)
     sudo systemctl stop pipe
     sudo systemctl disable pipe
+    sudo rm /etc/systemd/system/pipe.service
     sudo systemctl daemon-reload
     sudo rm -rf /opt/pipe
-
-    
     ;;
   *)
     echo -e "${RED}Неверный выбор${NC}"
