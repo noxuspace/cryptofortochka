@@ -49,7 +49,9 @@ echo -e "${CYAN}1) Установка ноды${NC}"
 echo -e "${CYAN}2) Обновление ноды${NC}"
 echo -e "${CYAN}3) Просмотр логов${NC}"
 echo -e "${CYAN}4) Рестарт ноды${NC}"
-echo -e "${CYAN}5) Удаление ноды${NC}"
+echo -e "${CYAN}5) Проверка здоровья ноды${NC}"
+echo -e "${CYAN}6) Информация о ноде${NC}"
+echo -e "${CYAN}7) Удаление ноды${NC}"
 
 echo -e "${YELLOW}Введите номер:${NC} "
 read choice
@@ -205,6 +207,7 @@ EOF
     sudo systemctl daemon-reload
     sudo systemctl enable pipe
     sudo systemctl start pipe
+    cd $HOME
     
     # Завершающий вывод
     echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
@@ -226,17 +229,21 @@ EOF
     sudo systemctl restart pipe && sudo journalctl -u pipe -f
     ;;
   5)
-    docker stop popnode && docker rm popnode
-    sudo rm -rf /opt/popcache
+    curl http://localhost:8081/health
+    ;;
+  6)
+    cd /opt/pipe
+    ./pop status
+    ./pop earnings
+    cd $HOME
+    ;;
+  7)
+    sudo systemctl stop pipe
+    sudo systemctl disable pipe
+    sudo systemctl daemon-reload
+    sudo rm -rf /opt/pipe
 
-    docker rmi popnode:latest
-
-    # Удаляем sysctl-конфигурацию и применяем изменения
-    sudo rm -f /etc/sysctl.d/99-popcache.conf
-    sudo sysctl --system
-
-    # Удаляем limits-конфиг
-    sudo rm -f /etc/security/limits.d/popcache.conf
+    
     ;;
   *)
     echo -e "${RED}Неверный выбор${NC}"
