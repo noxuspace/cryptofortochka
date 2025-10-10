@@ -31,16 +31,20 @@ if ! command -v bc &> /dev/null; then
 fi
 sleep 1
 
-UBUNTU_VERSION=$(lsb_release -rs)
+# lsb_release может отсутствовать на минимальных образах
+if command -v lsb_release &>/dev/null; then
+  UBUNTU_VERSION=$(lsb_release -rs)
+else
+  UBUNTU_VERSION=$(grep -oP '(?<=^VERSION_ID=)".*"' /etc/os-release | tr -d '"')
+fi
 REQUIRED_VERSION=24.04
 
-# Сравнение версий
 if (( $(echo "$UBUNTU_VERSION < $REQUIRED_VERSION" | bc -l) )); then
-    echo -e "${RED}Для этой ноды требуется Ubuntu ${REQUIRED_VERSION} или выше!${NC}"
-    echo -e "${PURPLE}У вас установлена версия: ${UBUNTU_VERSION}${NC}"
-    exit 1
+  echo -e "${RED}Для этой ноды требуется Ubuntu ${REQUIRED_VERSION} или выше!${NC}"
+  echo -e "${PURPLE}У вас установлена версия: ${UBUNTU_VERSION}${NC}"
+  exit 1
 else
-    echo -e "${GREEN}Версия Ubuntu подходит: ${UBUNTU_VERSION}${NC}"
+  echo -e "${GREEN}Версия Ubuntu подходит: ${UBUNTU_VERSION}${NC}"
 fi
 
 # Меню действий
@@ -59,24 +63,18 @@ read choice
 case $choice in
   1)
     echo -e "${BLUE}Установка ноды Pipe (Mainnet)...${NC}"
+    export DEBIAN_FRONTEND=noninteractive
     sudo apt-get update
-    sudo apt install -y libssl-dev ca-certificates jq
-
-    sudo apt update
-    sudo apt install -y iptables-persistent
+    sudo apt-get install -y ca-certificates libssl-dev jq iptables-persistent psmisc
     
     # Создание рабочей директории
-    cd /opt
-    mkdir pipe && cd pipe
+    CURRENT_USER=${SUDO_USER:-$USER}
+    sudo mkdir -p /opt/pipe/.cache
+    sudo chown -R "$CURRENT_USER":"$CURRENT_USER" /opt/pipe
+    cd /opt/pipe
 
-    curl -L https://pipe.network/p1-cdn/releases/latest/download/pop -o pop
+    curl -fsSL https://pipe.network/p1-cdn/releases/latest/download/pop -o pop
     chmod +x pop
-
-    # Требуется jq для парсинга JSON
-    if ! command -v jq &>/dev/null; then
-      echo -e "${BLUE}Устанавливаем jq...${NC}"
-      sudo apt update && sudo apt install -y jq
-    fi
     
     # ── Запрос параметров ───────────────────────────────────────────────────────────
     echo -e "${YELLOW}Введите адрес от кошелька Solana:${NC}"
@@ -119,48 +117,38 @@ case $choice in
     ESC_EMAIL=$(printf '%s' "$EMAIL" | sed 's/"/\\"/g')
     ESC_LOCATION=$(printf '%s' "$POP_LOCATION" | sed 's/"/\\"/g')
     
-    # ── Запись .env (VPS: UPNP отключён) ───────────────────────────────────────────
-    cat > /opt/pipe/.env <<EOF
-    # Wallet for earnings
-    NODE_SOLANA_PUBLIC_KEY=${SOLANA_PUBKEY}
-    
-    # Node identity
-    NODE_NAME=${POP_NODE}
-    NODE_EMAIL="${ESC_EMAIL}"
-    NODE_LOCATION="${ESC_LOCATION}"
-    
-    # Cache configuration
-    MEMORY_CACHE_SIZE_MB=${RAM_MB}
-    DISK_CACHE_SIZE_GB=${DISK_GB}
-    DISK_CACHE_PATH=./cache
-    
-    # Network ports
-    HTTP_PORT=80
-    HTTPS_PORT=443
-    
-    # Home network auto port forwarding (disable on VPS/servers)
-    UPNP_ENABLED=false
+    sudo tee /opt/pipe/.env > /dev/null <<EOF
+# Wallet for earnings
+NODE_SOLANA_PUBLIC_KEY=${SOLANA_PUBKEY}
+
+# Node identity
+NODE_NAME=${POP_NODE}
+NODE_EMAIL="${ESC_EMAIL}"
+NODE_LOCATION="${ESC_LOCATION}"
+
+# Cache configuration
+MEMORY_CACHE_SIZE_MB=${RAM_MB}
+DISK_CACHE_SIZE_GB=${DISK_GB}
+DISK_CACHE_PATH=.cache
+
+# Network ports
+HTTP_PORT=80
+HTTPS_PORT=443
+
+# Home network auto port forwarding (disable on VPS/servers)
+UPNP_ENABLED=false
 EOF
 
-    # Определяем имя текущего пользователя и его домашнюю директорию
-    USERNAME=$(whoami)
-    
-    if [ "$USERNAME" == "root" ]; then
-        HOME_DIR="/root"
-    else
-        HOME_DIR="/home/$USERNAME"
-    fi
-
-    sudo tee /etc/systemd/system/pipe.service > /dev/null <<EOF
+    sudo tee /etc/systemd/system/pipe.service > /dev/null <<'EOF'
 [Unit]
 Description=Pipe Network POP Node
 After=network-online.target
 Wants=network-online.target
 
 [Service]
-User=$USERNAME
 WorkingDirectory=/opt/pipe
-ExecStart=/bin/bash -c 'source /opt/pipe/.env && /opt/pipe/pop'
+EnvironmentFile=/opt/pipe/.env
+ExecStart=/opt/pipe/pop
 Restart=always
 RestartSec=5
 StandardOutput=journal
@@ -200,9 +188,13 @@ EOF
     fi
     
     # Настройка iptables
-    sudo iptables -I INPUT -p tcp --dport 443 -j ACCEPT
-    sudo iptables -I INPUT -p tcp --dport 80 -j ACCEPT
-    sudo sh -c "iptables-save > /etc/iptables/rules.v4"
+    sudo iptables  -I INPUT -p tcp --dport 80  -j ACCEPT
+    sudo iptables  -I INPUT -p tcp --dport 443 -j ACCEPT
+    sudo ip6tables -I INPUT -p tcp --dport 80  -j ACCEPT || true
+    sudo ip6tables -I INPUT -p tcp --dport 443 -j ACCEPT || true
+    
+    sudo sh -c "iptables-save  > /etc/iptables/rules.v4"
+    sudo sh -c "ip6tables-save > /etc/iptables/rules.v6" || true
 
     sudo systemctl daemon-reload
     sudo systemctl enable pipe
@@ -229,7 +221,7 @@ EOF
     sudo systemctl restart pipe && sudo journalctl -u pipe -f
     ;;
   5)
-    curl http://localhost:8081/health
+    curl -sf http://127.0.0.1:8081/health || echo -e "${RED}Сервис не ответил на /health${NC}"
     ;;
   6)
     cd /opt/pipe
