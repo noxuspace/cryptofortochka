@@ -70,31 +70,48 @@ case $choice in
     curl -L https://pipe.network/p1-cdn/releases/latest/download/pop -o pop
     chmod +x pop
 
-    # Запрос параметров
+    # Требуется jq для парсинга JSON
+    if ! command -v jq &>/dev/null; then
+      echo -e "${BLUE}Устанавливаем jq...${NC}"
+      sudo apt update && sudo apt install -y jq
+    fi
+    
+    # ── Запрос параметров ───────────────────────────────────────────────────────────
     echo -e "${YELLOW}Введите адрес от кошелька Solana:${NC}"
-    read SOLANA_PUBKEY
+    read -r SOLANA_PUBKEY
     
     echo -e "${YELLOW}Придумайте имя для ноды:${NC}"
-    read POP_NODE
+    read -r POP_NODE
     
     echo -e "${YELLOW}Введите ваш email:${NC}"
-    read EMAIL
+    read -r EMAIL
     
-    echo -e "${YELLOW}Введите объём оперативной памяти (только число в Mb, например, 512 или 1024 и т.п.):${NC}"
-    read RAM_MB
+    # RAM в МБ (только число)
+    while true; do
+      echo -e "${YELLOW}Введите объём оперативной памяти (только число в Mb, например, 512 или 1024 и т.п.):${NC}"
+      read -r RAM_MB
+      [[ "$RAM_MB" =~ ^[0-9]+$ ]] && break
+      echo -e "${RED}Введите только число (МБ).${NC}"
+    done
     
-    echo -e "${YELLOW}Введите максимальный размер кеша на диске (только число в GB, например, 250):${NC}"
-    read DISK_GB
-
-    # Получаем данные с ip-api.com
-    response=$(curl -s http://ip-api.com/json)
+    # Дисковый кеш в ГБ (только число)
+    while true; do
+      echo -e "${YELLOW}Введите максимальный размер кеша на диске (в ГБ, напр. 100 или 250):${NC}"
+      read -r DISK_GB
+      [[ "$DISK_GB" =~ ^[0-9]+$ ]] && break
+      echo -e "${RED}Введите только число (ГБ).${NC}"
+    done
     
-    # Извлекаем страну и город
-    country=$(echo "$response" | jq -r '.country')
-    city=$(echo "$response" | jq -r '.city')
+    # ── Определение локации по IP ──────────────────────────────────────────────────
+    response=$(curl -s http://ip-api.com/json || true)
+    country=$(echo "$response" | jq -r '.country // empty')
+    city=$(echo "$response" | jq -r '.city // empty')
     
-    # Формируем переменную
-    POP_LOCATION="$city, $country"
+    if [[ -n "$city" && -n "$country" ]]; then
+      POP_LOCATION="$city, $country"
+    else
+      POP_LOCATION="Unknown"
+    fi
 
     # Освобождение портов 80 и 443, если они заняты
     for PORT in 80 443; do
