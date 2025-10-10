@@ -21,23 +21,18 @@ sleep 1
 # Отображаем логотип
 curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_club.sh | bash
 
-# Проверка наличия bc и установка, если не установлен
-echo -e "${BLUE}Проверяем версию вашей OS...${NC}"
-if ! command -v bc &> /dev/null; then
-    sudo apt update
-    sudo apt install bc -y
-fi
-sleep 1
-
 # Проверка версии Ubuntu
-UBUNTU_VERSION=$(lsb_release -rs)
-REQUIRED_VERSION=24.04
+echo -e "${BLUE}Проверяем версию вашей OS...${NC}"
 
-# Проверяем, установлена ли утилита bc
+# Проверка наличия bc и установка при необходимости
 if ! command -v bc &> /dev/null; then
     echo -e "${BLUE}Устанавливаем bc...${NC}"
     sudo apt update && sudo apt install -y bc
 fi
+sleep 1
+
+UBUNTU_VERSION=$(lsb_release -rs)
+REQUIRED_VERSION=24.04
 
 # Сравнение версий
 if (( $(echo "$UBUNTU_VERSION < $REQUIRED_VERSION" | bc -l) )); then
@@ -47,7 +42,6 @@ if (( $(echo "$UBUNTU_VERSION < $REQUIRED_VERSION" | bc -l) )); then
 else
     echo -e "${GREEN}Версия Ubuntu подходит: ${UBUNTU_VERSION}${NC}"
 fi
-
 
 # Меню действий
 echo -e "${YELLOW}Выберите действие:${NC}"
@@ -62,7 +56,7 @@ read choice
 
 case $choice in
   1)
-    echo -e "${BLUE}Установка ноды Pipe (Testnet)...${NC}"
+    echo -e "${BLUE}Установка ноды Pipe (Mainnet)...${NC}"
     sudo apt-get update
     sudo apt install -y libssl-dev ca-certificates jq
 
@@ -82,18 +76,12 @@ case $choice in
     
     echo -e "${YELLOW}Придумайте имя для ноды:${NC}"
     read POP_NODE
-
-    echo -e "${YELLOW}Ведите ваше имя или никнейм:${NC}"
-    read POP_NAME
-
-    echo -e "${YELLOW}Введите адрес вашего сайта или Github или Twiiter... :${NC}"
-    read WEBSITE
     
     echo -e "${YELLOW}Введите ваш email:${NC}"
     read EMAIL
     
-    echo -e "${YELLOW}Введите объём оперативной памяти (только цифра или число в GB, например, 6 или 8 и т.п.):${NC}"
-    read RAM_GB
+    echo -e "${YELLOW}Введите объём оперативной памяти (только число в Mb, например, 512 или 1024 и т.п.):${NC}"
+    read RAM_MB
     
     echo -e "${YELLOW}Введите максимальный размер кеша на диске (только число в GB, например, 250):${NC}"
     read DISK_GB
@@ -107,53 +95,6 @@ case $choice in
     
     # Формируем переменную
     POP_LOCATION="$city, $country"
-
-    # Настройки ядра через sysctl
-    sudo bash -c 'cat > /etc/sysctl.d/99-popcache.conf << EOL
-net.ipv4.ip_local_port_range = 1024 65535
-net.core.somaxconn = 65535
-net.ipv4.tcp_low_latency = 1
-net.ipv4.tcp_fastopen = 3
-net.ipv4.tcp_slow_start_after_idle = 0
-net.ipv4.tcp_window_scaling = 1
-net.ipv4.tcp_wmem = 4096 65536 16777216
-net.ipv4.tcp_rmem = 4096 87380 16777216
-net.core.wmem_max = 16777216
-net.core.rmem_max = 16777216
-EOL'
-    sudo sysctl -p /etc/sysctl.d/99-popcache.conf
-
-    # Лимиты открытых файлов
-    sudo bash -c 'cat > /etc/security/limits.d/popcache.conf << EOL
-*    hard nofile 65535
-*    soft nofile 65535
-EOL'
-
-    # Определение архитектуры и загрузка бинаря
-    ARCH=$(uname -m)
-    if [[ "$ARCH" == "x86_64" ]]; then
-      URL="https://download.pipe.network/static/pop-v0.3.0-linux-x64.tar.gz"
-    else
-      URL="https://download.pipe.network/static/pop-v0.3.0-linux-arm64.tar.gz"
-    fi
-    wget -q "$URL" -O pop.tar.gz
-    tar -xzf pop.tar.gz && rm pop.tar.gz
-    chmod +x pop
-    chmod 755 /opt/popcache/pop
-
-    # Генерация config.json
-    MB=$(( RAM_GB * 1024 ))
-    cat > config.json <<EOL
-{
-  "pop_name": "${POP_NODE}",
-  "pop_location": "${POP_LOCATION}",
-  "invite_code": "${INVITE}",
-  "server": {"host": "0.0.0.0","port": 443,"http_port": 80,"workers": 0},
-  "cache_config": {"memory_cache_size_mb": ${MB},"disk_cache_path": "./cache","disk_cache_size_gb": ${DISK_GB},"default_ttl_seconds": 86400,"respect_origin_headers": true,"max_cacheable_size_mb": 1024},
-  "api_endpoints": {"base_url": "https://dataplane.pipenetwork.com"},
-  "identity_config": {"node_name": "${POP_NODE}","name": "${POP_NAME}","email": "${EMAIL}","website": "${WEBSITE}","discord": "${DISCORD}","telegram": "${TELEGRAM}","solana_pubkey": "${SOLANA_PUBKEY}"}
-}
-EOL
 
     # Освобождение портов 80 и 443, если они заняты
     for PORT in 80 443; do
@@ -187,41 +128,7 @@ EOL
     sudo iptables -I INPUT -p tcp --dport 80 -j ACCEPT
     sudo sh -c "iptables-save > /etc/iptables/rules.v4"
 
-    # Dockerfile
-    cat > Dockerfile << EOL
-FROM ubuntu:24.04
-
-# Install dependensi dasar
-RUN apt update && apt install -y \\
-    ca-certificates \\
-    curl \\
-    libssl-dev \\
-    && rm -rf /var/lib/apt/lists/*
-
-# Buat direktori untuk pop
-WORKDIR /opt/popcache
-
-# Salin file konfigurasi & binary dari host
-COPY pop .
-COPY config.json .
-
-# Berikan izin eksekusi
-RUN chmod +x ./pop
-
-# Jalankan node
-CMD ["./pop", "--config", "config.json"]
-EOL
-
-    # Сборка и запуск контейнера
-    docker build -t popnode .
-    cd ~
-
-    docker run -d \
-      --name popnode \
-      -p 80:80 \
-      -p 443:443 \
-      --restart unless-stopped \
-      popnode
+    
     
     # Завершающий вывод
     echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
