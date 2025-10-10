@@ -91,12 +91,12 @@ case $choice in
       echo -e "${YELLOW}Введите объём оперативной памяти (только число в Mb, например, 512 или 1024 и т.п.):${NC}"
       read -r RAM_MB
       [[ "$RAM_MB" =~ ^[0-9]+$ ]] && break
-      echo -e "${RED}Введите только число (МБ).${NC}"
+      echo -e "${RED}Введите только число (МБ)!${NC}"
     done
     
     # Дисковый кеш в ГБ (только число)
     while true; do
-      echo -e "${YELLOW}Введите максимальный размер кеша на диске (в ГБ, напр. 100 или 250):${NC}"
+      echo -e "${YELLOW}Введите максимальный размер кеша на диске (в Gb, например, 100 или 250):${NC}"
       read -r DISK_GB
       [[ "$DISK_GB" =~ ^[0-9]+$ ]] && break
       echo -e "${RED}Введите только число (ГБ).${NC}"
@@ -112,6 +112,35 @@ case $choice in
     else
       POP_LOCATION="Unknown"
     fi
+
+    # Экранируем кавычки в строковых значениях для .env
+    ESC_EMAIL=$(printf '%s' "$EMAIL" | sed 's/"/\\"/g')
+    ESC_LOCATION=$(printf '%s' "$POP_LOCATION" | sed 's/"/\\"/g')
+    
+    # ── Запись .env (VPS: UPNP отключён) ───────────────────────────────────────────
+    cat > /opt/pipe/.env <<EOF
+    # Wallet for earnings
+    NODE_SOLANA_PUBLIC_KEY=${SOLANA_PUBKEY}
+    
+    # Node identity
+    NODE_NAME=${POP_NODE}
+    NODE_EMAIL="${ESC_EMAIL}"
+    NODE_LOCATION="${ESC_LOCATION}"
+    
+    # Cache configuration
+    MEMORY_CACHE_SIZE_MB=${RAM_MB}
+    DISK_CACHE_SIZE_GB=${DISK_GB}
+    DISK_CACHE_PATH=./cache
+    
+    # Network ports
+    HTTP_PORT=80
+    HTTPS_PORT=443
+    
+    # Home network auto port forwarding (disable on VPS/servers)
+    UPNP_ENABLED=false
+EOF
+
+    
 
     # Освобождение портов 80 и 443, если они заняты
     for PORT in 80 443; do
