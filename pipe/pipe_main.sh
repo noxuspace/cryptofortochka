@@ -140,7 +140,35 @@ case $choice in
     UPNP_ENABLED=false
 EOF
 
+    # Определяем имя текущего пользователя и его домашнюю директорию
+    USERNAME=$(whoami)
     
+    if [ "$USERNAME" == "root" ]; then
+        HOME_DIR="/root"
+    else
+        HOME_DIR="/home/$USERNAME"
+    fi
+
+    sudo tee /etc/systemd/system/pipe.service > /dev/null <<EOF
+[Unit]
+Description=Pipe Network POP Node
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=$USERNAME
+WorkingDirectory=/opt/pipe
+ExecStart=/bin/bash -c 'source /opt/pipe/.env && /opt/pipe/pop'
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
 
     # Освобождение портов 80 и 443, если они заняты
     for PORT in 80 443; do
@@ -174,26 +202,28 @@ EOF
     sudo iptables -I INPUT -p tcp --dport 80 -j ACCEPT
     sudo sh -c "iptables-save > /etc/iptables/rules.v4"
 
-    
+    sudo systemctl daemon-reload
+    sudo systemctl enable pipe
+    sudo systemctl start pipe
     
     # Завершающий вывод
     echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
     echo -e "${YELLOW}Команда для проверки логов:${NC}" 
-    echo "docker logs --tail 100 -f popnode"
+    echo "sudo journalctl -u pipe -f"
     echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
     echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
     echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
     sleep 2
-    docker logs --tail 100 -f popnode
+    sudo journalctl -u pipe -f
     ;;
   2)
-    echo -e "${RED}Вернитесь в текстовый гайд и выполните обновление вручную!${NC}"
+    echo -e "${GREEN}У вас актуальная версия ноды!${NC}"
     ;;
   3)
-    docker logs --tail 100 -f popnode
+    sudo journalctl -u pipe -f
     ;;
   4)
-    docker restart popnode && docker logs --tail 100 -f popnode
+    sudo systemctl restart pipe && sudo journalctl -u pipe -f
     ;;
   5)
     docker stop popnode && docker rm popnode
