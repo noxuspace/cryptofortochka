@@ -20,60 +20,36 @@ fi
 echo -e "${BLUE}Делаем бэкап .env...${NC}"
 cp -a "${ENV_FILE}" "${ENV_FILE}.bak.$(date +%F_%H-%M-%S)"
 
-echo -e "${BLUE}Нормализуем CL_EXTRAS (задаём Teku supernode)...${NC}"
+echo -e "${BLUE}Обновляем CL_EXTRAS (включаем Teku supernode)...${NC}"
 sed -i '/^CL_EXTRAS=/d' "${ENV_FILE}"
 printf "CL_EXTRAS=%s\n" "${NEEDED_FLAG}" >> "${ENV_FILE}"
 grep -n '^CL_EXTRAS=' "${ENV_FILE}"
 
 cd "${STACK_DIR}"
 
-echo -e "${BLUE}Перезапускаем consensus (мягко)...${NC}"
-sudo -u "${USER_NAME}" ./ethd restart consensus || true
-sleep 5
+echo -e "${BLUE}Полностью перезапускаем стек Eth Docker (down -> up)...${NC}"
+sudo -u "${USER_NAME}" ./ethd down || true
+sudo -u "${USER_NAME}" ./ethd cmd up -d --force-recreate
+sleep 10
 
-# Функция: проверка наличия флага в запущенном контейнере consensus
-check_flag() {
-  local cid
-  cid=$(docker ps --format '{{.ID}} {{.Names}}' | awk '/consensus/{print $1}')
-  if [ -z "$cid" ]; then
-    echo "consensus-контейнер не найден."
-    return 1
-  fi
-  if docker inspect "$cid" 2>/dev/null | grep -q -- "${NEEDED_FLAG}"; then
-    echo -e "${GREEN}Флаг найден в аргументах контейнера consensus.${NC}"
-    return 0
-  else
-    echo -e "${YELLOW}Флаг не обнаружен в текущем контейнере consensus.${NC}"
-    return 1
-  fi
-}
-
-if ! check_flag; then
-  echo -e "${BLUE}Пробуем форс-пересоздать только consensus через ethd cmd...${NC}"
-  sudo -u "${USER_NAME}" ./ethd down consensus || true
-  sudo -u "${USER_NAME}" ./ethd cmd up -d --force-recreate consensus
-  sleep 8
-fi
-
-if ! check_flag; then
-  echo -e "${YELLOW}Флаг всё ещё не виден. Пересоздаём ВЕСЬ стек (down -> up).${NC}"
-  sudo -u "${USER_NAME}" ./ethd down || true
-  sudo -u "${USER_NAME}" ./ethd cmd up -d --force-recreate
-  sleep 10
-fi
-
-if check_flag; then
-  echo -e "${GREEN}OK: Teku работает с supernode-флагом: ${NEEDED_FLAG}${NC}"
+# Проверка наличия флага в контейнере consensus
+CID=$(docker ps --format '{{.ID}} {{.Names}}' | awk '/consensus/{print $1}' || true)
+if [ -z "$CID" ]; then
+  echo -e "${RED}Не удалось найти контейнер consensus после рестарта!${NC}"
 else
-  echo -e "${RED}Не удалось подтвердить наличие флага. Проверь вручную:${NC}"
-  echo 'CID=$(docker ps --format "{{.ID}} {{.Names}}" | awk "/consensus/{print $1}")'
-  echo 'docker inspect "$CID" | grep -n -- "--p2p-subscribe-all-custody-subnets-enabled"'
+  if docker inspect "$CID" | grep -q -- "${NEEDED_FLAG}"; then
+    echo -e "${GREEN}OK: Teku работает с флагом supernode: ${NEEDED_FLAG}${NC}"
+  else
+    echo -e "${RED}Флаг ${NEEDED_FLAG} не обнаружен в аргументах контейнера!${NC}"
+    echo -e "${YELLOW}Проверь вручную:${NC}"
+    echo "docker inspect \"$CID\" | grep -n -- \"${NEEDED_FLAG}\""
+  fi
 fi
 
-echo -e "${BLUE}Ключевые строки из логов консенсуса (custody/subnet/peerdas/supernode):${NC}"
-sudo -u "${USER_NAME}" ./ethd logs consensus | egrep -i 'custody|subnet|peerdas|supernode' -n | tail -n 80 || true
+echo -e "${BLUE}Проверяем логи консенсуса (custody/subnet/peerdas/supernode)...${NC}"
+sudo -u "${USER_NAME}" ./ethd logs consensus | egrep -i 'custody|subnet|peerdas|supernode' -n | tail -n 50 || true
 
-echo -e "${BLUE}Быстрый sanity-check EL RPC:${NC}"
+echo -e "${BLUE}Быстрая проверка синхронизации EL RPC:${NC}"
 curl -s -X POST http://127.0.0.1:58545 -H 'Content-Type: application/json' \
   -d '{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}'; echo
 curl -s -X POST http://127.0.0.1:58545 -H 'Content-Type: application/json' \
