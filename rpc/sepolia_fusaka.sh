@@ -46,15 +46,6 @@ else
   fi
 fi
 
-echo -e "${BLUE}Проверяем логи консенсуса (custody/subnet/peerdas/supernode)...${NC}"
-sudo -u "${USER_NAME}" ./ethd logs consensus | egrep -i 'custody|subnet|peerdas|supernode' -n | tail -n 50 || true
-
-echo -e "${BLUE}Быстрая проверка синхронизации EL RPC:${NC}"
-curl -s -X POST http://127.0.0.1:58545 -H 'Content-Type: application/json' \
-  -d '{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}'; echo
-curl -s -X POST http://127.0.0.1:58545 -H 'Content-Type: application/json' \
-  -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":2}' | jq -r .result || true; echo
-
 echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
 echo -e "${YELLOW}Онлайн-логи консенсуса:${NC}"
 echo "cd ${STACK_DIR} && ./ethd logs -f consensus"
