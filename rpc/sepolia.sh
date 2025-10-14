@@ -73,7 +73,10 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             sudo -u geth_sepolia sed -i 's/NETWORK=.*/NETWORK=sepolia/g' /home/geth_sepolia/eth-docker/.env
             sudo -u geth_sepolia sed -i 's/CHECKPOINT_SYNC_URL=.*/CHECKPOINT_SYNC_URL=\"https:\/\/checkpoint-sync.sepolia.ethpandaops.io\"/g' /home/geth_sepolia/eth-docker/.env
             sudo -u geth_sepolia sed -i 's/FEE_RECIPIENT=.*/FEE_RECIPIENT=0xd9264738573E25CB9149de0708b36527d56B59bd/g' /home/geth_sepolia/eth-docker/.env
-            
+
+            # >>> ДОБАВЛЕНО ДЛЯ FUSAKA (Teku supernode) <<<
+            sudo -u geth_sepolia sed -i 's|^CL_EXTRAS=.*|CL_EXTRAS=--p2p-subscribe-all-custody-subnets-enabled|; t; $aCL_EXTRAS=--p2p-subscribe-all-custody-subnets-enabled' /home/geth_sepolia/eth-docker/.env
+            # >>> КОНЕЦ ДОБАВЛЕНИЯ <<<
             
             export COMPOSE_PROJECT_NAME=sepolia
             sudo -u geth_sepolia /home/geth_sepolia/eth-docker/ethd up
