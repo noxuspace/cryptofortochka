@@ -45,10 +45,3 @@ else
     echo "docker inspect \"$CID\" | grep -n -- \"${NEEDED_FLAG}\""
   fi
 fi
-
-echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-echo -e "${YELLOW}Онлайн-логи консенсуса:${NC}"
-echo "cd ${STACK_DIR} && ./ethd logs -f consensus"
-echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
-echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
