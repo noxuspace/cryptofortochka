@@ -79,9 +79,14 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
             # >>> КОНЕЦ ДОБАВЛЕНИЯ <<<
             
             export COMPOSE_PROJECT_NAME=sepolia
+
+            # Важно: на свежей установке подтянуть последние образы перед запуском
+            sudo -u geth_sepolia /home/geth_sepolia/eth-docker/ethd update
+    
+            # Первый запуск всего стека
             sudo -u geth_sepolia /home/geth_sepolia/eth-docker/ethd up
             ;;
-
+            
         2)
             sudo -u geth_sepolia /home/geth_sepolia/eth-docker/ethd down -v
             rm -rf /home/geth_sepolia
