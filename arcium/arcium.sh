@@ -279,7 +279,7 @@ EOF
   echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
   sleep 2
-  docker logs -f "$CONTAINER_NAME"
+  docker exec -it arx-node sh -lc 'tail -n +1 -f "$(ls -t /usr/arx-node/logs/arx_log_*.log 2>/dev/null | head -1)"' || true
   ;;
 
 # ========== 3) Управление контейнером (start/restart/stop/rm/status) ==========
@@ -362,7 +362,7 @@ EOF
     1)
       echo -e "${PURPLE}Ctrl+C для выхода из логов${NC}"
       sleep 2
-      docker exec -it "$CONTAINER_NAME" sh -lc 'tail -n +1 -f "$(ls -t /usr/arx-node/logs/arx_log_*.log 2>/dev/null | head -1)"' || true
+      docker exec -it arx-node sh -lc 'tail -n +1 -f "$(ls -t /usr/arx-node/logs/arx_log_*.log 2>/dev/null | head -1)"' || true
       ;;
     2)
       [ -f "$ENV_FILE" ] && . "$ENV_FILE"; : "${RPC_HTTP:=$RPC_DEFAULT_HTTP}"; : "${OFFSET:=$OFFSET}"
