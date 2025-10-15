@@ -253,7 +253,7 @@ EOF
   echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
   echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
   sleep 2
-  docker exec -it ${CONTAINER_NAME} sh -lc 'tail -f /usr/arx-node/logs/arx_log_*.log'
+  docker exec -it "$CONTAINER_NAME" sh -lc 'tail -n +1 -f "$(ls -t /usr/arx-node/logs/arx_log_*.log 2>/dev/null | head -1)"'
   ;;
 
 # ========== 3) Управление контейнером (start/restart/stop/rm/status) ==========
