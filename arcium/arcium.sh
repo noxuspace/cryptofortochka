@@ -374,8 +374,8 @@ EOF
         ;;
       5)
         [ -f "$ENV_FILE" ] && . "$ENV_FILE"
-        echo -ne "${YELLOW}CLUSTER OFFSET (пусто = 10102025): ${NC}"; read COFF; [ -z "$COFF" ] && COFF=10102025
-        echo -ne "${YELLOW}Какой NODE OFFSET приглашаем (пусто = ваш из .env)? ${NC}"; read NOFF
+        echo -ne "${YELLOW}CLUSTER OFFSET (Enter = 235687145): ${NC}"; read COFF; [ -z "$COFF" ] && COFF=235687145
+        echo -ne "${YELLOW}Какой NODE OFFSET приглашаем (Enter = ваш из .env)? ${NC}"; read NOFF
         [ -z "$NOFF" ] && NOFF="$OFFSET"
         (cd "$WORKDIR" && arcium propose-join-cluster \
           --keypair-path "$NODE_KP" \
