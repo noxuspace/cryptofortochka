@@ -394,7 +394,7 @@ EOF
       ;;
     5)
       [ -f "$ENV_FILE" ] && . "$ENV_FILE"
-      echo -ne "${YELLOW}CLUSTER OFFSET (Enter = 235687145): ${NC}"; read -r COFF; [ -z "$COFF" ] && COFF=235687145
+      echo -ne "${YELLOW}CLUSTER OFFSET (Enter = ваш из .env, может быть только ваш кластер): ${NC}"; read -r COFF; [ -z "$COFF" ] && COFF=235687145
       echo -ne "${YELLOW}Какой NODE OFFSET приглашаем (Enter = ваш из .env)? ${NC}"; read -r NOFF
       [ -z "$NOFF" ] && NOFF="$OFFSET"
       (cd "$WORKDIR" && arcium propose-join-cluster \
