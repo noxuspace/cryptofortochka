@@ -260,49 +260,45 @@ EOF
 
 # ========== 3) Управление контейнером (start/restart/stop/rm/status) ==========
 3)
-  while true; do
-    echo -e "${YELLOW}Управление контейнером:${NC}"
-    echo -e "${CYAN}1) Запустить${NC}"
-    echo -e "${CYAN}2) Перезапустить${NC}"
-    echo -e "${CYAN}3) Остановить${NC}"
-    echo -e "${CYAN}4) Удалить${NC}"
-    echo -e "${CYAN}5) Статус${NC}"
-    echo -e "${CYAN}0) Назад${NC}"
-    echo -ne "${YELLOW}Введите номер: ${NC}"; read -r m
-    case "$m" in
-      1)
-        if docker start "$CONTAINER_NAME" >/dev/null 2>&1; then
-          echo -e "${GREEN}Запущен.${NC}"
-        else
-          echo -e "${BLUE}Контейнера нет — запускаем с нужными томами...${NC}"
-          docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
-          docker run -d \
-            --name "$CONTAINER_NAME" \
-            -e NODE_IDENTITY_FILE=/usr/arx-node/node-keys/node_identity.pem \
-            -e NODE_KEYPAIR_FILE=/usr/arx-node/node-keys/node_keypair.json \
-            -e OPERATOR_KEYPAIR_FILE=/usr/arx-node/node-keys/operator_keypair.json \
-            -e CALLBACK_AUTHORITY_KEYPAIR_FILE=/usr/arx-node/node-keys/callback_authority_keypair.json \
-            -e NODE_CONFIG_PATH=/usr/arx-node/arx/node_config.toml \
-            -v "$CFG_FILE:/usr/arx-node/arx/node_config.toml" \
-            -v "$NODE_KP:/usr/arx-node/node-keys/node_keypair.json:ro" \
-            -v "$NODE_KP:/usr/arx-node/node-keys/operator_keypair.json:ro" \
-            -v "$CALLBACK_KP:/usr/arx-node/node-keys/callback_authority_keypair.json:ro" \
-            -v "$IDENTITY_PEM:/usr/arx-node/node-keys/node_identity.pem:ro" \
-            -v "$LOGS_DIR:/usr/arx-node/logs" \
-            -p 8080:8080 \
-            "$IMAGE_TAG"
-          echo -e "${GREEN}Запущен.${NC}"
-        fi
-        ;;
-      2) docker restart "$CONTAINER_NAME" && echo -e "${GREEN}Перезапущен.${NC}" || echo -e "${RED}Не запущен.${NC}" ;;
-      3) docker stop "$CONTAINER_NAME" && echo -e "${GREEN}Остановлен.${NC}" || true ;;
-      4) docker rm -f "$CONTAINER_NAME" && echo -e "${GREEN}Удалён.${NC}" || true ;;
-      5) docker ps -a --filter "name=$CONTAINER_NAME" --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}' ;;
-      0) break ;;
-      *) ;;
-    esac
-  done
-  ;;
+  echo -e "${YELLOW}Управление контейнером:${NC}"
+  echo -e "${CYAN}1) Запустить${NC}"
+  echo -e "${CYAN}2) Перезапустить${NC}"
+  echo -e "${CYAN}3) Остановить${NC}"
+  echo -e "${CYAN}4) Удалить${NC}"
+  echo -e "${CYAN}5) Статус${NC}"
+  echo -ne "${YELLOW}Введите номер: ${NC}"; read -r m
+  case "$m" in
+    1)
+      if docker start "$CONTAINER_NAME" >/dev/null 2>&1; then
+        echo -e "${GREEN}Запущен.${NC}"
+      else
+        echo -e "${BLUE}Контейнера нет — запускаем с нужными томами...${NC}"
+        docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
+        docker run -d \
+          --name "$CONTAINER_NAME" \
+          -e NODE_IDENTITY_FILE=/usr/arx-node/node-keys/node_identity.pem \
+          -e NODE_KEYPAIR_FILE=/usr/arx-node/node-keys/node_keypair.json \
+          -e OPERATOR_KEYPAIR_FILE=/usr/arx-node/node-keys/operator_keypair.json \
+          -e CALLBACK_AUTHORITY_KEYPAIR_FILE=/usr/arx-node/node-keys/callback_authority_keypair.json \
+          -e NODE_CONFIG_PATH=/usr/arx-node/arx/node_config.toml \
+          -v "$CFG_FILE:/usr/arx-node/arx/node_config.toml" \
+          -v "$NODE_KP:/usr/arx-node/node-keys/node_keypair.json:ro" \
+          -v "$NODE_KP:/usr/arx-node/node-keys/operator_keypair.json:ro" \
+          -v "$CALLBACK_KP:/usr/arx-node/node-keys/callback_authority_keypair.json:ro" \
+          -v "$IDENTITY_PEM:/usr/arx-node/node-keys/node_identity.pem:ro" \
+          -v "$LOGS_DIR:/usr/arx-node/logs" \
+          -p 8080:8080 \
+          "$IMAGE_TAG"
+        echo -e "${GREEN}Запущен.${NC}"
+      fi
+      ;;
+    2) docker restart "$CONTAINER_NAME" && echo -e "${GREEN}Перезапущен.${NC}" || echo -e "${RED}Не запущен.${NC}" ;;
+    3) docker stop "$CONTAINER_NAME" && echo -e "${GREEN}Остановлен.${NC}" || true ;;
+    4) docker rm -f "$CONTAINER_NAME" && echo -e "${GREEN}Удалён.${NC}" || true ;;
+    5) docker ps -a --filter "name=$CONTAINER_NAME" --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}' ;;
+    *) ;;
+  esac
+;;
 
 # =================== 4) Конфигурация RPC (sed) ==================
 4)
@@ -326,125 +322,121 @@ EOF
 
 # ======= 5) Инструменты: логи, статус, активность, кластеры, ключи =======
 5)
-  while true; do
-    echo -e "${YELLOW}Инструменты:${NC}"
-    echo -e "${CYAN}1) Логи (онлайн)${NC}"
-    echo -e "${CYAN}2) Статус ноды (arx-info)${NC}"
-    echo -e "${CYAN}3) Проверить активность ноды (arx-active)${NC}"
-    echo -e "${CYAN}4) Создать кластер (init-cluster)${NC}"
-    echo -e "${CYAN}5) Отправить приглашение в кластер (propose-join-cluster)${NC}"
-    echo -e "${CYAN}6) Вступить в кластер (join-cluster)${NC}"
-    echo -e "${CYAN}7) Проверить членство ноды в кластере${NC}"
-    echo -e "${CYAN}8) Показать адреса и балансы${NC}"
-    echo -e "${CYAN}9) Devnet токены (2 SOL на каждый адрес)${NC}"
-    echo -e "${CYAN}10) Показать сид-фразы${NC}"
-    echo -e "${CYAN}0) Назад${NC}"
-    echo -ne "${YELLOW}Введите номер: ${NC}"; read -r t
-    case "$t" in
-      1)
-        echo -e "${PURPLE}Ctrl+C для выхода из логов${NC}"
-        sleep 2
-        docker exec -it "$CONTAINER_NAME" sh -lc 'tail -n +1 -f "$(ls -t /usr/arx-node/logs/arx_log_*.log 2>/dev/null | head -1)"' || true
-        ;;
-      2)
-        [ -f "$ENV_FILE" ] && . "$ENV_FILE"; : "${RPC_HTTP:=$RPC_DEFAULT_HTTP}"; : "${OFFSET:=$OFFSET}"
-        if [ -z "$OFFSET" ]; then echo -ne "${YELLOW}OFFSET ноды: ${NC}"; read -r OFFSET; fi
-        arcium arx-info "$OFFSET" --rpc-url "$RPC_HTTP" || true
-        ;;
-      3)
-        [ -f "$ENV_FILE" ] && . "$ENV_FILE"; : "${RPC_HTTP:=$RPC_DEFAULT_HTTP}"; : "${OFFSET:=$OFFSET}"
-        if [ -z "$OFFSET" ]; then echo -ne "${YELLOW}OFFSET ноды: ${NC}"; read -r OFFSET; fi
-        arcium arx-active "$OFFSET" --rpc-url "$RPC_HTTP" || true
-        ;;
-      4)
-        # Создать свой кластер: init-cluster
-        [ -f "$ENV_FILE" ] && . "$ENV_FILE"; : "${RPC_HTTP:=$RPC_DEFAULT_HTTP}"
-        echo -ne "${YELLOW}Придумайте CLUSTER OFFSET (уникальный, НЕ равен NODE OFFSET): ${NC}"; read -r COFF
-        COFF=$(printf '%s' "$COFF" | tr -cd '0-9')
-        if [ -z "$COFF" ]; then
-          echo -e "${RED}Нужно указать числовой Cluster OFFSET.${NC}"
-          continue
-        fi
-        echo -ne "${YELLOW}MAX NODES (по умолчанию 10): ${NC}"; read -r MAXN
-        MAXN=$(printf '%s' "${MAXN:-10}" | tr -cd '0-9'); [ -z "$MAXN" ] && MAXN=10
-        echo -e "${PURPLE}Создаю кластер OFFSET=${CYAN}${COFF}${PURPLE}, max-nodes=${CYAN}${MAXN}${NC}"
-        (cd "$WORKDIR" && arcium init-cluster \
+  echo -e "${YELLOW}Инструменты:${NC}"
+  echo -e "${CYAN}1) Логи (онлайн)${NC}"
+  echo -e "${CYAN}2) Статус ноды (arx-info)${NC}"
+  echo -e "${CYAN}3) Проверить активность ноды (arx-active)${NC}"
+  echo -e "${CYAN}4) Создать кластер (init-cluster)${NC}"
+  echo -e "${CYAN}5) Отправить приглашение в кластер (propose-join-cluster)${NC}"
+  echo -e "${CYAN}6) Вступить в кластер (join-cluster)${NC}"
+  echo -e "${CYAN}7) Проверить членство ноды в кластере${NC}"
+  echo -e "${CYAN}8) Показать адреса и балансы${NC}"
+  echo -e "${CYAN}9) Devnet токены (2 SOL на каждый адрес)${NC}"
+  echo -e "${CYAN}10) Показать сид-фразы${NC}"
+  echo -ne "${YELLOW}Введите номер: ${NC}"; read -r t
+  case "$t" in
+    1)
+      echo -e "${PURPLE}Ctrl+C для выхода из логов${NC}"
+      sleep 2
+      docker exec -it "$CONTAINER_NAME" sh -lc 'tail -n +1 -f "$(ls -t /usr/arx-node/logs/arx_log_*.log 2>/dev/null | head -1)"' || true
+      ;;
+    2)
+      [ -f "$ENV_FILE" ] && . "$ENV_FILE"; : "${RPC_HTTP:=$RPC_DEFAULT_HTTP}"; : "${OFFSET:=$OFFSET}"
+      if [ -z "$OFFSET" ]; then echo -ne "${YELLOW}OFFSET ноды: ${NC}"; read -r OFFSET; fi
+      arcium arx-info "$OFFSET" --rpc-url "$RPC_HTTP" || true
+      ;;
+    3)
+      [ -f "$ENV_FILE" ] && . "$ENV_FILE"; : "${RPC_HTTP:=$RPC_DEFAULT_HTTP}"; : "${OFFSET:=$OFFSET}"
+      if [ -z "$OFFSET" ]; then echo -ne "${YELLOW}OFFSET ноды: ${NC}"; read -r OFFSET; fi
+      arcium arx-active "$OFFSET" --rpc-url "$RPC_HTTP" || true
+      ;;
+    4)
+      # Создать свой кластер: init-cluster
+      [ -f "$ENV_FILE" ] && . "$ENV_FILE"; : "${RPC_HTTP:=$RPC_DEFAULT_HTTP}"
+      echo -ne "${YELLOW}Придумайте CLUSTER OFFSET (уникальный, НЕ равен NODE OFFSET): ${NC}"; read -r COFF
+      COFF=$(printf '%s' "$COFF" | tr -cd '0-9')
+      if [ -z "$COFF" ]; then
+        echo -e "${RED}Нужно указать числовой Cluster OFFSET.${NC}"
+        continue
+      fi
+      echo -ne "${YELLOW}MAX NODES (по умолчанию 10): ${NC}"; read -r MAXN
+      MAXN=$(printf '%s' "${MAXN:-10}" | tr -cd '0-9'); [ -z "$MAXN" ] && MAXN=10
+      echo -e "${PURPLE}Создаю кластер OFFSET=${CYAN}${COFF}${PURPLE}, max-nodes=${CYAN}${MAXN}${NC}"
+      (cd "$WORKDIR" && arcium init-cluster \
+        --keypair-path "$NODE_KP" \
+        --offset "$COFF" \
+        --max-nodes "$MAXN" \
+        --rpc-url "$RPC_HTTP") || true
+      ;;
+    5)
+      [ -f "$ENV_FILE" ] && . "$ENV_FILE"
+      echo -ne "${YELLOW}CLUSTER OFFSET (Enter = 235687145): ${NC}"; read -r COFF; [ -z "$COFF" ] && COFF=235687145
+      echo -ne "${YELLOW}Какой NODE OFFSET приглашаем (Enter = ваш из .env)? ${NC}"; read -r NOFF
+      [ -z "$NOFF" ] && NOFF="$OFFSET"
+      (cd "$WORKDIR" && arcium propose-join-cluster \
+        --keypair-path "$NODE_KP" \
+        --node-offset "$NOFF" \
+        --cluster-offset "$COFF" \
+        --rpc-url "$RPC_HTTP") || true
+      ;;
+    6)
+      [ -f "$ENV_FILE" ] && . "$ENV_FILE"
+      echo -ne "${YELLOW}CLUSTER OFFSET: ${NC}"; read -r COFF
+      if [ -z "$COFF" ]; then echo -e "${RED}Пусто — отмена.${NC}"; else
+        (cd "$WORKDIR" && arcium join-cluster true \
           --keypair-path "$NODE_KP" \
-          --offset "$COFF" \
-          --max-nodes "$MAXN" \
-          --rpc-url "$RPC_HTTP") || true
-        ;;
-      5)
-        [ -f "$ENV_FILE" ] && . "$ENV_FILE"
-        echo -ne "${YELLOW}CLUSTER OFFSET (Enter = 235687145): ${NC}"; read -r COFF; [ -z "$COFF" ] && COFF=235687145
-        echo -ne "${YELLOW}Какой NODE OFFSET приглашаем (Enter = ваш из .env)? ${NC}"; read -r NOFF
-        [ -z "$NOFF" ] && NOFF="$OFFSET"
-        (cd "$WORKDIR" && arcium propose-join-cluster \
-          --keypair-path "$NODE_KP" \
-          --node-offset "$NOFF" \
+          --node-offset "$OFFSET" \
           --cluster-offset "$COFF" \
           --rpc-url "$RPC_HTTP") || true
-        ;;
-      6)
-        [ -f "$ENV_FILE" ] && . "$ENV_FILE"
-        echo -ne "${YELLOW}CLUSTER OFFSET: ${NC}"; read -r COFF
-        if [ -z "$COFF" ]; then echo -e "${RED}Пусто — отмена.${NC}"; else
-          (cd "$WORKDIR" && arcium join-cluster true \
-            --keypair-path "$NODE_KP" \
-            --node-offset "$OFFSET" \
-            --cluster-offset "$COFF" \
-            --rpc-url "$RPC_HTTP") || true
-        fi
-        ;;
-      7)
-        [ -f "$ENV_FILE" ] && . "$ENV_FILE"
-        echo -ne "${YELLOW}CLUSTER OFFSET: ${NC}"; read -r COFF
-        echo -ne "${YELLOW}NODE OFFSET: ${NC}"; read -r NOFF
-        if [ -z "$COFF" ] || [ -z "$NOFF" ]; then echo -e "${RED}Пустые значения.${NC}"; else
-          if arcium arx-info "$NOFF" --rpc-url "$RPC_HTTP" | awk -v c="$COFF" ' /^Cluster memberships:/ { inlist=1; next } inlist { if ($0 ~ /^[[:space:]]*$/) { inlist=0; next } if (index($0, c)) { found=1 } } END { exit(found?0:1) }'; then
-            echo -e "${GREEN}Нода $NOFF В КЛАСТЕРЕ $COFF${NC}"
-          else
-            echo -e "${PURPLE}Нода $NOFF НЕ найдена в кластере $COFF${NC}"
-          fi
-        fi
-        ;;
-      8)
-        NODE_PK=$(solana address --keypair "$NODE_KP" 2>/dev/null || echo N/A)
-        CB_PK=$(solana address --keypair "$CALLBACK_KP" 2>/dev/null || echo N/A)
-        echo -e "${PURPLE}Адреса:${NC}\n  Node: $NODE_PK\n  Callback: $CB_PK"
-        echo -e "${PURPLE}Балансы (devnet):${NC}"
-        NB=$(solana balance -u devnet --keypair "$NODE_KP" 2>/dev/null | awk '{print $1+0}' 2>/dev/null || echo 0)
-        CB=$(solana balance -u devnet --keypair "$CALLBACK_KP" 2>/dev/null | awk '{print $1+0}' 2>/dev/null || echo 0)
-        echo "  Node: ${NB} SOL"
-        echo "  Callback: ${CB} SOL"
-        ;;
-      9)
-        NODE_PK=$(solana address --keypair "$NODE_KP"); CB_PK=$(solana address --keypair "$CALLBACK_KP")
-        solana airdrop 2 "$NODE_PK" -u devnet >/dev/null 2>&1 || true
-        solana airdrop 2 "$CB_PK" -u devnet >/dev/null 2>&1 || true
-        echo -e "${GREEN}Готово. Посмотрите п.8 для балансов.${NC}"
-        ;;
-      10)
-        if [ -f "$SEED_NODE" ]; then
-          masked=$(awk '{ n=split($0,w," "); if(n==0){print ""; exit} for(i=1;i<=n;i++){ if(i<=4 || i>n-4){printf "%s ", w[i]} else{printf "••• "} } printf "(%d words)\n", n }' "$SEED_NODE")
-          echo "Node seed: $masked"
-          echo -ne "Показать полностью? Напишите YES: "; read -r zz; [ "$zz" = "YES" ] && echo "FULL: $(cat "$SEED_NODE")"
+      fi
+      ;;
+    7)
+      [ -f "$ENV_FILE" ] && . "$ENV_FILE"
+      echo -ne "${YELLOW}CLUSTER OFFSET: ${NC}"; read -r COFF
+      echo -ne "${YELLOW}NODE OFFSET: ${NC}"; read -r NOFF
+      if [ -z "$COFF" ] || [ -z "$NOFF" ]; then echo -e "${RED}Пустые значения.${NC}"; else
+        if arcium arx-info "$NOFF" --rpc-url "$RPC_HTTP" | awk -v c="$COFF" ' /^Cluster memberships:/ { inlist=1; next } inlist { if ($0 ~ /^[[:space:]]*$/) { inlist=0; next } if (index($0, c)) { found=1 } } END { exit(found?0:1) }'; then
+          echo -e "${GREEN}Нода $NOFF В КЛАСТЕРЕ $COFF${NC}"
         else
-          echo "Node seed: файл не найден ($SEED_NODE)"
+          echo -e "${PURPLE}Нода $NOFF НЕ найдена в кластере $COFF${NC}"
         fi
-        if [ -f "$SEED_CALLBACK" ]; then
-          masked=$(awk '{ n=split($0,w," "); if(n==0){print ""; exit} for(i=1;i<=n;i++){ if(i<=4 || i>n-4){printf "%s ", w[i]} else{printf "••• "} } printf "(%d words)\n", n }' "$SEED_CALLBACK")
-          echo "Callback seed: $masked"
-          echo -ne "Показать полностью? Напишите YES: "; read -r zz; [ "$zz" = "YES" ] && echo "FULL: $(cat "$SEED_CALLBACK")"
-        else
-          echo "Callback seed: файл не найден ($SEED_CALLBACK)"
-        fi
-        ;;
-      0) break ;;
-      *) ;;
-    esac
-  done
-  ;;
+      fi
+      ;;
+    8)
+      NODE_PK=$(solana address --keypair "$NODE_KP" 2>/dev/null || echo N/A)
+      CB_PK=$(solana address --keypair "$CALLBACK_KP" 2>/dev/null || echo N/A)
+      echo -e "${PURPLE}Адреса:${NC}\n  Node: $NODE_PK\n  Callback: $CB_PK"
+      echo -e "${PURPLE}Балансы (devnet):${NC}"
+      NB=$(solana balance -u devnet --keypair "$NODE_KP" 2>/dev/null | awk '{print $1+0}' 2>/dev/null || echo 0)
+      CB=$(solana balance -u devnet --keypair "$CALLBACK_KP" 2>/dev/null | awk '{print $1+0}' 2>/dev/null || echo 0)
+      echo "  Node: ${NB} SOL"
+      echo "  Callback: ${CB} SOL"
+      ;;
+    9)
+      NODE_PK=$(solana address --keypair "$NODE_KP"); CB_PK=$(solana address --keypair "$CALLBACK_KP")
+      solana airdrop 2 "$NODE_PK" -u devnet >/dev/null 2>&1 || true
+      solana airdrop 2 "$CB_PK" -u devnet >/dev/null 2>&1 || true
+      echo -e "${GREEN}Готово. Посмотрите п.8 для балансов.${NC}"
+      ;;
+    10)
+      if [ -f "$SEED_NODE" ]; then
+        masked=$(awk '{ n=split($0,w," "); if(n==0){print ""; exit} for(i=1;i<=n;i++){ if(i<=4 || i>n-4){printf "%s ", w[i]} else{printf "••• "} } printf "(%d words)\n", n }' "$SEED_NODE")
+        echo "Node seed: $masked"
+        echo -ne "Показать полностью? Напишите YES: "; read -r zz; [ "$zz" = "YES" ] && echo "FULL: $(cat "$SEED_NODE")"
+      else
+        echo "Node seed: файл не найден ($SEED_NODE)"
+      fi
+      if [ -f "$SEED_CALLBACK" ]; then
+        masked=$(awk '{ n=split($0,w," "); if(n==0){print ""; exit} for(i=1;i<=n;i++){ if(i<=4 || i>n-4){printf "%s ", w[i]} else{printf "••• "} } printf "(%d words)\n", n }' "$SEED_CALLBACK")
+        echo "Callback seed: $masked"
+        echo -ne "Показать полностью? Напишите YES: "; read -r zz; [ "$zz" = "YES" ] && echo "FULL: $(cat "$SEED_CALLBACK")"
+      else
+        echo "Callback seed: файл не найден ($SEED_CALLBACK)"
+      fi
+      ;;
+    *) ;;
+  esac
+;;
 
 # =============================== 6) Удаление ==============================
 6)
