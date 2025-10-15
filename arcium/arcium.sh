@@ -464,12 +464,18 @@ EOF
 
 # =============================== 6) Удаление ==============================
 6)
-  echo -e "${RED}Полное удаление ноды...${NC}"
-  docker stop "$CONTAINER_NAME" >/dev/null 2>&1 || true
-  docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
-  docker rmi -f "$IMAGE_TAG" >/dev/null 2>&1 || true
-  rm -rf "$WORKDIR" "$HOME/.arcium" "$HOME/.cargo/bin/arcium" "$HOME/.cargo/bin/arcup"
-  echo -e "${GREEN}Все контейнеры, образы и файлы Arcium удалены.${NC}"
+  echo -e "${RED}Вы действительно хотите полностью удалить ноду Arcium? (YES/NO)${NC}"
+  read -r CONFIRM
+  if [ "$CONFIRM" = "YES" ]; then
+    echo -e "${RED}Удаляю...${NC}"
+    docker stop "$CONTAINER_NAME" >/dev/null 2>&1 || true
+    docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
+    docker rmi -f "$IMAGE_TAG" >/dev/null 2>&1 || true
+    rm -rf "$WORKDIR" "$HOME/.arcium" "$HOME/.cargo/bin/arcium" "$HOME/.cargo/bin/arcup"
+    echo -e "${GREEN}Все контейнеры, образы и файлы Arcium удалены.${NC}"
+  else
+    echo -e "${PURPLE}Отмена удаления. Ничего не изменено.${NC}"
+  fi
   ;;
 
 # ============================ Неверный ввод ===========================
