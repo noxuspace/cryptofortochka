@@ -227,7 +227,7 @@ EOF
     --rpc-url "$RPC_HTTP") || true
 
   # Образ и запуск контейнера
-  echo -e "${BLUE}Тяну образ и запускаю контейнер...${NC}"
+  echo -e "${BLUE}Подтягиваем образ и запускаем контейнер...${NC}"
   docker pull "$IMAGE_TAG"
   docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
   docker run -d \
@@ -333,8 +333,8 @@ EOF
     echo -e "${CYAN}5) Вступить в кластер (join-cluster)${NC}"
     echo -e "${CYAN}6) Проверить членство ноды в кластере${NC}"
     echo -e "${CYAN}7) Показать адреса и балансы${NC}"
-    echo -e "${CYAN}8) Devnet Airdrop (2 SOL на каждый адрес)${NC}"
-    echo -e "${CYAN}9) Показать сид-фразы (с маской)${NC}"
+    echo -e "${CYAN}8) Devnet токены (2 SOL на каждый адрес)${NC}"
+    echo -e "${CYAN}9) Показать сид-фразы${NC}"
     echo -e "${CYAN}0) Назад${NC}"
     echo -ne "${YELLOW}Введите номер: ${NC}"; read t
     case "$t" in
