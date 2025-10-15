@@ -89,7 +89,7 @@ case "$choice" in
     $SUDO npm install -g yarn || true
   fi
 
-  # Anchor (shim, достаточно для arcium-инструментов)
+  # Anchor (shim)
   if ! command -v anchor >/dev/null 2>&1; then
     echo -e "${BLUE}Устанавливаем легкий shim для Anchor 0.29.0...${NC}"
     mkdir -p "$HOME/.cargo/bin"
@@ -118,7 +118,7 @@ EOANCH
     fi
   fi
 
-  # ARM64: включить эмуляцию amd64 для Docker
+  # ARM64: эмуляция amd64 для Docker
   ARCH=$(uname -m 2>/dev/null || echo unknown)
   if [[ "$ARCH" == "aarch64" || "$ARCH" == "arm64" ]]; then
     echo -e "${PURPLE}ARM64 обнаружен — включаем binfmt для amd64...${NC}"
@@ -134,7 +134,7 @@ EOANCH
   source "$HOME/.bashrc" 2>/dev/null || true
 
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-  echo -e "${GREEN}Подготовка сервера завершена, перейдите в текстовый гайд и следуйте дальнейшим инструкциям!${NC}"
+  echo -e "${GREEN}Подготовка сервера завершена.${NC}"
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
   ;;
 
@@ -143,16 +143,17 @@ EOANCH
   echo -e "${BLUE}Устанавливаем и запускаем ноду...${NC}"
   mkdir -p "$WORKDIR" "$LOGS_DIR"
 
-  # Сбор параметров
+  # ======================= Сбор параметров =======================
   : "${RPC_HTTP:=$RPC_DEFAULT_HTTP}"; : "${RPC_WSS:=$RPC_DEFAULT_WSS}"
-  echo -ne "${YELLOW}Введите Solana RPC HTTP [${RPC_HTTP}]: ${NC}"; read ans; RPC_HTTP=${ans:-$RPC_HTTP}
-  echo -ne "${YELLOW}Введите Solana RPC WSS [${RPC_WSS}]: ${NC}"; read ans; RPC_WSS=${ans:-$RPC_WSS}
-  echo -ne "${YELLOW}Придумайте уникальный NODE OFFSET (8–10 цифр): ${NC}"; read OFFSET
+
+  echo -ne "${YELLOW}Введите Solana RPC HTTP [${RPC_HTTP}]: ${NC}"; read -r ans; RPC_HTTP=${ans:-$RPC_HTTP}
+  echo -ne "${YELLOW}Введите Solana RPC WSS  [${RPC_WSS}]: ${NC}"; read -r ans; RPC_WSS=${ans:-$RPC_WSS}
+
+  echo -ne "${YELLOW}Придумайте уникальный NODE OFFSET (8–10 цифр): ${NC}"; read -r OFFSET
   OFFSET=$(printf '%s' "$OFFSET" | sed -n 's/[^0-9]*\([0-9][0-9]*\).*/\1/p')
   if [ -z "$OFFSET" ]; then echo -e "${RED}OFFSET пустой. Отмена.${NC}"; exit 1; fi
-  #[ -z "$PUBLIC_IP" ] && PUBLIC_IP=$(curl -4 -s https://ipecho.net/plain || true)
-  #echo -ne "${YELLOW}Введи публичный IP [${PUBLIC_IP:-auto}]: ${NC}"; read ans; PUBLIC_IP=${ans:-$PUBLIC_IP}
-  # Определяем публичный IP
+
+  # Автоопределение публичного IP (если не удалось — спросим вручную)
   PUBLIC_IP=$(curl -4 -s https://ipecho.net/plain || true)
   if [ -z "$PUBLIC_IP" ]; then
     echo -e "${RED}Не удалось определить IP, укажите вручную:${NC}"
@@ -161,8 +162,7 @@ EOANCH
   else
     echo -e "${PURPLE}Обнаружен публичный IP: ${CYAN}${PUBLIC_IP}${NC}"
   fi
-
-  sleep 2
+  # ===============================================================
 
   # Сохраняем .env
   cat > "$ENV_FILE" <<EOF
@@ -175,7 +175,7 @@ OFFSET="$OFFSET"
 PUBLIC_IP="$PUBLIC_IP"
 EOF
 
-  # Генерация ключей (+сид-фразы в файлы)
+  # Генерация ключей (+сид-фразы в файлы ПО ТАКИМ ЖЕ ПУТЯМ, КАК У АВТОРА)
   if [ ! -f "$NODE_KP" ]; then
     echo -e "${BLUE}Генерируем node-keypair.json...${NC}"
     (solana-keygen new --no-passphrase --force --outfile "$NODE_KP" | tee "$SEED_NODE") || true
@@ -189,10 +189,10 @@ EOF
   [ -f "$SEED_NODE" ] && chmod 600 "$SEED_NODE" || true
   [ -f "$SEED_CALLBACK" ] && chmod 600 "$SEED_CALLBACK" || true
 
-  # Identity PEM для p2p
+  # Identity PEM для p2p — туда же, в $WORKDIR
   [ -f "$IDENTITY_PEM" ] || openssl genpkey -algorithm Ed25519 -out "$IDENTITY_PEM" >/dev/null 2>&1 || true
 
-  # Пишем node-config.toml (структура по актуальным гайдам)
+  # Пишем node-config.toml (как у автора: отдельная секция [solana.commitment])
   cat > "$CFG_FILE" <<EOF
 [node]
 offset = $OFFSET
@@ -207,10 +207,12 @@ address = "0.0.0.0"
 endpoint_rpc = "$RPC_HTTP"
 endpoint_wss = "$RPC_WSS"
 cluster = "Devnet"
-commitment.commitment = "confirmed"
+
+[solana.commitment]
+commitment = "confirmed"
 EOF
 
-  # Показ адресов + попытка airdrop
+  # Адреса + пробуем airdrop
   NODE_PK=$(solana address --keypair "$NODE_KP" 2>/dev/null || echo N/A)
   CB_PK=$(solana address --keypair "$CALLBACK_KP" 2>/dev/null || echo N/A)
   echo -e "${PURPLE}Адреса:${NC}\n  Node: $NODE_PK\n  Callback: $CB_PK"
@@ -218,7 +220,7 @@ EOF
   solana airdrop 2 "$NODE_PK" -u devnet >/dev/null 2>&1 || true
   solana airdrop 2 "$CB_PK" -u devnet >/dev/null 2>&1 || true
 
-  # Инициализация on-chain аккаунтов ноды
+  # Инициализация on-chain аккаунтов ноды (пути один-в-один)
   echo -e "${BLUE}Инициализируем on-chain аккаунты (arcium init-arx-accs)...${NC}"
   (cd "$WORKDIR" && arcium init-arx-accs \
     --keypair-path "$NODE_KP" \
@@ -228,7 +230,7 @@ EOF
     --ip-address "$PUBLIC_IP" \
     --rpc-url "$RPC_HTTP") || true
 
-  # Образ и запуск контейнера
+  # Подтягиваем образ и запускаем контейнер (монты — как в чужом)
   echo -e "${BLUE}Подтягиваем образ и запускаем контейнер...${NC}"
   docker pull "$IMAGE_TAG"
   docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
@@ -266,10 +268,10 @@ EOF
     echo -e "${CYAN}4) Удалить${NC}"
     echo -e "${CYAN}5) Статус${NC}"
     echo -e "${CYAN}0) Назад${NC}"
-    echo -ne "${YELLOW}Введите номер: ${NC}"; read m
+    echo -ne "${YELLOW}Введите номер: ${NC}"; read -r m
     case "$m" in
-      1) 
-        if docker start "$CONTAINER_NAME" >/dev/null 2>&1; then 
+      1)
+        if docker start "$CONTAINER_NAME" >/dev/null 2>&1; then
           echo -e "${GREEN}Запущен.${NC}"
         else
           echo -e "${BLUE}Контейнера нет — запускаем с нужными томами...${NC}"
@@ -306,8 +308,8 @@ EOF
 4)
   [ -f "$ENV_FILE" ] && . "$ENV_FILE"
   : "${RPC_HTTP:=$RPC_DEFAULT_HTTP}"; : "${RPC_WSS:=$RPC_DEFAULT_WSS}"
-  echo -ne "${YELLOW}Новый RPC_HTTP [${RPC_HTTP}]: ${NC}"; read x; RPC_HTTP=${x:-$RPC_HTTP}
-  echo -ne "${YELLOW}Новый RPC_WSS  [${RPC_WSS}]: ${NC}"; read y; RPC_WSS=${y:-$RPC_WSS}
+  echo -ne "${YELLOW}Новый RPC_HTTP [${RPC_HTTP}]: ${NC}"; read -r x; RPC_HTTP=${x:-$RPC_HTTP}
+  echo -ne "${YELLOW}Новый RPC_WSS  [${RPC_WSS}]: ${NC}"; read -r y; RPC_WSS=${y:-$RPC_WSS}
   if [ ! -f "$CFG_FILE" ]; then echo -e "${RED}Файл конфигурации не найден: $CFG_FILE${NC}"; exit 1; fi
   sed -i -E \
     -e 's|^([[:space:]]*endpoint_rpc[[:space:]]*=[[:space:]]*").*(")|\1'"$RPC_HTTP"'\2|g' \
@@ -316,7 +318,7 @@ EOF
   # Обновим .env
   grep -q '^RPC_HTTP=' "$ENV_FILE" 2>/dev/null && sed -i "s|^RPC_HTTP=.*|RPC_HTTP=\"$RPC_HTTP\"|" "$ENV_FILE" || echo "RPC_HTTP=\"$RPC_HTTP\"" >> "$ENV_FILE"
   grep -q '^RPC_WSS=' "$ENV_FILE" 2>/dev/null && sed -i "s|^RPC_WSS=.*|RPC_WSS=\"$RPC_WSS\"|" "$ENV_FILE" || echo "RPC_WSS=\"$RPC_WSS\"" >> "$ENV_FILE"
-  echo -e "${GREEN}RPC обновлены. Перезапустить контейнер сейчас? (y/N)${NC}"; read z
+  echo -e "${GREEN}RPC обновлены. Перезапустить контейнер сейчас? (y/N)${NC}"; read -r z
   [[ "$z" =~ ^[Yy]$ ]] && docker restart "$CONTAINER_NAME" || true
 
   docker exec -it ${CONTAINER_NAME} sh -lc 'tail -f /usr/arx-node/logs/arx_log_*.log'
@@ -337,7 +339,7 @@ EOF
     echo -e "${CYAN}9) Devnet токены (2 SOL на каждый адрес)${NC}"
     echo -e "${CYAN}10) Показать сид-фразы${NC}"
     echo -e "${CYAN}0) Назад${NC}"
-    echo -ne "${YELLOW}Введите номер: ${NC}"; read t
+    echo -ne "${YELLOW}Введите номер: ${NC}"; read -r t
     case "$t" in
       1)
         echo -e "${PURPLE}Ctrl+C для выхода из логов${NC}"
@@ -346,12 +348,12 @@ EOF
         ;;
       2)
         [ -f "$ENV_FILE" ] && . "$ENV_FILE"; : "${RPC_HTTP:=$RPC_DEFAULT_HTTP}"; : "${OFFSET:=$OFFSET}"
-        if [ -z "$OFFSET" ]; then echo -ne "${YELLOW}OFFSET ноды: ${NC}"; read OFFSET; fi
+        if [ -z "$OFFSET" ]; then echo -ne "${YELLOW}OFFSET ноды: ${NC}"; read -r OFFSET; fi
         arcium arx-info "$OFFSET" --rpc-url "$RPC_HTTP" || true
         ;;
       3)
         [ -f "$ENV_FILE" ] && . "$ENV_FILE"; : "${RPC_HTTP:=$RPC_DEFAULT_HTTP}"; : "${OFFSET:=$OFFSET}"
-        if [ -z "$OFFSET" ]; then echo -ne "${YELLOW}OFFSET ноды: ${NC}"; read OFFSET; fi
+        if [ -z "$OFFSET" ]; then echo -ne "${YELLOW}OFFSET ноды: ${NC}"; read -r OFFSET; fi
         arcium arx-active "$OFFSET" --rpc-url "$RPC_HTTP" || true
         ;;
       4)
@@ -374,8 +376,8 @@ EOF
         ;;
       5)
         [ -f "$ENV_FILE" ] && . "$ENV_FILE"
-        echo -ne "${YELLOW}CLUSTER OFFSET (Enter = 235687145): ${NC}"; read COFF; [ -z "$COFF" ] && COFF=235687145
-        echo -ne "${YELLOW}Какой NODE OFFSET приглашаем (Enter = ваш из .env)? ${NC}"; read NOFF
+        echo -ne "${YELLOW}CLUSTER OFFSET (Enter = 235687145): ${NC}"; read -r COFF; [ -z "$COFF" ] && COFF=235687145
+        echo -ne "${YELLOW}Какой NODE OFFSET приглашаем (Enter = ваш из .env)? ${NC}"; read -r NOFF
         [ -z "$NOFF" ] && NOFF="$OFFSET"
         (cd "$WORKDIR" && arcium propose-join-cluster \
           --keypair-path "$NODE_KP" \
@@ -385,7 +387,7 @@ EOF
         ;;
       6)
         [ -f "$ENV_FILE" ] && . "$ENV_FILE"
-        echo -ne "${YELLOW}CLUSTER OFFSET: ${NC}"; read COFF
+        echo -ne "${YELLOW}CLUSTER OFFSET: ${NC}"; read -r COFF
         if [ -z "$COFF" ]; then echo -e "${RED}Пусто — отмена.${NC}"; else
           (cd "$WORKDIR" && arcium join-cluster true \
             --keypair-path "$NODE_KP" \
@@ -396,8 +398,8 @@ EOF
         ;;
       7)
         [ -f "$ENV_FILE" ] && . "$ENV_FILE"
-        echo -ne "${YELLOW}CLUSTER OFFSET: ${NC}"; read COFF
-        echo -ne "${YELLOW}NODE OFFSET: ${NC}"; read NOFF
+        echo -ne "${YELLOW}CLUSTER OFFSET: ${NC}"; read -r COFF
+        echo -ne "${YELLOW}NODE OFFSET: ${NC}"; read -r NOFF
         if [ -z "$COFF" ] || [ -z "$NOFF" ]; then echo -e "${RED}Пустые значения.${NC}"; else
           if arcium arx-info "$NOFF" --rpc-url "$RPC_HTTP" | awk -v c="$COFF" ' /^Cluster memberships:/ { inlist=1; next } inlist { if ($0 ~ /^[[:space:]]*$/) { inlist=0; next } if (index($0, c)) { found=1 } } END { exit(found?0:1) }'; then
             echo -e "${GREEN}Нода $NOFF В КЛАСТЕРЕ $COFF${NC}"
@@ -424,18 +426,16 @@ EOF
         ;;
       10)
         if [ -f "$SEED_NODE" ]; then
-          masked=$(awk '{ n=split($0,w," "); if(n==0){print ""; exit} for(i=1;i<=n;i++){ if(i<=4 || i>n-4){printf "%s ", w[i]} else{printf "••• "} } printf "(%d words)
-", n }' "$SEED_NODE")
+          masked=$(awk '{ n=split($0,w," "); if(n==0){print ""; exit} for(i=1;i<=n;i++){ if(i<=4 || i>n-4){printf "%s ", w[i]} else{printf "••• "} } printf "(%d words)\n", n }' "$SEED_NODE")
           echo "Node seed: $masked"
-          echo -ne "Показать полностью? Напишите YES: "; read zz; [ "$zz" = "YES" ] && echo "FULL: $(cat "$SEED_NODE")"
+          echo -ne "Показать полностью? Напишите YES: "; read -r zz; [ "$zz" = "YES" ] && echo "FULL: $(cat "$SEED_NODE")"
         else
           echo "Node seed: файл не найден ($SEED_NODE)"
         fi
         if [ -f "$SEED_CALLBACK" ]; then
-          masked=$(awk '{ n=split($0,w," "); if(n==0){print ""; exit} for(i=1;i<=n;i++){ if(i<=4 || i>n-4){printf "%s ", w[i]} else{printf "••• "} } printf "(%d words)
-", n }' "$SEED_CALLBACK")
+          masked=$(awk '{ n=split($0,w," "); if(n==0){print ""; exit} for(i=1;i<=n;i++){ if(i<=4 || i>n-4){printf "%s ", w[i]} else{printf "••• "} } printf "(%d words)\n", n }' "$SEED_CALLBACK")
           echo "Callback seed: $masked"
-          echo -ne "Показать полностью? Напишите YES: "; read zz; [ "$zz" = "YES" ] && echo "FULL: $(cat "$SEED_CALLBACK")"
+          echo -ne "Показать полностью? Напишите YES: "; read -r zz; [ "$zz" = "YES" ] && echo "FULL: $(cat "$SEED_CALLBACK")"
         else
           echo "Callback seed: файл не найден ($SEED_CALLBACK)"
         fi
@@ -446,7 +446,7 @@ EOF
   done
   ;;
 
-# =============================== 6) Выход ==============================
+# =============================== 6) Удаление ==============================
 6)
   echo -e "${RED}Полное удаление ноды...${NC}"
   docker stop "$CONTAINER_NAME" >/dev/null 2>&1 || true
