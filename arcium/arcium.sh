@@ -30,7 +30,7 @@ if ! command -v curl >/dev/null 2>&1; then
   (command -v sudo >/dev/null 2>&1 && SUDO="sudo" || SUDO=""); $SUDO apt update && $SUDO apt install -y curl
 fi
 sleep 1
-curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_forto.sh | bash
+curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_club.sh | bash
 
 # ============================== Меню =========================
 echo -e "${YELLOW}Выберите действие:${NC}"
@@ -39,14 +39,14 @@ echo -e "${CYAN}2) Установка и запуск ноды${NC}"
 echo -e "${CYAN}3) Управление контейнером Docker${NC}"
 echo -e "${CYAN}4) Конфигурация RPC${NC}"
 echo -e "${CYAN}5) Информация о ноде${NC}"
-echo -e "${CYAN}6) Выход${NC}"
+echo -e "${CYAN}6) Удаление ноды${NC}"
 echo -ne "${YELLOW}Введите номер: ${NC}"; read choice
 
 case "$choice" in
 
 # ===================== 1) Подготовка сервера ===================
 1)
-  echo -e "${BLUE}Подготавливаю сервер...${NC}"
+  echo -e "${BLUE}Подготавливаем сервер...${NC}"
   (command -v sudo >/dev/null 2>&1 && SUDO="sudo" || SUDO="")
   $SUDO apt-get update -y && $SUDO apt-get install -y \
     ca-certificates gnupg lsb-release apt-transport-https \
@@ -54,7 +54,7 @@ case "$choice" in
 
   # Docker
   if ! command -v docker >/dev/null 2>&1; then
-    echo -e "${BLUE}Устанавливаю Docker...${NC}"
+    echo -e "${BLUE}Устанавливаем Docker...${NC}"
     curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh && rm -f get-docker.sh
     $SUDO usermod -aG docker "$USER" 2>/dev/null || true
     $SUDO systemctl enable --now docker 2>/dev/null || true
@@ -63,14 +63,14 @@ case "$choice" in
 
   # Rust
   if ! command -v rustc >/dev/null 2>&1; then
-    echo -e "${BLUE}Ставлю Rust...${NC}"
+    echo -e "${BLUE}Устанавливаем Rust...${NC}"
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
     [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
   fi
 
   # Solana CLI
   if ! command -v solana >/dev/null 2>&1; then
-    echo -e "${BLUE}Ставлю Solana CLI...${NC}"
+    echo -e "${BLUE}Устанавливаем Solana CLI...${NC}"
     NONINTERACTIVE=1 bash -lc 'curl -sSfL https://solana-install.solana.workers.dev | bash'
   else
     NONINTERACTIVE=1 bash -lc 'curl -sSfL https://solana-install.solana.workers.dev | bash' || true
@@ -78,18 +78,18 @@ case "$choice" in
 
   # Node + Yarn
   if ! command -v node >/dev/null 2>&1; then
-    echo -e "${BLUE}Ставлю Node.js LTS...${NC}"
+    echo -e "${BLUE}Устанавливаем Node.js LTS...${NC}"
     bash -lc 'curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -'
     $SUDO apt-get install -y nodejs
   fi
   if ! command -v yarn >/dev/null 2>&1; then
-    echo -e "${BLUE}Ставлю Yarn...${NC}"
+    echo -e "${BLUE}Устанавливаем Yarn...${NC}"
     $SUDO npm install -g yarn || true
   fi
 
   # Anchor (shim, достаточно для arcium-инструментов)
   if ! command -v anchor >/dev/null 2>&1; then
-    echo -e "${BLUE}Ставлю легкий shim для Anchor 0.29.0...${NC}"
+    echo -e "${BLUE}Устанавливаем легкий shim для Anchor 0.29.0...${NC}"
     mkdir -p "$HOME/.cargo/bin"
     cat > "$HOME/.cargo/bin/anchor" <<'EOANCH'
 #!/usr/bin/env bash
@@ -102,7 +102,7 @@ EOANCH
 
   # Arcium CLI через arcup
   if ! command -v arcium >/dev/null 2>&1; then
-    echo -e "${BLUE}Ставлю Arcium CLI (через arcup)...${NC}"
+    echo -e "${BLUE}Устанавливаем Arcium CLI (через arcup)...${NC}"
     mkdir -p "$HOME/.cargo/bin" "$HOME/.arcium/bin"
     target="x86_64_linux"; [[ $(uname -m) =~ (aarch64|arm64) ]] && target="aarch64_linux"
     for u in \
@@ -119,7 +119,7 @@ EOANCH
   # ARM64: включить эмуляцию amd64 для Docker
   ARCH=$(uname -m 2>/dev/null || echo unknown)
   if [[ "$ARCH" == "aarch64" || "$ARCH" == "arm64" ]]; then
-    echo -e "${PURPLE}ARM64 обнаружен — включаю binfmt для amd64...${NC}"
+    echo -e "${PURPLE}ARM64 обнаружен — включаем binfmt для amd64...${NC}"
     docker run --privileged --rm tonistiigi/binfmt --install amd64 || true
     export DOCKER_DEFAULT_PLATFORM=linux/amd64
   fi
@@ -132,23 +132,20 @@ EOANCH
   source "$HOME/.bashrc" 2>/dev/null || true
 
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-  echo -e "${GREEN}Подготовка завершена.${NC}"
-  echo -e "${YELLOW}Команда для проверки Docker:${NC} docker ps --format 'table {{.Names}}\t{{.Status}}'"
+  echo -e "${GREEN}Подготовка сервера завершена, перейдите в текстовый гайд и следуйте дальнейшим инструкциям!${NC}"
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-  echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
-  echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
   ;;
 
 # ================== 2) Установка и запуск ноды =================
 2)
-  echo -e "${BLUE}Установка и запуск ноды...${NC}"
+  echo -e "${BLUE}Устанавливаем и запускаем ноду...${NC}"
   mkdir -p "$WORKDIR" "$LOGS_DIR"
 
   # Сбор параметров
   : "${RPC_HTTP:=$RPC_DEFAULT_HTTP}"; : "${RPC_WSS:=$RPC_DEFAULT_WSS}"
-  echo -ne "${YELLOW}Введи Solana RPC HTTP [${RPC_HTTP}]: ${NC}"; read ans; RPC_HTTP=${ans:-$RPC_HTTP}
-  echo -ne "${YELLOW}Введи Solana RPC WSS [${RPC_WSS}]: ${NC}"; read ans; RPC_WSS=${ans:-$RPC_WSS}
-  echo -ne "${YELLOW}Введи Node OFFSET (8–10 цифр): ${NC}"; read OFFSET
+  echo -ne "${YELLOW}Введите Solana RPC HTTP [${RPC_HTTP}]: ${NC}"; read ans; RPC_HTTP=${ans:-$RPC_HTTP}
+  echo -ne "${YELLOW}Введите Solana RPC WSS [${RPC_WSS}]: ${NC}"; read ans; RPC_WSS=${ans:-$RPC_WSS}
+  echo -ne "${YELLOW}Придумайте OFFSET для ноды (8–10 цифр): ${NC}"; read OFFSET
   OFFSET=$(printf '%s' "$OFFSET" | sed -n 's/[^0-9]*\([0-9][0-9]*\).*/\1/p')
   if [ -z "$OFFSET" ]; then echo -e "${RED}OFFSET пустой. Отмена.${NC}"; exit 1; fi
   [ -z "$PUBLIC_IP" ] && PUBLIC_IP=$(curl -4 -s https://ipecho.net/plain || true)
@@ -428,7 +425,13 @@ EOF
 
 # =============================== 6) Выход ==============================
 6)
-  echo -e "${GREEN}Выход.${NC}" ;;
+  echo -e "${RED}Полное удаление ноды...${NC}"
+  docker stop "$CONTAINER_NAME" >/dev/null 2>&1 || true
+  docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
+  docker rmi -f "$IMAGE_TAG" >/dev/null 2>&1 || true
+  rm -rf "$WORKDIR" "$HOME/.arcium" "$HOME/.cargo/bin/arcium" "$HOME/.cargo/bin/arcup"
+  echo -e "${GREEN}Все контейнеры, образы и файлы Arcium удалены.${NC}"
+  ;;
 
 # ============================ Неверный ввод ===========================
 *)
