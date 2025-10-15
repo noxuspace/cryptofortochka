@@ -145,7 +145,7 @@ EOANCH
   : "${RPC_HTTP:=$RPC_DEFAULT_HTTP}"; : "${RPC_WSS:=$RPC_DEFAULT_WSS}"
   echo -ne "${YELLOW}Введите Solana RPC HTTP [${RPC_HTTP}]: ${NC}"; read ans; RPC_HTTP=${ans:-$RPC_HTTP}
   echo -ne "${YELLOW}Введите Solana RPC WSS [${RPC_WSS}]: ${NC}"; read ans; RPC_WSS=${ans:-$RPC_WSS}
-  echo -ne "${YELLOW}Придумайте OFFSET для ноды (8–10 цифр): ${NC}"; read OFFSET
+  echo -ne "${YELLOW}Придумайте уникальный NODE OFFSET (8–10 цифр): ${NC}"; read OFFSET
   OFFSET=$(printf '%s' "$OFFSET" | sed -n 's/[^0-9]*\([0-9][0-9]*\).*/\1/p')
   if [ -z "$OFFSET" ]; then echo -e "${RED}OFFSET пустой. Отмена.${NC}"; exit 1; fi
   #[ -z "$PUBLIC_IP" ] && PUBLIC_IP=$(curl -4 -s https://ipecho.net/plain || true)
@@ -357,7 +357,7 @@ EOF
       4)
         # Создать свой кластер: init-cluster
         [ -f "$ENV_FILE" ] && . "$ENV_FILE"; : "${RPC_HTTP:=$RPC_DEFAULT_HTTP}"
-        echo -ne "${YELLOW}CLUSTER OFFSET (уникальный, НЕ равен Node OFFSET): ${NC}"; read -r COFF
+        echo -ne "${YELLOW}Придумайте CLUSTER OFFSET (уникальный, НЕ равен NODE OFFSET): ${NC}"; read -r COFF
         COFF=$(printf '%s' "$COFF" | tr -cd '0-9')
         if [ -z "$COFF" ]; then
           echo -e "${RED}Нужно указать числовой Cluster OFFSET.${NC}"
