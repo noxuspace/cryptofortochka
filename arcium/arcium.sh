@@ -148,8 +148,19 @@ EOANCH
   echo -ne "${YELLOW}Придумайте OFFSET для ноды (8–10 цифр): ${NC}"; read OFFSET
   OFFSET=$(printf '%s' "$OFFSET" | sed -n 's/[^0-9]*\([0-9][0-9]*\).*/\1/p')
   if [ -z "$OFFSET" ]; then echo -e "${RED}OFFSET пустой. Отмена.${NC}"; exit 1; fi
-  [ -z "$PUBLIC_IP" ] && PUBLIC_IP=$(curl -4 -s https://ipecho.net/plain || true)
-  echo -ne "${YELLOW}Введи публичный IP [${PUBLIC_IP:-auto}]: ${NC}"; read ans; PUBLIC_IP=${ans:-$PUBLIC_IP}
+  #[ -z "$PUBLIC_IP" ] && PUBLIC_IP=$(curl -4 -s https://ipecho.net/plain || true)
+  #echo -ne "${YELLOW}Введи публичный IP [${PUBLIC_IP:-auto}]: ${NC}"; read ans; PUBLIC_IP=${ans:-$PUBLIC_IP}
+  # Определяем публичный IP
+  PUBLIC_IP=$(curl -4 -s https://ipecho.net/plain || true)
+  if [ -z "$PUBLIC_IP" ]; then
+    echo -e "${RED}Не удалось определить IP, укажите вручную:${NC}"
+    echo -ne "${YELLOW}Введите IP этого сервера: ${NC}"
+    read -r PUBLIC_IP
+  else
+    echo -e "${PURPLE}Обнаружен публичный IP: ${CYAN}${PUBLIC_IP}${NC}"
+  fi
+
+  sleep 2
 
   # Сохраняем .env
   cat > "$ENV_FILE" <<EOF
