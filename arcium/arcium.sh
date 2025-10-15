@@ -317,7 +317,7 @@ EOF
   echo -e "${GREEN}RPC обновлены. Перезапустить контейнер сейчас? (y/N)${NC}"; read -r z
   [[ "$z" =~ ^[Yy]$ ]] && docker restart "$CONTAINER_NAME" || true
 
-  docker exec -it ${CONTAINER_NAME} sh -lc 'tail -f /usr/arx-node/logs/arx_log_*.log'
+  docker logs -f "$CONTAINER_NAME"
   ;;
 
 # ======= 5) Инструменты: логи, статус, активность, кластеры, ключи =======
@@ -357,7 +357,7 @@ EOF
       COFF=$(printf '%s' "$COFF" | tr -cd '0-9')
       if [ -z "$COFF" ]; then
         echo -e "${RED}Нужно указать числовой Cluster OFFSET.${NC}"
-        continue
+        exit 0
       fi
       echo -ne "${YELLOW}MAX NODES (по умолчанию 10): ${NC}"; read -r MAXN
       MAXN=$(printf '%s' "${MAXN:-10}" | tr -cd '0-9'); [ -z "$MAXN" ] && MAXN=10
