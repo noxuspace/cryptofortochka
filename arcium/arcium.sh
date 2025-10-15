@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -Eeuo pipefail
+
 # =========================== Цвета ===========================
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[0;33m'; BLUE='\033[0;34m'
 PURPLE='\033[0;35m'; CYAN='\033[0;36m'; NC='\033[0m'
@@ -251,7 +253,7 @@ EOF
   echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
   sleep 2
-  docker exec -it "$CONTAINER_NAME" sh -lc 'tail -n +1 -f "$(ls -t /usr/arx-node/logs/arx_log_*.log 2>/dev/null | head -1)"'
+  docker logs -f "$CONTAINER_NAME"
   ;;
 
 # ========== 3) Управление контейнером (start/restart/stop/rm/status) ==========
