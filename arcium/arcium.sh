@@ -115,7 +115,7 @@ EOANCH
       if curl -fsSL "$u" -o "$HOME/.cargo/bin/arcup"; then chmod +x "$HOME/.cargo/bin/arcup"; break; fi
     done
     if [ -x "$HOME/.cargo/bin/arcup" ]; then
-      "$HOME/.cargo/bin/arcup" install || true
+      bash -lc "$HOME/.cargo/bin/arcup install" || true
     fi
   fi
 
