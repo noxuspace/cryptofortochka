@@ -329,12 +329,13 @@ EOF
     echo -e "${CYAN}1) Логи (онлайн)${NC}"
     echo -e "${CYAN}2) Статус ноды (arx-info)${NC}"
     echo -e "${CYAN}3) Проверить активность ноды (arx-active)${NC}"
-    echo -e "${CYAN}4) Отправить приглашение в кластер (propose-join-cluster)${NC}"
-    echo -e "${CYAN}5) Вступить в кластер (join-cluster)${NC}"
-    echo -e "${CYAN}6) Проверить членство ноды в кластере${NC}"
-    echo -e "${CYAN}7) Показать адреса и балансы${NC}"
-    echo -e "${CYAN}8) Devnet токены (2 SOL на каждый адрес)${NC}"
-    echo -e "${CYAN}9) Показать сид-фразы${NC}"
+    echo -e "${CYAN}4) Создать кластер (init-cluster)${NC}"
+    echo -e "${CYAN}5) Отправить приглашение в кластер (propose-join-cluster)${NC}"
+    echo -e "${CYAN}6) Вступить в кластер (join-cluster)${NC}"
+    echo -e "${CYAN}7) Проверить членство ноды в кластере${NC}"
+    echo -e "${CYAN}8) Показать адреса и балансы${NC}"
+    echo -e "${CYAN}9) Devnet токены (2 SOL на каждый адрес)${NC}"
+    echo -e "${CYAN}10) Показать сид-фразы${NC}"
     echo -e "${CYAN}0) Назад${NC}"
     echo -ne "${YELLOW}Введите номер: ${NC}"; read t
     case "$t" in
@@ -354,6 +355,24 @@ EOF
         arcium arx-active "$OFFSET" --rpc-url "$RPC_HTTP" || true
         ;;
       4)
+        # Создать свой кластер: init-cluster
+        [ -f "$ENV_FILE" ] && . "$ENV_FILE"; : "${RPC_HTTP:=$RPC_DEFAULT_HTTP}"
+        echo -ne "${YELLOW}CLUSTER OFFSET (уникальный, НЕ равен Node OFFSET): ${NC}"; read -r COFF
+        COFF=$(printf '%s' "$COFF" | tr -cd '0-9')
+        if [ -z "$COFF" ]; then
+          echo -e "${RED}Нужно указать числовой Cluster OFFSET.${NC}"
+          continue
+        fi
+        echo -ne "${YELLOW}MAX NODES (по умолчанию 10): ${NC}"; read -r MAXN
+        MAXN=$(printf '%s' "${MAXN:-10}" | tr -cd '0-9'); [ -z "$MAXN" ] && MAXN=10
+        echo -e "${PURPLE}Создаю кластер OFFSET=${CYAN}${COFF}${PURPLE}, max-nodes=${CYAN}${MAXN}${NC}"
+        (cd "$WORKDIR" && arcium init-cluster \
+          --keypair-path "$NODE_KP" \
+          --offset "$COFF" \
+          --max-nodes "$MAXN" \
+          --rpc-url "$RPC_HTTP") || true
+        ;;
+      5)
         [ -f "$ENV_FILE" ] && . "$ENV_FILE"
         echo -ne "${YELLOW}CLUSTER OFFSET (пусто = 10102025): ${NC}"; read COFF; [ -z "$COFF" ] && COFF=10102025
         echo -ne "${YELLOW}Какой NODE OFFSET приглашаем (пусто = ваш из .env)? ${NC}"; read NOFF
@@ -364,7 +383,7 @@ EOF
           --cluster-offset "$COFF" \
           --rpc-url "$RPC_HTTP") || true
         ;;
-      5)
+      6)
         [ -f "$ENV_FILE" ] && . "$ENV_FILE"
         echo -ne "${YELLOW}CLUSTER OFFSET: ${NC}"; read COFF
         if [ -z "$COFF" ]; then echo -e "${RED}Пусто — отмена.${NC}"; else
@@ -375,7 +394,7 @@ EOF
             --rpc-url "$RPC_HTTP") || true
         fi
         ;;
-      6)
+      7)
         [ -f "$ENV_FILE" ] && . "$ENV_FILE"
         echo -ne "${YELLOW}CLUSTER OFFSET: ${NC}"; read COFF
         echo -ne "${YELLOW}NODE OFFSET: ${NC}"; read NOFF
@@ -387,7 +406,7 @@ EOF
           fi
         fi
         ;;
-      7)
+      8)
         NODE_PK=$(solana address --keypair "$NODE_KP" 2>/dev/null || echo N/A)
         CB_PK=$(solana address --keypair "$CALLBACK_KP" 2>/dev/null || echo N/A)
         echo -e "${PURPLE}Адреса:${NC}\n  Node: $NODE_PK\n  Callback: $CB_PK"
@@ -397,13 +416,13 @@ EOF
         echo "  Node: ${NB} SOL"
         echo "  Callback: ${CB} SOL"
         ;;
-      8)
+      9)
         NODE_PK=$(solana address --keypair "$NODE_KP"); CB_PK=$(solana address --keypair "$CALLBACK_KP")
         solana airdrop 2 "$NODE_PK" -u devnet >/dev/null 2>&1 || true
         solana airdrop 2 "$CB_PK" -u devnet >/dev/null 2>&1 || true
-        echo -e "${GREEN}Готово. Посмотрите п.7 для балансов.${NC}"
+        echo -e "${GREEN}Готово. Посмотрите п.8 для балансов.${NC}"
         ;;
-      9)
+      10)
         if [ -f "$SEED_NODE" ]; then
           masked=$(awk '{ n=split($0,w," "); if(n==0){print ""; exit} for(i=1;i<=n;i++){ if(i<=4 || i>n-4){printf "%s ", w[i]} else{printf "••• "} } printf "(%d words)
 ", n }' "$SEED_NODE")
