@@ -29,7 +29,8 @@ RPC_DEFAULT_WSS="wss://api.devnet.solana.com"
 
 # ===================== Проверка curl + лого ===================
 if ! command -v curl >/dev/null 2>&1; then
-  (command -v sudo >/dev/null 2>&1 && SUDO="sudo" || SUDO=""); $SUDO apt update && $SUDO apt install -y curl
+  SUDO=$(command -v sudo >/dev/null 2>&1 && echo sudo || echo "")
+  $SUDO apt update && $SUDO apt install -y curl
 fi
 sleep 1
 curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_club.sh | bash
@@ -49,7 +50,7 @@ case "$choice" in
 # ===================== 1) Подготовка сервера ===================
 1)
   echo -e "${BLUE}Подготавливаем сервер...${NC}"
-  (command -v sudo >/dev/null 2>&1 && SUDO="sudo" || SUDO="")
+  SUDO=$(command -v sudo >/dev/null 2>&1 && echo sudo || echo "")
   $SUDO apt-get update -y && $SUDO apt-get install -y \
     ca-certificates gnupg lsb-release apt-transport-https \
     curl wget git build-essential pkg-config libssl-dev libudev-dev openssl expect
