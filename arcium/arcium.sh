@@ -235,7 +235,6 @@ EOF
   # Если 0 — даём пользователю пополнить вручную и жмём Enter
   if ! awk "BEGIN{exit !($NB>0 && $CB>0)}"; then
     echo -e "${YELLOW}Нужно пополнить оба адреса (Devnet). Открой: https://faucet.solana.com/${NC}"
-    echo -e "Команды:\n  solana airdrop 2 $NODE_PK -u devnet\n  solana airdrop 2 $CB_PK -u devnet"
     read -rp "Пополните кошельки и нажмите Enter для продолжения..." _
     NB=$(balance_of "$NODE_PK"); CB=$(balance_of "$CB_PK")
     echo -e "Проверка ещё раз: Node=${NB} SOL, Callback=${CB} SOL"
