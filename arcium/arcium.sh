@@ -212,13 +212,38 @@ cluster = "Devnet"
 commitment = "confirmed"
 EOF
 
-  # Адреса + пробуем airdrop
+  # На всякий: выставим RPC, чтобы баланс и airdrop шли в правильный кластер
+  solana config set --url "$RPC_HTTP" >/dev/null 2>&1 || true
+  
+  # Адреса
   NODE_PK=$(solana address --keypair "$NODE_KP" 2>/dev/null || echo N/A)
   CB_PK=$(solana address --keypair "$CALLBACK_KP" 2>/dev/null || echo N/A)
   echo -e "${PURPLE}Адреса:${NC}\n  Node: $NODE_PK\n  Callback: $CB_PK"
-  echo -e "${BLUE}Пробуем получить Devnet токены по 2 SOL на оба адреса...${NC}"
+  
+  # Утилита баланса (числом)
+  balance_of() { solana balance -u devnet "$1" 2>/dev/null | awk '{print $1+0}' 2>/dev/null; }
+  
+  # Пробуем airdrop (не критично, могут не прийти)
+  echo -e "${BLUE}Пробуем Devnet airdrop по 2 SOL на оба адреса...${NC}"
   solana airdrop 2 "$NODE_PK" -u devnet >/dev/null 2>&1 || true
   solana airdrop 2 "$CB_PK" -u devnet >/dev/null 2>&1 || true
+  
+  # Первичная проверка балансов
+  NB=$(balance_of "$NODE_PK"); CB=$(balance_of "$CB_PK")
+  echo -e "${PURPLE}Балансы (devnet):${NC}\n  Node: ${NB} SOL\n  Callback: ${CB} SOL"
+  
+  # Если 0 — даём пользователю пополнить вручную и жмём Enter
+  if ! awk "BEGIN{exit !($NB>0 && $CB>0)}"; then
+    echo -e "${YELLOW}Нужно пополнить оба адреса (Devnet). Открой: https://faucet.solana.com/${NC}"
+    echo -e "Команды:\n  solana airdrop 2 $NODE_PK -u devnet\n  solana airdrop 2 $CB_PK -u devnet"
+    read -rp "Пополните кошельки и нажмите Enter для продолжения..." _
+    NB=$(balance_of "$NODE_PK"); CB=$(balance_of "$CB_PK")
+    echo -e "Проверка ещё раз: Node=${NB} SOL, Callback=${CB} SOL"
+    if ! awk "BEGIN{exit !($NB>0 && $CB>0)}"; then
+      echo -e "${RED}На счетах всё ещё 0. Останавливаю установку. Запустите пункт 2 заново после пополнения.${NC}"
+      exit 1
+    fi
+  fi
 
   # Инициализация on-chain аккаунтов ноды (пути один-в-один)
   echo -e "${BLUE}Инициализируем on-chain аккаунты (arcium init-arx-accs)...${NC}"
