@@ -175,11 +175,11 @@ EOF
 
   # Генерация ключей (+сид-фразы в файлы)
   if [ ! -f "$NODE_KP" ]; then
-    echo -e "${BLUE}Генерирую node-keypair.json...${NC}"
+    echo -e "${BLUE}Генерируем node-keypair.json...${NC}"
     (solana-keygen new --no-passphrase --force --outfile "$NODE_KP" | tee "$SEED_NODE") || true
   fi
   if [ ! -f "$CALLBACK_KP" ]; then
-    echo -e "${BLUE}Генерирую callback-kp.json...${NC}"
+    echo -e "${BLUE}Генерируем callback-kp.json...${NC}"
     (solana-keygen new --no-passphrase --force --outfile "$CALLBACK_KP" | tee "$SEED_CALLBACK") || true
   fi
   [ -f "$NODE_KP" ] && chmod 600 "$NODE_KP" || true
@@ -212,12 +212,12 @@ EOF
   NODE_PK=$(solana address --keypair "$NODE_KP" 2>/dev/null || echo N/A)
   CB_PK=$(solana address --keypair "$CALLBACK_KP" 2>/dev/null || echo N/A)
   echo -e "${PURPLE}Адреса:${NC}\n  Node: $NODE_PK\n  Callback: $CB_PK"
-  echo -e "${BLUE}Пробую Devnet airdrop по 2 SOL на оба адреса...${NC}"
+  echo -e "${BLUE}Пробуем получить Devnet токены по 2 SOL на оба адреса...${NC}"
   solana airdrop 2 "$NODE_PK" -u devnet >/dev/null 2>&1 || true
   solana airdrop 2 "$CB_PK" -u devnet >/dev/null 2>&1 || true
 
   # Инициализация on-chain аккаунтов ноды
-  echo -e "${BLUE}Инициализирую on-chain аккаунты (arcium init-arx-accs)...${NC}"
+  echo -e "${BLUE}Инициализируем on-chain аккаунты (arcium init-arx-accs)...${NC}"
   (cd "$WORKDIR" && arcium init-arx-accs \
     --keypair-path "$NODE_KP" \
     --callback-keypair-path "$CALLBACK_KP" \
@@ -252,7 +252,8 @@ EOF
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
   echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
   echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
-  sleep 1
+  sleep 2
+  docker exec -it ${CONTAINER_NAME} sh -lc 'tail -f /usr/arx-node/logs/arx_log_*.log'
   ;;
 
 # ========== 3) Управление контейнером (start/restart/stop/rm/status) ==========
@@ -271,7 +272,7 @@ EOF
         if docker start "$CONTAINER_NAME" >/dev/null 2>&1; then 
           echo -e "${GREEN}Запущен.${NC}"
         else
-          echo -e "${BLUE}Контейнера нет — запускаю с нужными томами...${NC}"
+          echo -e "${BLUE}Контейнера нет — запускаем с нужными томами...${NC}"
           docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
           docker run -d \
             --name "$CONTAINER_NAME" \
@@ -299,9 +300,6 @@ EOF
       *) ;;
     esac
   done
-  echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-  echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
-  echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
   ;;
 
 # =================== 4) Конфигурация RPC (sed) ==================
@@ -320,11 +318,8 @@ EOF
   grep -q '^RPC_WSS=' "$ENV_FILE" 2>/dev/null && sed -i "s|^RPC_WSS=.*|RPC_WSS=\"$RPC_WSS\"|" "$ENV_FILE" || echo "RPC_WSS=\"$RPC_WSS\"" >> "$ENV_FILE"
   echo -e "${GREEN}RPC обновлены. Перезапустить контейнер сейчас? (y/N)${NC}"; read z
   [[ "$z" =~ ^[Yy]$ ]] && docker restart "$CONTAINER_NAME" || true
-  echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-  echo -e "${YELLOW}Команда для логов:${NC} docker exec -it ${CONTAINER_NAME} sh -lc 'tail -f /usr/arx-node/logs/arx_log_*.log'"
-  echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-  echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
-  echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
+
+  docker exec -it ${CONTAINER_NAME} sh -lc 'tail -f /usr/arx-node/logs/arx_log_*.log'
   ;;
 
 # ======= 5) Инструменты: логи, статус, активность, кластеры, ключи =======
@@ -345,6 +340,7 @@ EOF
     case "$t" in
       1)
         echo -e "${PURPLE}Ctrl+C для выхода из логов${NC}"
+        sleep 2
         docker exec -it "$CONTAINER_NAME" sh -lc 'tail -n +1 -f "$(ls -t /usr/arx-node/logs/arx_log_*.log 2>/dev/null | head -1)"' || true
         ;;
       2)
@@ -360,7 +356,7 @@ EOF
       4)
         [ -f "$ENV_FILE" ] && . "$ENV_FILE"
         echo -ne "${YELLOW}CLUSTER OFFSET (пусто = 10102025): ${NC}"; read COFF; [ -z "$COFF" ] && COFF=10102025
-        echo -ne "${YELLOW}Какой NODE OFFSET приглашаем (пусто = твой из .env)? ${NC}"; read NOFF
+        echo -ne "${YELLOW}Какой NODE OFFSET приглашаем (пусто = ваш из .env)? ${NC}"; read NOFF
         [ -z "$NOFF" ] && NOFF="$OFFSET"
         (cd "$WORKDIR" && arcium propose-join-cluster \
           --keypair-path "$NODE_KP" \
@@ -405,14 +401,14 @@ EOF
         NODE_PK=$(solana address --keypair "$NODE_KP"); CB_PK=$(solana address --keypair "$CALLBACK_KP")
         solana airdrop 2 "$NODE_PK" -u devnet >/dev/null 2>&1 || true
         solana airdrop 2 "$CB_PK" -u devnet >/dev/null 2>&1 || true
-        echo -e "${GREEN}Готово. Посмотри п.7 для балансов.${NC}"
+        echo -e "${GREEN}Готово. Посмотрите п.7 для балансов.${NC}"
         ;;
       9)
         if [ -f "$SEED_NODE" ]; then
           masked=$(awk '{ n=split($0,w," "); if(n==0){print ""; exit} for(i=1;i<=n;i++){ if(i<=4 || i>n-4){printf "%s ", w[i]} else{printf "••• "} } printf "(%d words)
 ", n }' "$SEED_NODE")
           echo "Node seed: $masked"
-          echo -ne "Показать полностью? Напиши YES: "; read zz; [ "$zz" = "YES" ] && echo "FULL: $(cat "$SEED_NODE")"
+          echo -ne "Показать полностью? Напишите YES: "; read zz; [ "$zz" = "YES" ] && echo "FULL: $(cat "$SEED_NODE")"
         else
           echo "Node seed: файл не найден ($SEED_NODE)"
         fi
@@ -420,7 +416,7 @@ EOF
           masked=$(awk '{ n=split($0,w," "); if(n==0){print ""; exit} for(i=1;i<=n;i++){ if(i<=4 || i>n-4){printf "%s ", w[i]} else{printf "••• "} } printf "(%d words)
 ", n }' "$SEED_CALLBACK")
           echo "Callback seed: $masked"
-          echo -ne "Показать полностью? Напиши YES: "; read zz; [ "$zz" = "YES" ] && echo "FULL: $(cat "$SEED_CALLBACK")"
+          echo -ne "Показать полностью? Напишите YES: "; read zz; [ "$zz" = "YES" ] && echo "FULL: $(cat "$SEED_CALLBACK")"
         else
           echo "Callback seed: файл не найден ($SEED_CALLBACK)"
         fi
@@ -429,9 +425,6 @@ EOF
       *) ;;
     esac
   done
-  echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-  echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
-  echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
   ;;
 
 # =============================== 6) Выход ==============================
