@@ -16,6 +16,12 @@ SEED_CALLBACK="$WORKDIR/callback-kp.seed.txt"
 PUB_NODE_FILE="$WORKDIR/node-pubkey.txt"
 PUB_CALLBACK_FILE="$WORKDIR/callback-pubkey.txt"
 LOGS_DIR="$WORKDIR/arx-node-logs"
+# ===== Утилита для чтения cluster_offset из файла =====
+CLUSTER_FILE="$WORKDIR/cluster-info.toml"
+read_cluster_offset() {
+  [ -f "$CLUSTER_FILE" ] || { echo ""; return; }
+  sed -n 's/^[[:space:]]*cluster_offset[[:space:]]*=[[:space:]]*"\(.*\)".*/\1/p' "$CLUSTER_FILE" | head -1
+}
 
 CONTAINER_NAME="arx-node"
 IMAGE_TAG="arcium/arx-node:v0.3.0"
@@ -391,12 +397,25 @@ EOF
         --offset "$COFF" \
         --max-nodes "$MAXN" \
         --rpc-url "$RPC_HTTP") || true
+      # Сохраняем оффсет кластера в отдельный файл (не .env)
+      printf 'cluster_offset = "%s"\n' "$COFF" > "$CLUSTER_FILE"
+      chmod 600 "$CLUSTER_FILE" 2>/dev/null || true
+      echo -e "${GREEN}CLUSTER OFFSET сохранён в ${CLUSTER_FILE}.${NC}"
       ;;
     5)
       [ -f "$ENV_FILE" ] && . "$ENV_FILE"
-      echo -ne "${YELLOW}CLUSTER OFFSET (Enter = ваш из .env, может быть только ваш кластер): ${NC}"; read -r COFF; [ -z "$COFF" ] && COFF=235687145
+
+      # приглашаем ТОЛЬКО в свой кластер — читаем оффсет из файла
+      COFF=$(read_cluster_offset)
+      if [ -z "$COFF" ]; then
+        echo -e "${RED}Вы не создали кластер (файл ${CLUSTER_FILE} не найден или пуст).${NC}"
+        echo -e "${YELLOW}Сначала выполните: 5) → 4) Создать кластер (init-cluster).${NC}"
+        exit 1
+      fi
+      
       echo -ne "${YELLOW}Какой NODE OFFSET приглашаем (Enter = ваш из .env)? ${NC}"; read -r NOFF
       [ -z "$NOFF" ] && NOFF="$OFFSET"
+      
       (cd "$WORKDIR" && arcium propose-join-cluster \
         --keypair-path "$NODE_KP" \
         --node-offset "$NOFF" \
