@@ -28,16 +28,14 @@ case "$choice" in
 
 # ===================== 1) Подготовка сервера ===================
 1)
-  echo -e "${YELLOW}🔄 Установка зависимостей...${NC}"
+  echo -e "${YELLOW}Подготавливаем сервер...${NC}"
   $SUDO apt-get update -y && $SUDO apt-get upgrade -y
   $SUDO apt-get install -y curl git jq build-essential python3 make g++ wget
 
-  echo -e "${PURPLE}Чистка старого Node.js/npm (если были)${NC}"
   $SUDO apt-get purge -y nodejs npm || true
   $SUDO apt-get autoremove -y
   $SUDO rm -f /usr/bin/node /usr/local/bin/node /usr/bin/npm /usr/local/bin/npm
 
-  echo -e "${BLUE}🚀 Устанавливаю Node.js 20 (NodeSource)...${NC}"
   curl -fsSL https://deb.nodesource.com/setup_20.x | $SUDO -E bash -
   $SUDO apt-get install -y nodejs
 
@@ -45,7 +43,7 @@ case "$choice" in
   echo -e "${GREEN}✅ npm:     $(npm -v)${NC}"
 
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-  echo -e "${GREEN}Подготовка завершена. Для продолжения запустите пункт 2.${NC}"
+  echo -e "${GREEN}Подготовка сервера завершена, перейдите в текстовый гайд и следуйте дальнейшим инструкциям!${NC}"
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
   ;;
 
