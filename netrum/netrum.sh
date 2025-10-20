@@ -19,7 +19,7 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
 echo
 echo -e "${YELLOW}Выберите действие:${NC}"
 echo -e "${CYAN}1) Подготовка сервера${NC}"
-echo -e "${CYAN}2) Установка и подготовка Netrum Lite Node (git/npm/link)${NC}"
+echo -e "${CYAN}2) Установка ноды Netrum${NC}"
 echo -e "${CYAN}3) Управление нодой (кошелёк, регистрация, синк, майнинг, логи)${NC}"
 echo -e "${CYAN}4) Удаление ноды${NC}"
 echo -ne "${YELLOW}Введите номер: ${NC}"; read choice
@@ -49,20 +49,9 @@ case "$choice" in
 
 # ============== 2) Клонирование/обновление, npm i, link ==============
 2)
-  # Включаем сюда базовые зависимости, как в твоём шаблоне
-  echo -e "${YELLOW}🔄 Установка зависимостей...${NC}"
-  $SUDO apt-get update -y && $SUDO apt-get upgrade -y
-  $SUDO apt-get install -y curl git jq build-essential python3 make g++ wget
-  $SUDO apt-get purge -y nodejs npm || true
-  $SUDO apt-get autoremove -y
-  $SUDO rm -f /usr/bin/node /usr/local/bin/node /usr/bin/npm /usr/local/bin/npm
-  curl -fsSL https://deb.nodesource.com/setup_20.x | $SUDO -E bash -
-  $SUDO apt-get install -y nodejs
-  echo -e "${GREEN}✅ Node.js: $(node -v), npm: $(npm -v)${NC}"
-
-  echo -e "${BLUE}📥 Клонирование/обновление репозитория...${NC}"
+  echo -e "${BLUE}Клонирую/обновляю репозиторий...${NC}"
   if [ -d "$APP_DIR" ]; then
-    echo -e "${PURPLE}Каталог уже существует: ${CYAN}$APP_DIR${PURPLE} — обновляю (git pull).${NC}"
+    echo -e "${BLUE}Каталог уже существует: ${CYAN}$APP_DIR${PURPLE} — обновляю (git pull).${NC}"
     (cd "$APP_DIR" && git pull)
   else
     git clone https://github.com/NetrumLabs/netrum-lite-node.git "$APP_DIR"
@@ -70,14 +59,15 @@ case "$choice" in
 
   cd "$APP_DIR" || { echo -e "${RED}Не удалось войти в $APP_DIR${NC}"; exit 1; }
 
-  echo -e "${BLUE}📦 npm install...${NC}"
+  echo -e "${BLUE}npm install...${NC}"
   npm install
 
-  echo -e "${BLUE}🔗 npm link (глобальный CLI)${NC}"
+  echo -e "${BLUE}npm link...${NC}"
   npm link
 
-  echo -e "${GREEN}✅ Готово. Доступна команда: ${CYAN}netrum${NC}"
-  echo -e "${PURPLE}Подсказка: открой пункт 3) для действий (кошелёк, регистрация, синк, майнинг, логи).${NC}"
+  echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+  echo -e "${GREEN}Установка завершена, перейдите в текстовый гайд и следуйте дальнейшим инструкциям!${NC}"
+  echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
   ;;
 
 # ============== 3) Управление нодой (вложенное меню, как у тебя) ==============
@@ -89,23 +79,23 @@ case "$choice" in
 
   echo
   echo -e "${YELLOW}Управление нодой:${NC}"
-  echo -e "${CYAN}1)  Проверка системы (netrum-system)${NC}"
-  echo -e "${CYAN}2)  Создать НОВЫЙ кошелёк (netrum-new-wallet)${NC}"
-  echo -e "${CYAN}3)  Импорт кошелька по приватному ключу (netrum-import-wallet)${NC}"
-  echo -e "${CYAN}4)  Показать кошелёк/баланс (netrum-wallet)${NC}"
-  echo -e "${CYAN}5)  Экспорт приватного ключа (netrum-wallet-key)${NC}"
-  echo -e "${CYAN}6)  Удалить кошелёк с сервера (netrum-wallet-remove)${NC}"
-  echo -e "${CYAN}7)  Проверить Base-name (netrum-check-basename)${NC}"
-  echo -e "${CYAN}8)  Показать Node ID (netrum-node-id)${NC}"
-  echo -e "${CYAN}9)  Очистить Node ID (netrum-node-id-remove)${NC}"
-  echo -e "${CYAN}10) Подписать сообщение ключом узла (netrum-node-sign)${NC}"
-  echo -e "${CYAN}11) Зарегистрировать ноду on-chain (netrum-node-register)${NC}"
-  echo -e "${CYAN}12) Запустить синхронизацию (netrum-sync)${NC}"
-  echo -e "${CYAN}13) Логи синхронизации (netrum-sync-log)${NC}"
-  echo -e "${CYAN}14) Запустить майнинг (netrum-mining)${NC}"
-  echo -e "${CYAN}15) Логи майнинга (netrum-mining-log)${NC}"
-  echo -e "${CYAN}16) Клейм наград (netrum-claim)${NC}"
-  echo -e "${CYAN}17) Обновить CLI (netrum-update)${NC}"
+  echo -e "${CYAN}1)  Проверка системы${NC}"
+  echo -e "${CYAN}2)  Создать новый кошелёк${NC}"
+  echo -e "${CYAN}3)  Импорт кошелька по приватному ключу${NC}"
+  echo -e "${CYAN}4)  Показать баланс${NC}"
+  echo -e "${CYAN}5)  Экспорт приватного ключа${NC}"
+  echo -e "${CYAN}6)  Удалить кошелёк с сервера${NC}"
+  echo -e "${CYAN}7)  Проверить наличие Base-name${NC}"
+  echo -e "${CYAN}8)  Показать Node ID${NC}"
+  echo -e "${CYAN}9)  Очистить Node ID${NC}"
+  echo -e "${CYAN}10) Подписать сообщение ключом ноды${NC}"
+  echo -e "${CYAN}11) Зарегистрировать ноду${NC}"
+  echo -e "${CYAN}12) Запустить синхронизацию${NC}"
+  echo -e "${CYAN}13) Логи синхронизации${NC}"
+  echo -e "${CYAN}14) Запустить майнинг${NC}"
+  echo -e "${CYAN}15) Логи майнинга${NC}"
+  echo -e "${CYAN}16) Клейм наград${NC}"
+  echo -e "${CYAN}17) Обновить CLI${NC}"
   echo -ne "${YELLOW}Введите номер: ${NC}"; read -r t
 
   case "$t" in
