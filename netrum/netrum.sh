@@ -28,7 +28,7 @@ case "$choice" in
 
 # ===================== 1) Подготовка сервера ===================
 1)
-  echo -e "${YELLOW}Подготавливаем сервер...${NC}"
+  echo -e "${BLUE}Подготавливаем сервер...${NC}"
   $SUDO apt-get update -y && $SUDO apt-get upgrade -y
   $SUDO apt-get install -y curl git jq build-essential python3 make g++ wget
 
@@ -123,7 +123,7 @@ case "$choice" in
 # =============================== 4) Удаление ==============================
 4)
   if [ ! -d "$APP_DIR" ]; then
-    echo -e "${PURPLE}Каталог ${CYAN}$APP_DIR${PURPLE} не найден. Нечего удалять.${NC}"
+    echo -e "${BLUE}Каталог ${CYAN}$APP_DIR${PURPLE} не найден. Нечего удалять.${NC}"
     exit 0
   fi
   echo -ne "${RED}Вы действительно хотите полностью удалить Netrum Lite Node? (YES/NO): ${NC}"
