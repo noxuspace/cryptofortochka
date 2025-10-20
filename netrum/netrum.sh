@@ -20,7 +20,7 @@ echo
 echo -e "${YELLOW}Выберите действие:${NC}"
 echo -e "${CYAN}1) Подготовка сервера${NC}"
 echo -e "${CYAN}2) Установка ноды Netrum${NC}"
-echo -e "${CYAN}3) Управление нодой (кошелёк, регистрация, синк, майнинг, логи)${NC}"
+echo -e "${CYAN}3) Управление нодой${NC}"
 echo -e "${CYAN}4) Удаление ноды${NC}"
 echo -ne "${YELLOW}Введите номер: ${NC}"; read choice
 
