@@ -120,7 +120,8 @@ EOF
             --l1-rpc-urls \"\$ETHEREUM_HOSTS\" \
             --l1-consensus-host-urls \"\$L1_CONSENSUS_HOST_URLS\" \
             --sequencer.coinbase \"\$WALLET\" \
-            --p2p.p2pIp \"\$P2P_IP\""
+            --p2p.p2pIp \"\$P2P_IP\"" \
+            --snapshots-url https://snapshots-data.aztec.graphops.xyz/"
 
         cd ~
         # Завершающий вывод
@@ -179,7 +180,8 @@ EOF
             --l1-rpc-urls \"\$ETHEREUM_HOSTS\" \
             --l1-consensus-host-urls \"\$L1_CONSENSUS_HOST_URLS\" \
             --sequencer.coinbase \"\$WALLET\" \
-            --p2p.p2pIp \"\$P2P_IP\""
+            --p2p.p2pIp \"\$P2P_IP\"" \
+            --snapshots-url https://snapshots-data.aztec.graphops.xyz/"
 
         # Завершающий вывод
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
