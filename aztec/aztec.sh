@@ -81,7 +81,7 @@ case $choice in
         mkdir -p "$HOME/aztec-sequencer"
         cd "$HOME/aztec-sequencer"
 
-        docker pull aztecprotocol/aztec:2.0.2
+        docker pull aztecprotocol/aztec:2.0.4
         
         read -p "Вставьте ваш URL RPC Sepolia: " RPC
         read -p "Вставьте ваш URL Beacon Sepolia: " CONSENSUS
@@ -113,7 +113,7 @@ EOF
           -e NODE_OPTIONS="--max-old-space-size=8192 --max-semi-space-size=1024" \
           -v "$HOME/my-node/node":/data \
           --entrypoint /bin/sh \
-          aztecprotocol/aztec:2.0.2 \
+          aztecprotocol/aztec:2.0.4 \
           -c "node --max-old-space-size=8192 --max-semi-space-size=1024 --optimize-for-size --no-warnings /usr/src/yarn-project/aztec/dest/bin/index.js \
             start --network testnet --node --archiver --sequencer \
             --sequencer.validatorPrivateKeys \"\$VALIDATOR_PRIVATE_KEY\" \
@@ -152,7 +152,7 @@ EOF
     4)
         echo -e "${BLUE}Обновление ноды Aztec...${NC}"
         # 1) Подтягиваем новую версию образа
-        docker pull aztecprotocol/aztec:2.0.2
+        docker pull aztecprotocol/aztec:2.0.4
 
         # 2) Останавливаем и удаляем старый контейнер (тома и .evm сохранятся)
         docker stop aztec-sequencer
@@ -172,7 +172,7 @@ EOF
           -e NODE_OPTIONS="--max-old-space-size=8192 --max-semi-space-size=1024" \
           -v "$HOME/my-node/node":/data \
           --entrypoint /bin/sh \
-          aztecprotocol/aztec:2.0.2 \
+          aztecprotocol/aztec:2.0.4 \
           -c "node --max-old-space-size=8192 --max-semi-space-size=1024 --optimize-for-size --no-warnings /usr/src/yarn-project/aztec/dest/bin/index.js \
             start --network testnet --node --archiver --sequencer \
             --sequencer.validatorPrivateKeys \"\$VALIDATOR_PRIVATE_KEY\" \
