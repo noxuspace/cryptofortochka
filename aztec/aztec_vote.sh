@@ -25,7 +25,7 @@ docker stop aztec-sequencer &> /dev/null || true
 docker rm   aztec-sequencer &> /dev/null || true
 
 EVM_FILE="$HOME/aztec-sequencer/.evm"
-LINE="GOVERNANCE_PROPOSER_PAYLOAD_ADDRESS=0x54F7fe24E349993b363A5Fa1bccdAe2589D5E5Ef"
+LINE="GOVERNANCE_PROPOSER_PAYLOAD_ADDRESS=0xDCd9DdeAbEF70108cE02576df1eB333c4244C666"
 
 # Диагностика пути
 if [[ ! -f "$EVM_FILE" ]]; then
@@ -46,13 +46,22 @@ fi
 docker run -d \
   --name aztec-sequencer \
   --network host \
-  --env-file "$EVM_FILE" \
+  --memory=10g \
+  --memory-swap=12g \
+  --env-file "$HOME/aztec-sequencer/.evm" \
   -e DATA_DIRECTORY=/data \
   -e LOG_LEVEL=debug \
-  -v "$HOME_DIR/my-node/node":/data \
-  aztecprotocol/aztec:0.85.0-alpha-testnet.8 \
-  sh -c 'node --no-warnings /usr/src/yarn-project/aztec/dest/bin/index.js \
-    start --network alpha-testnet --node --archiver --sequencer'
+  -e NODE_OPTIONS="--max-old-space-size=8192 --max-semi-space-size=1024" \
+  -v "$HOME/my-node/node":/data \
+  --entrypoint /bin/sh \
+  aztecprotocol/aztec:2.0.4 \
+  -c "node --max-old-space-size=8192 --max-semi-space-size=1024 --optimize-for-size --no-warnings /usr/src/yarn-project/aztec/dest/bin/index.js \
+    start --network testnet --node --archiver --sequencer \
+    --sequencer.validatorPrivateKeys \"\$VALIDATOR_PRIVATE_KEY\" \
+    --l1-rpc-urls \"\$ETHEREUM_HOSTS\" \
+    --l1-consensus-host-urls \"\$L1_CONSENSUS_HOST_URLS\" \
+    --sequencer.coinbase \"\$WALLET\" \
+    --p2p.p2pIp \"\$P2P_IP\""
 
 # Небольшая задержка, чтобы контейнер успел запуститься
 sleep 2
