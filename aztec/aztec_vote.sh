@@ -33,14 +33,19 @@ if [[ ! -f "$EVM_FILE" ]]; then
   exit 1
 fi
 
-# Проверяем, нет ли уже нужной строки
+# --- БЛОК ПРОВЕРКИ/ОЧИСТКИ/ДОБАВЛЕНИЯ СТРОКИ ---
 if grep -Fxq "$LINE" "$EVM_FILE"; then
-  echo -e "${GREEN}Строка уже есть в $EVM_FILE, пропускаем настройку конфигурации!${NC}"
+  echo -e "${GREEN}Точное совпадение уже есть в $EVM_FILE — изменения не требуются.${NC}"
 else
-  echo -e "${BLUE}Добавляем строку в $EVM_FILE…${NC}"
+  echo -e "${YELLOW}Точного совпадения нет. Удаляю все строки, начинающиеся с 'GOVERNANCE_PROPOSER_PAYLOAD_ADDRESS'...${NC}"
+  # Удаляем любые строки, начинающиеся на префикс (значение справа может быть любым)
+  sed -i '/^GOVERNANCE_PROPOSER_PAYLOAD_ADDRESS.*/d' "$EVM_FILE"
+
+  echo -e "${BLUE}Добавляю требуемую строку в $EVM_FILE...${NC}"
   printf "\n%s\n" "$LINE" >> "$EVM_FILE"
   echo -e "${GREEN}Настройка успешно завершена!${NC}"
 fi
+# --- КОНЕЦ БЛОКА ---
 
 # Запускаем новый контейнер
 docker run -d \
