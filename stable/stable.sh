@@ -129,6 +129,7 @@ Description=Stable Daemon Service
 After=network-online.target
 
 [Service]
+User=$USER
 ExecStart=${BIN_PATH} start --chain-id ${CHAIN_ID}
 Restart=always
 RestartSec=3
