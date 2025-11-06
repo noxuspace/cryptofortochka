@@ -36,17 +36,16 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
 # ============================== Меню =========================
 echo -e "${YELLOW}Выберите действие:${NC}"
 echo -e "${CYAN}1) Установка ноды${NC}"
-echo -e "${CYAN}4) Логи ноды (journalctl -f)${NC}"
-echo -e "${CYAN}5) Статус ноды${NC}"
-echo -e "${CYAN}6) Перезапустить ноду${NC}"
-echo -e "${CYAN}7) Удалить ноду (бинарь, сервис, данные)${NC}"
-echo -e "${CYAN}8) Версия ноды${NC}"
-echo -e "${CYAN}9) Health check (синхра/пиры/диск/память)${NC}"
+echo -e "${CYAN}2) Логи ноды${NC}"
+echo -e "${CYAN}3) Перезапуск ноды${NC}"
+echo -e "${CYAN}4) Health check ноды${NC}"
+echo -e "${CYAN}5) Удаление ноды${NC}"
+
 echo -ne "${YELLOW}Введите номер: ${NC}"; read choice
 
 case "$choice" in
 
-# ============== 2) Установка ноды (всё в одном) ==============
+# ============== 1) Установка ноды (всё в одном) ==============
 1)
   echo -e "${BLUE}Подготавливаем сервер...${NC}"
   $SUDO apt-get update -y && $SUDO apt-get upgrade -y
@@ -162,7 +161,8 @@ EOF
   $SUDO systemctl start "${SERVICE_NAME}" && echo -e "${GREEN}Нода запущена.${NC}" || echo -e "${RED}Ошибка запуска.${NC}"
 
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-  echo -e "${GREEN}Установка ${APP_NAME} завершена. Запустите пункт 3 для старта сервиса.${NC}"
+  echo -e "${YELLOW}Команда для проверки логов:${NC}" 
+  echo "journalctl -u stabled.service -f -n 200"
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
   echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
   echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
@@ -171,22 +171,20 @@ EOF
   journalctl -u stabled.service -f -n 200
   ;;
 
-# ==================== 4) Логи (онлайн) =======================
-4)
+# ==================== 2) Логи (онлайн) =======================
+2)
   echo -e "${PURPLE}Ctrl+C для выхода из логов${NC}"
   sleep 1
   journalctl -u stabled.service -f -n 200
   ;;
 
-# ===================== 6) Перезапуск ноды ====================
-6)
-  $SUDO systemctl restart "${SERVICE_NAME}" && echo -e "${GREEN}Нода перезапущена.${NC}" || echo -e "${RED}Не удалось перезапустить.${NC}"
+# ===================== 3) Перезапуск ноды ====================
+3)
+  $SUDO systemctl restart stabled.service && echo -e "${GREEN}Нода перезапущена.${NC}" || echo -e "${RED}Не удалось перезапустить.${NC}"
   ;;
-
-
-
-# =================== 9) Health check ноды ====================
-9)
+  
+# =================== 4) Health check ноды ====================
+4)
   # Сервис
   if systemctl is-active --quiet "${SERVICE_NAME}"; then
     echo -e "${GREEN}✓ Сервис запущен${NC}"
@@ -246,11 +244,11 @@ EOF
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
   ;;
 
-# ==================== 7) Полное удаление =====================
-7)
-  echo -ne "${RED}Удалить бинарь, сервис и ВСЕ данные ноды? (YES/NO) ${NC}"; read CONFIRM
+# ==================== 5) Полное удаление =====================
+5)
+  echo -ne "${RED}Удалить ВСЕ данные ноды? (YES/NO) ${NC}"; read CONFIRM
   if [ "$CONFIRM" = "YES" ]; then
-    echo -e "${RED}Удаляю...${NC}"
+    echo -e "${RED}Удаляем...${NC}"
     for UNIT in stabled stable; do
       $SUDO systemctl stop "$UNIT" 2>/dev/null || true
       $SUDO systemctl disable "$UNIT" 2>/dev/null || true
