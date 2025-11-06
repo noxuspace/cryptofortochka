@@ -76,6 +76,7 @@ case "$choice" in
   tar -xvzf stabled.tar.gz
   $SUDO mv -f stabled "$BIN_PATH"
   $SUDO chmod +x "$BIN_PATH"
+  cd "$HOME"
   rm -rf "$TMPDIR"
 
   # Инициализация
@@ -97,6 +98,7 @@ case "$choice" in
     echo -e "${PURPLE}Ожидалось:${NC} $GENESIS_SHA256_EXPECTED"
     echo -e "${PURPLE}Получено:${NC}  $SHA_NOW"
   fi
+  cd "$HOME"
   rm -rf "$TMPG"
 
   # Конфиги (config.toml, app.toml)
@@ -106,6 +108,7 @@ case "$choice" in
   unzip -o rpc_node_config.zip
   cp -f config.toml "$HOME_DIR/config/config.toml"
   cp -f app.toml    "$HOME_DIR/config/app.toml"
+  cd "$HOME"
   rm -rf "$TMPC"
 
   # Патчи конфигов
@@ -129,6 +132,7 @@ Description=Stable Daemon Service
 After=network-online.target
 
 [Service]
+User=root
 ExecStart=${BIN_PATH} start --chain-id ${CHAIN_ID}
 Restart=always
 RestartSec=3
@@ -162,25 +166,25 @@ EOF
 
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
   echo -e "${YELLOW}Команда для проверки логов:${NC}" 
-  echo "journalctl -u stabled.service -f -n 200"
+  echo "sudo journalctl -u stabled -f -n 200"
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
   echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
   echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
   sleep 2
-  journalctl -u stabled.service -f -n 200
+  $SUDO journalctl -u stabled -f -n 200
   ;;
 
 # ==================== 2) Логи (онлайн) =======================
 2)
   echo -e "${PURPLE}Ctrl+C для выхода из логов${NC}"
   sleep 1
-  journalctl -u stabled.service -f -n 200
+  $SUDO journalctl -u stabled -f -n 200
   ;;
 
 # ===================== 3) Перезапуск ноды ====================
 3)
-  $SUDO systemctl restart stabled.service && echo -e "${GREEN}Нода перезапущена.${NC}" || echo -e "${RED}Не удалось перезапустить.${NC}"
+  $SUDO systemctl restart stabled && echo -e "${GREEN}Нода перезапущена.${NC}" || echo -e "${RED}Не удалось перезапустить.${NC}"
   ;;
   
 # =================== 4) Health check ноды ====================
