@@ -35,9 +35,7 @@ curl -s https://raw.githubusercontent.com/noxuspace/cryptofortochka/main/logo_cl
 
 # ============================== Меню =========================
 echo -e "${YELLOW}Выберите действие:${NC}"
-echo -e "${CYAN}1) Подготовка сервера (обновления и зависимости)${NC}"
-echo -e "${CYAN}2) Установка ноды (бинарь, genesis, конфиги, сервис)${NC}"
-echo -e "${CYAN}3) Запустить ноду${NC}"
+echo -e "${CYAN}1) Установка ноды${NC}"
 echo -e "${CYAN}4) Логи ноды (journalctl -f)${NC}"
 echo -e "${CYAN}5) Статус ноды${NC}"
 echo -e "${CYAN}6) Перезапустить ноду${NC}"
@@ -48,19 +46,12 @@ echo -ne "${YELLOW}Введите номер: ${NC}"; read choice
 
 case "$choice" in
 
-# ===================== 1) Подготовка сервера ===================
+# ============== 2) Установка ноды (всё в одном) ==============
 1)
   echo -e "${BLUE}Подготавливаем сервер...${NC}"
   $SUDO apt-get update -y && $SUDO apt-get upgrade -y
   $SUDO apt-get install -y curl wget tar unzip jq lz4 pv
-
-  echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-  echo -e "${GREEN}Подготовка сервера завершена, перейдите в текстовый гайд и следуйте дальнейшим инструкциям!${NC}"
-  echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-  ;;
-
-# ============== 2) Установка ноды (всё в одном) ==============
-2)
+  
   echo -e "${BLUE}Устанавливаем ноду ${APP_NAME}...${NC}"
 
   # Определяем архитектуру
@@ -71,16 +62,17 @@ case "$choice" in
     *)             echo -e "${YELLOW}Неизвестная архитектура: ${ARCH}. Использую amd64-архив.${NC}"; DL_URL="$URL_AMD64" ;;
   esac
   echo -e "${PURPLE}Архитектура:${NC} ${CYAN}${ARCH}${NC}"
-  echo -e "${PURPLE}Архив бинаря:${NC} ${CYAN}${DL_URL}${NC}"
+  echo -e "${PURPLE}Архив бинарника:${NC} ${CYAN}${DL_URL}${NC}"
 
   # Монникер
-  echo -ne "${YELLOW}Введите монникер (имя узла) [StableNode]: ${NC}"; read MONIKER
+  echo -ne "${YELLOW}Введите моникер (имя узла)${NC} (по умолчанию: ${PURPLE}StableNode${NC}): "
+  read MONIKER
   MONIKER=${MONIKER:-StableNode}
 
   # Скачиваем и ставим бинарь
   TMPDIR="$(mktemp -d)"
   cd "$TMPDIR"
-  echo -e "${BLUE}Скачиваю и устанавливаю бинарь...${NC}"
+  echo -e "${BLUE}Скачиваем и устанавливаем бинарный файл...${NC}"
   wget -O stabled.tar.gz "$DL_URL"
   tar -xvzf stabled.tar.gz
   $SUDO mv -f stabled "$BIN_PATH"
@@ -88,11 +80,11 @@ case "$choice" in
   rm -rf "$TMPDIR"
 
   # Инициализация
-  echo -e "${BLUE}Инициализирую ноду (chain-id ${CHAIN_ID})...${NC}"
+  echo -e "${BLUE}Инициализируем ноду (chain-id ${CHAIN_ID})...${NC}"
   "$BIN_PATH" init "$MONIKER" --chain-id "$CHAIN_ID"
 
   # Genesis
-  echo -e "${BLUE}Скачиваю genesis...${NC}"
+  echo -e "${BLUE}Скачиваем genesis...${NC}"
   TMPG="$(mktemp -d)"; cd "$TMPG"
   wget -O stable_testnet_genesis.zip "$GENESIS_ZIP_URL"
   unzip -o stable_testnet_genesis.zip
@@ -109,7 +101,7 @@ case "$choice" in
   rm -rf "$TMPG"
 
   # Конфиги (config.toml, app.toml)
-  echo -e "${BLUE}Скачиваю готовые конфиги...${NC}"
+  echo -e "${BLUE}Скачиваем готовые конфигурации...${NC}"
   TMPC="$(mktemp -d)"; cd "$TMPC"
   wget -O rpc_node_config.zip "$RPC_CFG_ZIP_URL"
   unzip -o rpc_node_config.zip
@@ -118,7 +110,7 @@ case "$choice" in
   rm -rf "$TMPC"
 
   # Патчи конфигов
-  echo -e "${BLUE}Правлю конфиги (peers, RPC, CORS, лимиты, moniker)...${NC}"
+  echo -e "${BLUE}Изменяем конфигурации (peers, RPC, CORS, лимиты, moniker)...${NC}"
   sed -i "s/^moniker = \".*\"/moniker = \"${MONIKER}\"/" "$HOME_DIR/config/config.toml"
   sed -i 's/^cors_allowed_origins = .*/cors_allowed_origins = ["*"]/' "$HOME_DIR/config/config.toml"
   sed -i "s|^persistent_peers = \".*\"|persistent_peers = \"${PEERS}\"|" "$HOME_DIR/config/config.toml"
@@ -131,7 +123,7 @@ case "$choice" in
   sed -i 's/^\(\s*allow-unprotected-txs\s*=\s*\).*/\1true/' "$HOME_DIR/config/app.toml"
 
   # systemd-сервис (без User=, чтобы дефолт — root)
-  echo -e "${BLUE}Создаю systemd-сервис ${SERVICE_NAME}.service...${NC}"
+  echo -e "${BLUE}Создаем systemd-сервис ${SERVICE_NAME}.service...${NC}"
   TMPU="$(mktemp)"; cat > "$TMPU" <<EOF
 [Unit]
 Description=Stable Daemon Service
@@ -156,7 +148,7 @@ EOF
   # Снапшот (по желанию)
   echo -ne "${YELLOW}Подтянуть снапшот сейчас? [y/N]: ${NC}"; read use_snap
   if [[ "${use_snap,,}" =~ ^y ]]; then
-    echo -e "${BLUE}Применяю снапшот...${NC}"
+    echo -e "${BLUE}Скачиваем снапшот...${NC}"
     mkdir -p "$HOME/snapshot" "$HOME/stable-backup" "$HOME_DIR"
     cp -r "$HOME_DIR/data" "$HOME/stable-backup/" 2>/dev/null || true
     cd "$HOME/snapshot"
@@ -167,29 +159,23 @@ EOF
     echo -e "${GREEN}Снапшот применён.${NC}"
   fi
 
+  $SUDO systemctl start "${SERVICE_NAME}" && echo -e "${GREEN}Нода запущена.${NC}" || echo -e "${RED}Ошибка запуска.${NC}"
+
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
   echo -e "${GREEN}Установка ${APP_NAME} завершена. Запустите пункт 3 для старта сервиса.${NC}"
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
   echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
   echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-  ;;
-
-# ====================== 3) Запустить ноду =====================
-3)
-  $SUDO systemctl start "${SERVICE_NAME}" && echo -e "${GREEN}Нода запущена.${NC}" || echo -e "${RED}Ошибка запуска.${NC}"
+  sleep 2
+  journalctl -u stabled.service -f -n 200
   ;;
 
 # ==================== 4) Логи (онлайн) =======================
 4)
   echo -e "${PURPLE}Ctrl+C для выхода из логов${NC}"
   sleep 1
-  journalctl -u "${SERVICE_NAME}" -f -n 200
-  ;;
-
-# ======================= 5) Статус ноды ======================
-5)
-  $SUDO systemctl status "${SERVICE_NAME}"
+  journalctl -u stabled.service -f -n 200
   ;;
 
 # ===================== 6) Перезапуск ноды ====================
@@ -197,44 +183,7 @@ EOF
   $SUDO systemctl restart "${SERVICE_NAME}" && echo -e "${GREEN}Нода перезапущена.${NC}" || echo -e "${RED}Не удалось перезапустить.${NC}"
   ;;
 
-# ==================== 7) Полное удаление =====================
-7)
-  echo -ne "${RED}Удалить бинарь, сервис и ВСЕ данные ноды? (YES/NO) ${NC}"; read CONFIRM
-  if [ "$CONFIRM" = "YES" ]; then
-    echo -e "${RED}Удаляю...${NC}"
-    for UNIT in stabled stable; do
-      $SUDO systemctl stop "$UNIT" 2>/dev/null || true
-      $SUDO systemctl disable "$UNIT" 2>/dev/null || true
-      $SUDO rm -f "/etc/systemd/system/${UNIT}.service" 2>/dev/null || true
-    done
-    $SUDO systemctl daemon-reload
 
-    pkill -f "[s]tabled" 2>/dev/null || true
-    sleep 1
-    pkill -9 -f "[s]tabled" 2>/dev/null || true
-
-    rm -f "$HOME_DIR/data/LOCK" "$HOME_DIR/data/application.db/LOCK" "$HOME_DIR/data/snapshots/LOCK" 2>/dev/null || true
-
-    rm -rf "$HOME_DIR" "$HOME/snapshot" "$HOME/stable-backup" /tmp/stable_genesis /tmp/rpc_cfg 2>/dev/null || true
-    $SUDO rm -f "$BIN_PATH" 2>/dev/null || true
-    rm -rf /var/log/stabled 2>/dev/null || true
-
-    echo -e "${GREEN}Нода и её логи удалены.${NC}"
-  else
-    echo -e "${PURPLE}Отмена удаления. Ничего не изменено.${NC}"
-  fi
-  ;;
-
-# ======================= 8) Версия ноды ======================
-8)
-  if out="$("$BIN_PATH" version 2>/dev/null)"; then
-    echo -e "${GREEN}Версия ноды:${NC} ${out}"
-  elif out="$(stabled version 2>/dev/null)"; then
-    echo -e "${GREEN}Версия ноды:${NC} ${out}"
-  else
-    echo -e "${RED}Не удалось получить версию бинаря.${NC}"
-  fi
-  ;;
 
 # =================== 9) Health check ноды ====================
 9)
@@ -295,6 +244,34 @@ EOF
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
   echo -e "${GREEN}Проверка завершена${NC}"
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+  ;;
+
+# ==================== 7) Полное удаление =====================
+7)
+  echo -ne "${RED}Удалить бинарь, сервис и ВСЕ данные ноды? (YES/NO) ${NC}"; read CONFIRM
+  if [ "$CONFIRM" = "YES" ]; then
+    echo -e "${RED}Удаляю...${NC}"
+    for UNIT in stabled stable; do
+      $SUDO systemctl stop "$UNIT" 2>/dev/null || true
+      $SUDO systemctl disable "$UNIT" 2>/dev/null || true
+      $SUDO rm -f "/etc/systemd/system/${UNIT}.service" 2>/dev/null || true
+    done
+    $SUDO systemctl daemon-reload
+
+    pkill -f "[s]tabled" 2>/dev/null || true
+    sleep 1
+    pkill -9 -f "[s]tabled" 2>/dev/null || true
+
+    rm -f "$HOME_DIR/data/LOCK" "$HOME_DIR/data/application.db/LOCK" "$HOME_DIR/data/snapshots/LOCK" 2>/dev/null || true
+
+    rm -rf "$HOME_DIR" "$HOME/snapshot" "$HOME/stable-backup" /tmp/stable_genesis /tmp/rpc_cfg 2>/dev/null || true
+    $SUDO rm -f "$BIN_PATH" 2>/dev/null || true
+    rm -rf /var/log/stabled 2>/dev/null || true
+
+    echo -e "${GREEN}Нода и её логи удалены.${NC}"
+  else
+    echo -e "${PURPLE}Отмена удаления. Ничего не изменено.${NC}"
+  fi
   ;;
 
 # ============================ Неверный ввод ===========================
