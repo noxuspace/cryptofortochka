@@ -7,6 +7,7 @@ PURPLE='\033[0;35m'; CYAN='\033[0;36m'; NC='\033[0m'
 # ======================= Базовые переменные ==================
 SUDO=$(command -v sudo >/dev/null 2>&1 && echo sudo || echo "")
 APP_NAME="Stable"
+SERVICE_NAME="stabled"
 BIN_PATH="/usr/bin/stabled"
 HOME_DIR="$HOME/.stabled"
 CHAIN_ID="stabletestnet_2201-1"
@@ -75,19 +76,11 @@ case "$choice" in
   tar -xvzf stabled.tar.gz
   $SUDO mv -f stabled "$BIN_PATH"
   $SUDO chmod +x "$BIN_PATH"
-  cd "$HOME"
   rm -rf "$TMPDIR"
-
-  cd "$TARGET_HOME"
-
-  TARGET_USER="${SUDO_USER:-$USER}"
-  TARGET_HOME="$(getent passwd "$TARGET_USER" | cut -d: -f6)"
-  [ -n "$TARGET_HOME" ] || TARGET_HOME="$HOME"
-  HOME_DIR="$TARGET_HOME/.stabled"
 
   # Инициализация
   echo -e "${BLUE}Инициализируем ноду (chain-id ${CHAIN_ID})...${NC}"
-  "$BIN_PATH" init "$MONIKER" --chain-id "$CHAIN_ID" --home "$HOME_DIR"
+  "$BIN_PATH" init "$MONIKER" --chain-id "$CHAIN_ID"
 
   # Genesis
   echo -e "${BLUE}Скачиваем genesis...${NC}"
@@ -104,7 +97,6 @@ case "$choice" in
     echo -e "${PURPLE}Ожидалось:${NC} $GENESIS_SHA256_EXPECTED"
     echo -e "${PURPLE}Получено:${NC}  $SHA_NOW"
   fi
-  cd "$HOME"
   rm -rf "$TMPG"
 
   # Конфиги (config.toml, app.toml)
@@ -114,7 +106,6 @@ case "$choice" in
   unzip -o rpc_node_config.zip
   cp -f config.toml "$HOME_DIR/config/config.toml"
   cp -f app.toml    "$HOME_DIR/config/app.toml"
-  cd "$HOME"
   rm -rf "$TMPC"
 
   # Патчи конфигов
@@ -131,38 +122,35 @@ case "$choice" in
   sed -i 's/^\(\s*allow-unprotected-txs\s*=\s*\).*/\1true/' "$HOME_DIR/config/app.toml"
 
   # systemd-сервис (без User=, чтобы дефолт — root)
-  echo -e "${BLUE}Создаем systemd-сервис stabled.service...${NC}"
+  echo -e "${BLUE}Создаем systemd-сервис ${SERVICE_NAME}.service...${NC}"
   TMPU="$(mktemp)"; cat > "$TMPU" <<EOF
 [Unit]
 Description=Stable Daemon Service
 After=network-online.target
 
 [Service]
-User=${TARGET_USER}
-Environment=HOME=${TARGET_HOME}
-WorkingDirectory=${TARGET_HOME}
-ExecStart=${BIN_PATH} start --chain-id ${CHAIN_ID} --home ${HOME_DIR}
+ExecStart=${BIN_PATH} start --chain-id ${CHAIN_ID}
 Restart=always
 RestartSec=3
 LimitNOFILE=65535
 StandardOutput=journal
 StandardError=journal
-SyslogIdentifier=stabled
+SyslogIdentifier=${SERVICE_NAME}
 
 [Install]
 WantedBy=multi-user.target
 EOF
-  $SUDO mv "$TMPU" "/etc/systemd/system/stabled.service"
+  $SUDO mv "$TMPU" "/etc/systemd/system/${SERVICE_NAME}.service"
   $SUDO systemctl daemon-reload
-  $SUDO systemctl enable stabled
+  $SUDO systemctl enable "${SERVICE_NAME}"
 
   # Снапшот (по желанию)
   echo -ne "${YELLOW}Подтянуть снапшот сейчас? [y/N]: ${NC}"; read use_snap
   if [[ "${use_snap,,}" =~ ^y ]]; then
     echo -e "${BLUE}Скачиваем снапшот...${NC}"
-    mkdir -p "$TARGET_HOME/snapshot" "$TARGET_HOME/stable-backup" "$HOME_DIR"
-    cp -r "$HOME_DIR/data" "$TARGET_HOME/stable-backup/" 2>/dev/null || true
-    cd "$TARGET_HOME/snapshot"
+    mkdir -p "$HOME/snapshot" "$HOME/stable-backup" "$HOME_DIR"
+    cp -r "$HOME_DIR/data" "$HOME/stable-backup/" 2>/dev/null || true
+    cd "$HOME/snapshot"
     wget -c "$SNAPSHOT_URL" -O snapshot.tar.lz4
     rm -rf "$HOME_DIR/data"/* 2>/dev/null || true
     pv snapshot.tar.lz4 | tar -I lz4 -xf - -C "$HOME_DIR/"
@@ -170,46 +158,44 @@ EOF
     echo -e "${GREEN}Снапшот применён.${NC}"
   fi
 
-  $SUDO chown -R "${TARGET_USER}:${TARGET_USER}" "$HOME_DIR" 2>/dev/null || true
-
-  $SUDO systemctl start stabled && echo -e "${GREEN}Нода запущена.${NC}" || echo -e "${RED}Ошибка запуска.${NC}"
+  $SUDO systemctl start "${SERVICE_NAME}" && echo -e "${GREEN}Нода запущена.${NC}" || echo -e "${RED}Ошибка запуска.${NC}"
 
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
   echo -e "${YELLOW}Команда для проверки логов:${NC}" 
-  echo "journalctl -u stabled -f -n 200"
+  echo "journalctl -u stabled.service -f -n 200"
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
   echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
   echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
   sleep 2
-  $SUDO journalctl -u stabled -f -n 200
+  journalctl -u stabled.service -f -n 200
   ;;
 
 # ==================== 2) Логи (онлайн) =======================
 2)
   echo -e "${PURPLE}Ctrl+C для выхода из логов${NC}"
   sleep 1
-  $SUDO journalctl -u stabled -f -n 200
+  journalctl -u stabled.service -f -n 200
   ;;
 
 # ===================== 3) Перезапуск ноды ====================
 3)
-  $SUDO systemctl restart stabled && echo -e "${GREEN}Нода перезапущена.${NC}" || echo -e "${RED}Не удалось перезапустить.${NC}"
+  $SUDO systemctl restart stabled.service && echo -e "${GREEN}Нода перезапущена.${NC}" || echo -e "${RED}Не удалось перезапустить.${NC}"
   ;;
   
 # =================== 4) Health check ноды ====================
 4)
   # Сервис
-  if systemctl is-active --quiet stabled; then
+  if systemctl is-active --quiet "${SERVICE_NAME}"; then
     echo -e "${GREEN}✓ Сервис запущен${NC}"
   else
     echo -e "${RED}✗ Сервис не запущен${NC}"
     echo
-    echo -e "${PURPLE}systemctl status stabled${NC}"
-    systemctl status stabled --no-pager || true
+    echo -e "${PURPLE}systemctl status ${SERVICE_NAME}${NC}"
+    systemctl status "${SERVICE_NAME}" --no-pager || true
     echo
-    echo -e "${PURPLE}journalctl -u stabled -n 200 --no-pager${NC}"
-    journalctl -u stabled -n 200 --no-pager || true
+    echo -e "${PURPLE}journalctl -u ${SERVICE_NAME} -n 200 --no-pager${NC}"
+    journalctl -u "${SERVICE_NAME}" -n 200 --no-pager || true
     exit 0
   fi
 
