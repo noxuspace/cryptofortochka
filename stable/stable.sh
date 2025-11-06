@@ -78,6 +78,8 @@ case "$choice" in
   cd "$HOME"
   rm -rf "$TMPDIR"
 
+  cd "$TARGET_HOME"
+
   TARGET_USER="${SUDO_USER:-$USER}"
   TARGET_HOME="$(getent passwd "$TARGET_USER" | cut -d: -f6)"
   [ -n "$TARGET_HOME" ] || TARGET_HOME="$HOME"
@@ -85,7 +87,7 @@ case "$choice" in
 
   # Инициализация
   echo -e "${BLUE}Инициализируем ноду (chain-id ${CHAIN_ID})...${NC}"
-  "$BIN_PATH" init "$MONIKER" --chain-id "$CHAIN_ID"
+  "$BIN_PATH" init "$MONIKER" --chain-id "$CHAIN_ID" --home "$HOME_DIR"
 
   # Genesis
   echo -e "${BLUE}Скачиваем genesis...${NC}"
@@ -139,7 +141,7 @@ After=network-online.target
 User=${TARGET_USER}
 Environment=HOME=${TARGET_HOME}
 WorkingDirectory=${TARGET_HOME}
-ExecStart=${BIN_PATH} start --chain-id ${CHAIN_ID}
+ExecStart=${BIN_PATH} start --chain-id ${CHAIN_ID} --home ${HOME_DIR}
 Restart=always
 RestartSec=3
 LimitNOFILE=65535
@@ -158,15 +160,17 @@ EOF
   echo -ne "${YELLOW}Подтянуть снапшот сейчас? [y/N]: ${NC}"; read use_snap
   if [[ "${use_snap,,}" =~ ^y ]]; then
     echo -e "${BLUE}Скачиваем снапшот...${NC}"
-    mkdir -p "$HOME/snapshot" "$HOME/stable-backup" "$HOME_DIR"
-    cp -r "$HOME_DIR/data" "$HOME/stable-backup/" 2>/dev/null || true
-    cd "$HOME/snapshot"
+    mkdir -p "$TARGET_HOME/snapshot" "$TARGET_HOME/stable-backup" "$HOME_DIR"
+    cp -r "$HOME_DIR/data" "$TARGET_HOME/stable-backup/" 2>/dev/null || true
+    cd "$TARGET_HOME/snapshot"
     wget -c "$SNAPSHOT_URL" -O snapshot.tar.lz4
     rm -rf "$HOME_DIR/data"/* 2>/dev/null || true
     pv snapshot.tar.lz4 | tar -I lz4 -xf - -C "$HOME_DIR/"
     rm -f snapshot.tar.lz4
     echo -e "${GREEN}Снапшот применён.${NC}"
   fi
+
+  $SUDO chown -R "${TARGET_USER}:${TARGET_USER}" "$HOME_DIR" 2>/dev/null || true
 
   $SUDO systemctl start stabled && echo -e "${GREEN}Нода запущена.${NC}" || echo -e "${RED}Ошибка запуска.${NC}"
 
@@ -178,14 +182,14 @@ EOF
   echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
   sleep 2
-  journalctl -u stabled -f -n 200
+  $SUDO journalctl -u stabled -f -n 200
   ;;
 
 # ==================== 2) Логи (онлайн) =======================
 2)
   echo -e "${PURPLE}Ctrl+C для выхода из логов${NC}"
   sleep 1
-  journalctl -u stabled -f -n 200
+  $SUDO journalctl -u stabled -f -n 200
   ;;
 
 # ===================== 3) Перезапуск ноды ====================
