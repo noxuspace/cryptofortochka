@@ -64,7 +64,7 @@ case "$choice" in
   echo -e "${PURPLE}Архив бинарника:${NC} ${CYAN}${DL_URL}${NC}"
 
   # Монникер
-  echo -ne "${YELLOW}Введите моникер (имя узла)${NC} (по умолчанию: ${PURPLE}StableNode${NC}): "
+  echo -ne "${YELLOW}Введите моникер (имя ноды)${NC} (по умолчанию: ${PURPLE}StableNode${NC}): "
   read MONIKER
   MONIKER=${MONIKER:-StableNode}
 
