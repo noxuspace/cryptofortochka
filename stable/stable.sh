@@ -178,13 +178,13 @@ EOF
 # ==================== 2) Логи (онлайн) =======================
 2)
   echo -e "${PURPLE}Ctrl+C для выхода из логов${NC}"
-  sleep 1
+  sleep 2
   $SUDO journalctl -u stabled -f -n 200
   ;;
 
 # ===================== 3) Перезапуск ноды ====================
 3)
-  $SUDO systemctl restart stabled && echo -e "${GREEN}Нода перезапущена.${NC}" || echo -e "${RED}Не удалось перезапустить.${NC}"
+  $SUDO systemctl restart stabled && $SUDO journalctl -u stabled -f -n 200
   ;;
   
 # =================== 4) Health check ноды ====================
