@@ -232,11 +232,11 @@ EOF
 
   cd ~
   # --- запуск и логи ---
-  cd "$WORKDIR" || exit 1
+  cd aztec
   $COMPOSE --env-file "$WORKDIR/.env" up -d
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
   echo -e "${YELLOW}Команда для проверки логов:${NC}"
-  echo "cd $BASE_DIR && docker compose logs -fn 200"
+  echo "cd ~/aztec && docker compose logs -f -n 200"
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
   echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
   echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
