@@ -5,8 +5,16 @@ set -euo pipefail
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[0;33m'; BLUE='\033[0;34m'
 PURPLE='\033[0;35m'; CYAN='\033[0;36m'; NC='\033[0m'
 
-EVM_FILE="$HOME/aztec-sequencer/.evm"
-[ -f "$EVM_FILE" ] || { echo "Не найден файл: $EVM_FILE" >&2; exit 1; }
+ORIG_EVM="$HOME/aztec-sequencer/.evm"
+DST_EVM="$HOME/.evm"
+
+[ -f "$ORIG_EVM" ] || { echo "Не найден исходный файл: $ORIG_EVM" >&2; exit 1; }
+
+umask 077
+cp -f "$ORIG_EVM" "$DST_EVM"
+chmod 600 "$DST_EVM"
+
+EVM_FILE="$DST_EVM"
 set -a; . "$EVM_FILE"; set +a
 
 : "${ETHEREUM_HOSTS:?нет ETHEREUM_HOSTS в .evm}"
@@ -21,10 +29,10 @@ WITHDRAW_ADDR="$WALLET"
 PUBLIC_IP="${P2P_IP:-}"
 GOVERNANCE_PROPOSER_PAYLOAD_ADDRESS="0xDCd9DdeAbEF70108cE02576df1eB333c4244C666"
 
-docker stop aztec-sequencer
-docker rm aztec-sequencer
-sudo rm -rf "$HOME/my-node
-sudo rm -rf $HOME/aztec-sequencer
+docker stop aztec-sequencer >/dev/null 2>&1 || true
+docker rm   aztec-sequencer >/dev/null 2>&1 || true
+sudo rm -rf "$HOME/my-node" >/dev/null 2>&1 || true
+sudo rm -rf "$HOME/aztec-sequencer" >/dev/null 2>&1 || true
 
 sudo apt-get update -y
 sudo apt-get install -y jq unzip lz4 ca-certificates gnupg curl
@@ -108,12 +116,12 @@ EOF
 
 if ! command -v docker >/dev/null 2>&1; then
   curl -fsSL https://get.docker.com -o /tmp/get-docker.sh
-  as_root sh /tmp/get-docker.sh
+  sudo sh /tmp/get-docker.sh
   rm -f /tmp/get-docker.sh
-  as_root systemctl enable --now docker
+  sudo systemctl enable --now docker
 fi
 if ! docker compose version >/dev/null 2>&1; then
-  as_root apt-get install -y docker-compose-plugin
+  sudo apt-get install -y docker-compose-plugin
   docker compose version >/dev/null 2>&1 || { echo "docker compose не найден" >&2; exit 1; }
 fi
 
