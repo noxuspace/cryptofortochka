@@ -61,13 +61,22 @@ case "$choice" in
   echo -e "${GREEN}cast версия:${NC} $(cast --version 2>/dev/null || echo 'не обнаружен')"
 
   echo -e "${BLUE}Устанавливаем Aztec CLI...${NC}"
-  bash -i <(curl -s https://install.aztec.network)
-  echo 'export PATH="$HOME/.aztec/bin:$PATH"' >> "$HOME/.bashrc"
-  # shellcheck disable=SC1090
-  source "$HOME/.bashrc" 2>/dev/null || true
-  aztec-up "$AZTEC_IMG_TAG" || true
+  printf 'y\n' | bash -i <(curl -s https://install.aztec.network)
+  grep -q 'export PATH="$HOME/.aztec/bin:$PATH"' "$HOME/.bashrc" 2>/dev/null || \
+    echo 'export PATH="$HOME/.aztec/bin:$PATH"' >> "$HOME/.bashrc"
+  grep -q 'export PATH="$HOME/.aztec/bin:$PATH"' "$HOME/.bash_profile" 2>/dev/null || \
+    echo 'export PATH="$HOME/.aztec/bin:$PATH"' >> "$HOME/.bash_profile"
+  export PATH="$HOME/.aztec/bin:$PATH"
+  aztec-up "2.1.2" || true
+  command -v aztec >/dev/null 2>&1 || { echo "aztec не установлен" >&2; exit 1; }
 
-  echo -e "${GREEN}aztec версия:${NC} $(aztec --version 2>/dev/null || echo 'не обнаружен')"
+  #bash -i <(curl -s https://install.aztec.network)
+  #echo 'export PATH="$HOME/.aztec/bin:$PATH"' >> "$HOME/.bashrc"
+  
+  #source "$HOME/.bashrc" 2>/dev/null || true
+  #aztec-up "$AZTEC_IMG_TAG" || true
+
+  #echo -e "${GREEN}aztec версия:${NC} $(aztec --version 2>/dev/null || echo 'не обнаружен')"
 
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
   echo -e "${GREEN}Подготовка сервера завершена, перейдите в текстовый гайд и следуйте дальнейшим инструкциям!${NC}"
