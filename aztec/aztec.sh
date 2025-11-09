@@ -205,8 +205,8 @@ EOF
         docker stop aztec-sequencer
         docker rm aztec-sequencer
 
-        rm -rf "$HOME/my-node/node/"*
-        rm -rf $HOME/aztec-sequencer
+        sudo rm -rf "$HOME/my-node
+        sudo rm -rf $HOME/aztec-sequencer
         
         # Заключительное сообщение
         echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
