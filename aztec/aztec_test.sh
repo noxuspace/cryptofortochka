@@ -2,6 +2,11 @@
 
 set -euo pipefail
 
+export DEBIAN_FRONTEND=noninteractive
+export NEEDRESTART_MODE=a
+export UCF_FORCE_CONFOLD=1
+APT_OPTS="-yq -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold"
+
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[0;33m'; BLUE='\033[0;34m'
 PURPLE='\033[0;35m'; CYAN='\033[0;36m'; NC='\033[0m'
 
@@ -34,14 +39,18 @@ docker rm   aztec-sequencer >/dev/null 2>&1 || true
 sudo rm -rf "$HOME/my-node" >/dev/null 2>&1 || true
 sudo rm -rf "$HOME/aztec-sequencer" >/dev/null 2>&1 || true
 
-sudo apt-get update -y
-sudo apt-get install -y jq unzip lz4 ca-certificates gnupg curl
+sudo apt-get install $APT_OPTS -y jq unzip lz4 ca-certificates gnupg curl
+sudo apt-get install $APT_OPTS -y docker-compose-plugin
 
 sudo -iu "${SUDO_USER:-$USER}" bash -lc 'curl -L https://foundry.paradigm.xyz | bash && export PATH="$HOME/.foundry/bin:$PATH" && foundryup && command -v cast >/dev/null 2>&1 || { echo "cast не установлен" >&2; exit 1; }'
 
-bash -i <(curl -s https://install.aztec.network)
-echo 'export PATH="$HOME/.aztec/bin:$PATH"' >> "$HOME/.bashrc"
-. "$HOME/.bashrc" 2>/dev/null || true
+printf 'y\n' | bash -i <(curl -s https://install.aztec.network)
+
+grep -q 'export PATH="$HOME/.aztec/bin:$PATH"' "$HOME/.bashrc" 2>/dev/null || \
+  echo 'export PATH="$HOME/.aztec/bin:$PATH"' >> "$HOME/.bashrc"
+grep -q 'export PATH="$HOME/.aztec/bin:$PATH"' "$HOME/.bash_profile" 2>/dev/null || \
+  echo 'export PATH="$HOME/.aztec/bin:$PATH"' >> "$HOME/.bash_profile"
+export PATH="$HOME/.aztec/bin:$PATH"
 aztec-up "2.1.2" || true
 command -v aztec >/dev/null 2>&1 || { echo "aztec не установлен" >&2; exit 1; }
 
