@@ -16,6 +16,11 @@ WITHDRAW_ADDR="$WALLET"
 PUBLIC_IP="${P2P_IP:-}"
 GOVERNANCE_PROPOSER_PAYLOAD_ADDRESS="0xDCd9DdeAbEF70108cE02576df1eB333c4244C666"
 
+docker stop aztec-sequencer
+docker rm aztec-sequencer
+sudo rm -rf "$HOME/my-node
+sudo rm -rf $HOME/aztec-sequencer
+
 sudo apt-get update -y
 sudo apt-get install -y jq unzip lz4 ca-certificates gnupg curl
 
