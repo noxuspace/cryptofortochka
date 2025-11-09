@@ -2,6 +2,9 @@
 
 set -euo pipefail
 
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[0;33m'; BLUE='\033[0;34m'
+PURPLE='\033[0;35m'; CYAN='\033[0;36m'; NC='\033[0m'
+
 EVM_FILE="$HOME/aztec-sequencer/.evm"
 [ -f "$EVM_FILE" ] || { echo "Не найден файл: $EVM_FILE" >&2; exit 1; }
 set -a; . "$EVM_FILE"; set +a
@@ -55,6 +58,12 @@ elif [[ "$RAW_ETH_FIELD" =~ ^0x[0-9a-fA-F]{64}$ ]]; then
 else
   echo "attester.eth в неизвестном формате" >&2; exit 1
 fi
+
+echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+echo -e "${RED}Пополните минимум 0.2 ETH в сети Sepolia на адрес:${NC}"
+echo -e "${CYAN}${ETH_ADDRESS}${NC}"
+echo -e "${RED}и убедитесь на сайте https://sepolia.etherscan.io, что средства зачислены!${NC}"
+echo -ne "${YELLOW}После этого нажмите Enter для продолжения...${NC}"; read -r _
 
 cast send 0x139d2a7a0881e16332d7D1F8DB383A4507E1Ea7A \
   "approve(address,uint256)" 0xebd99ff0ff6677205509ae73f93d0ca52ac85d67 200000ether \
