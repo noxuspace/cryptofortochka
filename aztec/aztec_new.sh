@@ -6,7 +6,7 @@ PURPLE='\033[0;35m'; CYAN='\033[0;36m'; NC='\033[0m'
 
 # ======================= Базовые переменные ==================
 SUDO=$(command -v sudo >/dev/null 2>&1 && echo sudo || echo "")
-WORKDIR="/root/aztec"
+WORKDIR="$HOME/aztec"
 KEYS_DIR="$WORKDIR/keys"
 DATA_DIR="$WORKDIR/data"
 KFILE="$HOME/.aztec/keystore/key1.json"
@@ -226,8 +226,8 @@ services:
       - 40400:40400/udp
       - 8080:8080
     volumes:
-      - /root/aztec/data:/var/lib/data
-      - /root/aztec/keys:/var/lib/keystore
+      - ${HOME}/aztec/data:/var/lib/data
+      - ${HOME}/aztec/keys:/var/lib/keystore
 EOF
 
   cd ~
