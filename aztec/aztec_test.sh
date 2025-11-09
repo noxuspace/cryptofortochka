@@ -76,11 +76,34 @@ else
   echo "attester.eth в неизвестном формате" >&2; exit 1
 fi
 
+#echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+#echo -e "${RED}Пополните минимум 0.2 ETH в сети Sepolia на адрес:${NC}"
+#echo -e "${CYAN}${ETH_ADDRESS}${NC}"
+#echo -e "${RED}и убедитесь на сайте https://sepolia.etherscan.io, что средства зачислены!${NC}"
+#echo -ne "${YELLOW}После этого нажмите Enter для продолжения...${NC}"; read -r _
+
+# --- автоожидание пополнения адреса до >= 0.2 ETH ---
+REQUIRED_WEI=200000000000000000       # 0.2 * 1e18
+POLL_SEC=10                           # интервал проверки (сек)
+
 echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-echo -e "${RED}Пополните минимум 0.2 ETH в сети Sepolia на адрес:${NC}"
+echo -e "${RED}Нужно пополнить минимум 0.2 ETH (Sepolia) на адрес:${NC}"
 echo -e "${CYAN}${ETH_ADDRESS}${NC}"
-echo -e "${RED}и убедитесь на сайте https://sepolia.etherscan.io, что средства зачислены!${NC}"
-echo -ne "${YELLOW}После этого нажмите Enter для продолжения...${NC}"; read -r _
+echo -e "${RED}Скрипт сам продолжит, как только баланс будет ≥ 0.2 ETH.${NC}"
+
+while :; do
+  BAL_WEI=$(cast balance "$ETH_ADDRESS" --rpc-url "$ETHEREUM_RPC_URL" 2>/dev/null || echo 0)
+  [[ "$BAL_WEI" =~ ^[0-9]+$ ]] || BAL_WEI=0
+  if [ "$BAL_WEI" -ge "$REQUIRED_WEI" ]; then
+    BAL_ETH=$(awk "BEGIN{printf \"%.6f\", $BAL_WEI/1e18}")
+    echo -e "${GREEN}OK. Баланс: ${BAL_ETH} ETH — продолжаем.${NC}"
+    break
+  fi
+  BAL_ETH=$(awk "BEGIN{printf \"%.6f\", $BAL_WEI/1e18}")
+  echo -e "${YELLOW}Текущий баланс: ${BAL_ETH} ETH. Жду пополнения... (проверка каждые ${POLL_SEC} c)${NC}"
+  sleep "$POLL_SEC"
+done
+
 
 cast send 0x139d2a7a0881e16332d7D1F8DB383A4507E1Ea7A \
   "approve(address,uint256)" 0xebd99ff0ff6677205509ae73f93d0ca52ac85d67 200000ether \
