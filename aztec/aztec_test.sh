@@ -18,7 +18,7 @@ DST_EVM="$HOME/.evm"
 umask 077
 cp -f "$ORIG_EVM" "$DST_EVM"
 chmod 600 "$DST_EVM"
-
+sed -i 's/\r$//' "$DST_EVM"
 EVM_FILE="$DST_EVM"
 set -a; . "$EVM_FILE"; set +a
 
@@ -27,11 +27,29 @@ set -a; . "$EVM_FILE"; set +a
 : "${VALIDATOR_PRIVATE_KEY:?нет VALIDATOR_PRIVATE_KEY в .evm}"
 : "${WALLET:?нет WALLET в .evm}"
 
-ETHEREUM_RPC_URL="$ETHEREUM_HOSTS"
-CONSENSUS_BEACON_URL="$L1_CONSENSUS_HOST_URLS"
-OLD_VALIDATOR_PK="$VALIDATOR_PRIVATE_KEY"
-WITHDRAW_ADDR="$WALLET"
-PUBLIC_IP="${P2P_IP:-}"
+# --- нормализация значений из .evm (убираем пробелы, \r, 0x у приватника) ---
+ETHEREUM_RPC_URL="$(printf '%s' "${ETHEREUM_HOSTS:-}" | sed -E 's/^[[:space:]]+|[[:space:]]+$//g' | tr -d '\r')"
+CONSENSUS_BEACON_URL="$(printf '%s' "${L1_CONSENSUS_HOST_URLS:-}" | sed -E 's/^[[:space:]]+|[[:space:]]+$//g' | tr -d '\r')"
+
+OLD_VALIDATOR_PK="$(printf '%s' "${VALIDATOR_PRIVATE_KEY:-}" \
+  | tr -d ' \t\r\n' \
+  | sed -E 's/^0x//I' \
+  | tr 'A-F' 'a-f')"
+
+WITHDRAW_ADDR="$(printf '%s' "${WALLET:-}" | tr -d ' \t\r\n')"
+PUBLIC_IP="$(printf '%s' "${P2P_IP:-}" | tr -d ' \t\r\n')"
+
+# --- валидация форматов ---
+if ! printf '%s' "$OLD_VALIDATOR_PK" | grep -Eq '^[0-9a-f]{64}$'; then
+  echo "Некорректный приватный ключ (ожидается 64-символьный hex без 0x)" >&2
+  exit 1
+fi
+
+if ! printf '%s' "$WITHDRAW_ADDR" | grep -Eq '^0x[0-9a-fA-F]{40}$'; then
+  echo "Некорректный WITHDRAW_ADDR (ожидается 0x + 40 hex)" >&2
+  exit 1
+fi
+
 GOVERNANCE_PROPOSER_PAYLOAD_ADDRESS="0xDCd9DdeAbEF70108cE02576df1eB333c4244C666"
 
 docker stop aztec-sequencer >/dev/null 2>&1 || true
