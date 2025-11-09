@@ -61,7 +61,7 @@ sudo apt-get install $APT_OPTS -y jq unzip lz4 ca-certificates gnupg curl
 sudo apt-get install $APT_OPTS -y docker-compose-plugin
 
 sudo -iu "${SUDO_USER:-$USER}" bash -lc 'curl -L https://foundry.paradigm.xyz | bash && export PATH="$HOME/.foundry/bin:$PATH" && foundryup && command -v cast >/dev/null 2>&1 || { echo "cast не установлен" >&2; exit 1; }'
-
+export PATH="$HOME/.foundry/bin:$PATH"
 printf 'y\n' | bash -i <(curl -s https://install.aztec.network)
 
 grep -q 'export PATH="$HOME/.aztec/bin:$PATH"' "$HOME/.bashrc" 2>/dev/null || \
