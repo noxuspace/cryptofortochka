@@ -113,9 +113,15 @@ case "$choice" in
     12) netrum-sync ;;
     13) netrum-sync-log ;;
     14) netrum-mining ;;
-    15) netrum-mining-log ;;
+    15) ls -l /usr/bin/netrum-mining-log
+        sudo chmod 755 /usr/bin/netrum-mining-log
+        sudo /usr/bin/netrum-mining-log
+        ;;
     16) netrum-claim ;;
-    17) netrum-update ;;
+    17) ls -l /usr/bin/netrum-update
+        sudo chmod 755 /usr/bin/netrum-update
+        sudo /usr/bin/netrum-update
+       ;;
     *)  : ;;
   esac
   ;;
