@@ -363,6 +363,7 @@ EOF
   echo -e "${CYAN}8) Показать адреса и балансы${NC}"
   echo -e "${CYAN}9) Devnet токены (2 SOL на каждый адрес)${NC}"
   echo -e "${CYAN}10) Показать сид-фразы${NC}"
+  echo -e "${CYAN}11) Обновление ноды${NC}"
   echo -ne "${YELLOW}Введите номер: ${NC}"; read -r t
   case "$t" in
     1)
@@ -476,6 +477,112 @@ EOF
       else
         echo "Callback seed: файл не найден ($SEED_CALLBACK)"
       fi
+      ;;
+    11)
+      echo -e "${YELLOW}Обновить ноду Arcium до v0.4.0? (YES/NO)${NC}"; read -r go
+      [ "$go" = "YES" ] || { echo -e "${PURPLE}Отмена.${NC}"; break; }
+
+      # --- подготовка путей/переменных ---
+      [ -f "$ENV_FILE" ] && . "$ENV_FILE"
+      CONTAINER_NAME="${CONTAINER_NAME:-arx-node}"
+      IMAGE_TAG="${IMAGE_TAG:-arcium/arx-node:v0.4.0}"
+
+      echo -e "${BLUE}Отключаем старый контейнер ${CONTAINER_NAME}...${NC}"
+      docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
+
+      echo -e "${BLUE}Скачиваем новый образ ${IMAGE_TAG}...${NC}"
+      docker pull "$IMAGE_TAG"
+      grep -q '^IMAGE=' "$ENV_FILE" 2>/dev/null && sed -i "s|^IMAGE=.*|IMAGE=\"$IMAGE_TAG\"|" "$ENV_FILE" || echo "IMAGE=\"$IMAGE_TAG\"" >> "$ENV_FILE"
+
+      if ! grep -q 'export PATH="$HOME/.arcium/bin:$PATH"' "$HOME/.bashrc" 2>/dev/null; then
+        sed -i '1iexport PATH="$HOME/.arcium/bin:$PATH"' "$HOME/.bashrc"
+      fi
+
+      # переименуем возможный старый бинарь
+      mv "$HOME/.cargo/bin/arcium" "$HOME/.cargo/bin/arcium.old" 2>/dev/null || true
+
+      # arcup 0.4.0
+      if [[ ! -x "$HOME/.cargo/bin/arcup" ]]; then
+        echo -e "${PURPLE}arcup не найден — скачиваю 0.4.0…${NC}"
+        mkdir -p "$HOME/.cargo/bin"
+        target="x86_64_linux"; [[ $(uname -m) =~ (aarch64|arm64) ]] && target="aarch64_linux"
+        curl -fsSL "https://bin.arcium.com/download/arcup_${target}_0.4.0" -o "$HOME/.cargo/bin/arcup" || \
+        curl -fsSL "https://bin.arcium.network/download/arcup_${target}_0.4.0" -o "$HOME/.cargo/bin/arcup"
+        chmod +x "$HOME/.cargo/bin/arcup"
+      fi
+
+      echo -e "${BLUE}Устанавливаем Arcium CLI через arcup…${NC}"
+      "$HOME/.cargo/bin/arcup" install || true
+
+      # нормализация бинаря
+      mkdir -p "$HOME/.arcium/bin"
+      if [[ -x "$HOME/.arcium/bin/arcium-cli" && ! -e "$HOME/.arcium/bin/arcium" ]]; then
+        ln -sf "$HOME/.arcium/bin/arcium-cli" "$HOME/.arcium/bin/arcium"
+      fi
+      if [[ ! -e "$HOME/.arcium/bin/arcium" && -x "$HOME/.cargo/bin/arcium-0.4.0" ]]; then
+        ln -sf "$HOME/.cargo/bin/arcium-0.4.0" "$HOME/.arcium/bin/arcium"
+      fi
+      if [[ ! -x "$HOME/.arcium/bin/arcium" ]]; then
+        FOUND="$( (command -v arcium || true; command -v arcium-cli || true; \
+          find "$HOME" -maxdepth 8 -type f -perm -111 \( -name 'arcium' -o -name 'arcium-cli' -o -name 'arcium-*' \) 2>/dev/null) \
+          | awk 'NF' | sort -u | head -n1 )"
+        [[ -n "$FOUND" ]] && ln -sf "$FOUND" "$HOME/.arcium/bin/arcium"
+      fi
+      export PATH="$HOME/.arcium/bin:$PATH"; hash -r
+
+      if "$HOME/.arcium/bin/arcium" --version 2>/dev/null | grep -qE '^arcium-cli 0\.4\.0$'; then
+        echo -e "${GREEN}Версия подтверждена: arcium-cli 0.4.0${NC}"
+      else
+        echo -e "${YELLOW}Внимание: ожидается arcium-cli 0.4.0. Фактический вывод ниже:${NC}"
+        "$HOME/.arcium/bin/arcium" --version 2>&1 || true
+      fi
+
+      # OFFSET: всегда берём из .env, без вопросов
+      if [ -f "$ENV_FILE" ]; then
+        . "$ENV_FILE"
+      fi
+      
+      if [ -z "$OFFSET" ]; then
+        echo -e "${RED}OFFSET не найден в .env — невозможно продолжить обновление.${NC}"
+        echo -e "${YELLOW}Убедитесь, что нода была установлена и файл .env содержит переменную OFFSET.${NC}"
+        break
+      else
+        echo -e "${PURPLE}Используется OFFSET из .env:${NC} ${CYAN}${OFFSET}${NC}"
+      fi
+
+      # реинициализация on-chain аккаунтов (без генерации ключей; используем существующие пути)
+      echo -e "${BLUE}Инициализируем on-chain аккаунты…${NC}"
+      "$HOME/.arcium/bin/arcium" init-arx-accs \
+        --keypair-path "$NODE_KP" \
+        --callback-keypair-path "$CALLBACK_KP" \
+        --peer-keypair-path "$IDENTITY_PEM" \
+        --node-offset "$OFFSET" \
+        --ip-address "$(curl -4 -s https://ipecho.net/plain)" \
+        --rpc-url "${RPC_HTTP:-https://api.devnet.solana.com}" || true
+
+      # запуск контейнера с образом v0.4.0
+      echo -e "${BLUE}Запускаем контейнер ${CONTAINER_NAME} c образом ${IMAGE_TAG}…${NC}"
+      docker run -d --name "$CONTAINER_NAME" --restart unless-stopped \
+        -e NODE_IDENTITY_FILE=/usr/arx-node/node-keys/node_identity.pem \
+        -e NODE_KEYPAIR_FILE=/usr/arx-node/node-keys/node_keypair.json \
+        -e OPERATOR_KEYPAIR_FILE=/usr/arx-node/node-keys/operator_keypair.json \
+        -e CALLBACK_AUTHORITY_KEYPAIR_FILE=/usr/arx-node/node-keys/callback_authority_keypair.json \
+        -e NODE_CONFIG_PATH=/usr/arx-node/arx/node_config.toml \
+        -v "$CFG_FILE:/usr/arx-node/arx/node_config.toml" \
+        -v "$NODE_KP:/usr/arx-node/node-keys/node_keypair.json:ro" \
+        -v "$NODE_KP:/usr/arx-node/node-keys/operator_keypair.json:ro" \
+        -v "$CALLBACK_KP:/usr/arx-node/node-keys/callback_authority_keypair.json:ro" \
+        -v "$IDENTITY_PEM:/usr/arx-node/node-keys/node_identity.pem:ro" \
+        -v "$LOGS_DIR:/usr/arx-node/logs" \
+        -p 8080:8080 \
+        "$IMAGE_TAG"
+
+      echo -e "${GREEN}Миграция завершена. Текущий статус:${NC}"
+      docker ps -a --filter "name=$CONTAINER_NAME" --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}'
+
+      echo -e "${PURPLE}Ctrl+C для выхода из логов${NC}"
+      sleep 2
+      docker exec -it "$CONTAINER_NAME" sh -lc 'tail -n +1 -f "$(ls -t /usr/arx-node/logs/arx_log_*.log 2>/dev/null | head -1)"' || true
       ;;
     *) ;;
   esac
