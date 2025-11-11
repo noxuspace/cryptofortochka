@@ -479,8 +479,11 @@ EOF
       fi
       ;;
     11)
-      echo -e "${YELLOW}Обновить ноду Arcium до v0.4.0? (YES/NO)${NC}"; read -r go
-      [ "$go" = "YES" ] || { echo -e "${PURPLE}Отмена.${NC}"; break; }
+      echo -ne "${YELLOW}Обновить ноду Arcium до v0.4.0? (YES/NO) ${NC}"; read -r CONFIRM
+      if [ "$CONFIRM" != "YES" ]; then
+        echo -e "${PURPLE}Отмена.${NC}"
+        # НИЧЕГО не делаем и просто выходим из ветки case
+      else
 
       # --- подготовка путей/переменных ---
       [ -f "$ENV_FILE" ] && . "$ENV_FILE"
@@ -545,7 +548,7 @@ EOF
       if [ -z "$OFFSET" ]; then
         echo -e "${RED}OFFSET не найден в .env — невозможно продолжить обновление.${NC}"
         echo -e "${YELLOW}Убедитесь, что нода была установлена и файл .env содержит переменную OFFSET.${NC}"
-        break
+        exit 0
       else
         echo -e "${PURPLE}Используется OFFSET из .env:${NC} ${CYAN}${OFFSET}${NC}"
       fi
@@ -583,6 +586,7 @@ EOF
       echo -e "${PURPLE}Ctrl+C для выхода из логов${NC}"
       sleep 2
       docker exec -it "$CONTAINER_NAME" sh -lc 'tail -n +1 -f "$(ls -t /usr/arx-node/logs/arx_log_*.log 2>/dev/null | head -1)"' || true
+      fi
       ;;
     *) ;;
   esac
