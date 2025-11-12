@@ -11,10 +11,11 @@ SERVICE_NAME="stabled"
 BIN_PATH="/usr/bin/stabled"
 HOME_DIR="$HOME/.stabled"
 CHAIN_ID="stabletestnet_2201-1"
+TARGET_VER="1.1.1"
 
 # Архивы (автоопределение архитектуры будет в пункте 2)
-URL_AMD64="https://stable-testnet-data.s3.us-east-1.amazonaws.com/stabled-1.1.0-linux-amd64-testnet.tar.gz"
-URL_ARM64="https://stable-testnet-data.s3.us-east-1.amazonaws.com/stabled-1.1.0-linux-arm64-testnet.tar.gz"
+URL_AMD64="https://stable-testnet-data.s3.us-east-1.amazonaws.com/stabled-${TARGET_VER}-linux-amd64-testnet.tar.gz"
+URL_ARM64="https://stable-testnet-data.s3.us-east-1.amazonaws.com/stabled-${TARGET_VER}-linux-arm64-testnet.tar.gz"
 GENESIS_ZIP_URL="https://stable-testnet-data.s3.us-east-1.amazonaws.com/stable_testnet_genesis.zip"
 RPC_CFG_ZIP_URL="https://stable-testnet-data.s3.us-east-1.amazonaws.com/rpc_node_config.zip"
 SNAPSHOT_URL="https://stable-snapshot.s3.eu-central-1.amazonaws.com/snapshot.tar.lz4"
@@ -39,7 +40,8 @@ echo -e "${CYAN}1) Установка ноды${NC}"
 echo -e "${CYAN}2) Логи ноды${NC}"
 echo -e "${CYAN}3) Перезапуск ноды${NC}"
 echo -e "${CYAN}4) Health check ноды${NC}"
-echo -e "${CYAN}5) Удаление ноды${NC}"
+echo -e "${CYAN}5) Обновление ноды до v${TARGET_VER}${NC}"
+echo -e "${CYAN}6) Удаление ноды${NC}"
 
 echo -ne "${YELLOW}Введите номер: ${NC}"; read choice
 
@@ -247,9 +249,73 @@ EOF
   echo -e "${GREEN}Проверка завершена${NC}"
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
   ;;
-
-# ==================== 5) Полное удаление =====================
+# ==================== 6) Обновление ноды до v${TARGET_VER} =====================
 5)
+  echo -ne "${YELLOW}Обновить ${APP_NAME} до v${TARGET_VER}? (YES/NO) ${NC}"; read -r CONFIRM
+  if [ "$CONFIRM" != "YES" ]; then
+    echo -e "${PURPLE}Отмена.${NC}"
+    exit 0
+  fi
+
+  # Определяем архитектуру и URL новой версии
+  ARCH="$(dpkg --print-architecture 2>/dev/null || uname -m || echo unknown)"
+  case "$ARCH" in
+    amd64|x86_64)  DL_URL="$URL_AMD64_111" ;;
+    arm64|aarch64) DL_URL="$URL_ARM64_111" ;;
+    *)             echo -e "${RED}Неизвестная архитектура: ${ARCH}${NC}"; exit 1 ;;
+  esac
+
+  echo -e "${BLUE}Останавливаем сервис ${SERVICE_NAME}...${NC}"
+  $SUDO systemctl stop "${SERVICE_NAME}" 2>/dev/null || true
+
+  # Бэкапим текущий бинарь (на всякий)
+  if [ -x "$BIN_PATH" ]; then
+    TS="$(date +%Y%m%d-%H%M%S)"
+    $SUDO cp -f "$BIN_PATH" "${BIN_PATH}.bak-${TS}" 2>/dev/null || true
+    echo -e "${PURPLE}Сделан бэкап бинаря:${NC} ${CYAN}${BIN_PATH}.bak-${TS}${NC}"
+  fi
+
+  # Скачиваем и ставим новый бинарь
+  echo -e "${BLUE}Скачиваем бинарь v${TARGET_VER} (${ARCH})...${NC}"
+  TMPD="$(mktemp -d)"; cd "$TMPD"
+  if ! wget -O stabled.tar.gz "$DL_URL"; then
+    echo -e "${RED}Не удалось скачать: $DL_URL${NC}"; cd "$HOME"; rm -rf "$TMPD"; exit 1
+  fi
+
+  tar -xvzf stabled.tar.gz
+  if [ ! -f "stabled" ]; then
+    echo -e "${RED}В архиве нет файла 'stabled'. Прерываю.${NC}"
+    cd "$HOME"; rm -rf "$TMPD"; exit 1
+  fi
+
+  $SUDO mv -f stabled "$BIN_PATH"
+  $SUDO chmod +x "$BIN_PATH"
+  cd "$HOME"; rm -rf "$TMPD"
+
+  echo -e "${BLUE}Запускаем сервис...${NC}"
+  $SUDO systemctl daemon-reload
+  $SUDO systemctl start "${SERVICE_NAME}"
+
+  # Проверка версии
+  sleep 2
+  VER_OUT="$($BIN_PATH version 2>/dev/null || true)"
+  echo -e "${PURPLE}stabled version:${NC} ${CYAN}${VER_OUT}${NC}"
+  if echo "$VER_OUT" | grep -q "v${TARGET_VER}"; then
+    echo -e "${GREEN}Обновление успешно: версия v${TARGET_VER} активна.${NC}"
+  else
+    echo -e "${YELLOW}Внимание: не удалось подтвердить v${TARGET_VER}. Проверь вывод выше.${NC}"
+  fi
+
+  echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+  echo -e "${YELLOW}Команда для логов:${NC}"
+  echo "$SUDO journalctl -u ${SERVICE_NAME} -f -n 200"
+  echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+  sleep 2
+  $SUDO journalctl -u "${SERVICE_NAME}" -f -n 200
+  ;;
+  
+# ==================== 5) Полное удаление =====================
+6)
   echo -ne "${RED}Удалить ВСЕ данные ноды? (YES/NO) ${NC}"; read CONFIRM
   if [ "$CONFIRM" = "YES" ]; then
     echo -e "${RED}Удаляем...${NC}"
