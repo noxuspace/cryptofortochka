@@ -301,12 +301,17 @@ EOF
   # Проверка версии
   sleep 2
   VER_OUT="$($BIN_PATH version 2>/dev/null || true)"
-  echo -e "${PURPLE}stabled version:${NC} ${CYAN}${VER_OUT}${NC}"
-  if echo "$VER_OUT" | grep -q "v${TARGET_VER}"; then
-    echo -e "${GREEN}Обновление успешно: версия v${TARGET_VER} активна.${NC}"
+  echo -e "${PURPLE}stabled version (raw):${NC} ${CYAN}${VER_OUT}${NC}"
+  
+  # Достаём номер версии из строки (формата X.Y.Z)
+  VER_NUM="$(printf '%s' "$VER_OUT" | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
+  
+  if [ "$VER_NUM" = "$TARGET_VER" ]; then
+    echo -e "${GREEN}Обновление успешно: версия ${TARGET_VER} активна.${NC}"
   else
-    echo -e "${YELLOW}Внимание: не удалось подтвердить v${TARGET_VER}. Проверь вывод выше.${NC}"
+    echo -e "${YELLOW}Внимание: ожидалась ${TARGET_VER}, фактически: ${VER_NUM:-не распознано}.${NC}"
   fi
+
 
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
   echo -e "${YELLOW}Команда для логов:${NC}"
