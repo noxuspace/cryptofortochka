@@ -259,11 +259,13 @@ EOF
 
   # Определяем архитектуру и URL новой версии
   ARCH="$(dpkg --print-architecture 2>/dev/null || uname -m || echo unknown)"
+  
   case "$ARCH" in
-    amd64|x86_64)  DL_URL="$URL_AMD64_111" ;;
-    arm64|aarch64) DL_URL="$URL_ARM64_111" ;;
-    *)             echo -e "${RED}Неизвестная архитектура: ${ARCH}${NC}"; exit 1 ;;
+    amd64|x86_64)  DL_URL="$URL_AMD64" ;;
+    arm64|aarch64) DL_URL="$URL_ARM64" ;;
+    *) echo -e "${RED}Неизвестная архитектура: ${ARCH}${NC}"; exit 1 ;;
   esac
+
 
   echo -e "${BLUE}Останавливаем сервис ${SERVICE_NAME}...${NC}"
   $SUDO systemctl stop "${SERVICE_NAME}" 2>/dev/null || true
