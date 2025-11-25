@@ -11,7 +11,7 @@ SERVICE_NAME="stabled"
 BIN_PATH="/usr/bin/stabled"
 HOME_DIR="$HOME/.stabled"
 CHAIN_ID="stabletestnet_2201-1"
-TARGET_VER="1.1.1"
+TARGET_VER="1.1.2"
 
 # Архивы (автоопределение архитектуры будет в пункте 2)
 URL_AMD64="https://stable-testnet-data.s3.us-east-1.amazonaws.com/stabled-${TARGET_VER}-linux-amd64-testnet.tar.gz"
