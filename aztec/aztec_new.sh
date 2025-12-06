@@ -21,7 +21,7 @@ else
 fi
 
 ROLLUP_ADDR="0xebd99ff0ff6677205509ae73f93d0ca52ac85d67"
-AZTEC_IMG_TAG="2.1.2"
+AZTEC_IMG_TAG="2.1.8"
 
 # ===================== Проверка curl + лого ===================
 if ! command -v curl >/dev/null 2>&1; then
@@ -67,7 +67,7 @@ case "$choice" in
   grep -q 'export PATH="$HOME/.aztec/bin:$PATH"' "$HOME/.bash_profile" 2>/dev/null || \
     echo 'export PATH="$HOME/.aztec/bin:$PATH"' >> "$HOME/.bash_profile"
   export PATH="$HOME/.aztec/bin:$PATH"
-  aztec-up "2.1.2" || true
+  aztec-up "2.1.8" || true
   command -v aztec >/dev/null 2>&1 || { echo "aztec не установлен" >&2; exit 1; }
 
   #bash -i <(curl -s https://install.aztec.network)
@@ -215,7 +215,7 @@ EOF
 services:
   aztec-node:
     container_name: aztec-sequencer
-    image: aztecprotocol/aztec:2.1.2
+    image: aztecprotocol/aztec:2.1.8
     restart: unless-stopped
     network_mode: host
     environment:
