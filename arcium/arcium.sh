@@ -24,7 +24,7 @@ read_cluster_offset() {
 }
 
 CONTAINER_NAME="arx-node"
-IMAGE_TAG="arcium/arx-node:v0.4.0"
+IMAGE_TAG="arcium/arx-node:v0.5.1"
 RPC_DEFAULT_HTTP="https://api.devnet.solana.com"
 RPC_DEFAULT_WSS="wss://api.devnet.solana.com"
 
@@ -479,7 +479,7 @@ EOF
       fi
       ;;
     11)
-      echo -ne "${YELLOW}Обновить ноду Arcium до v0.4.0? (YES/NO) ${NC}"; read -r CONFIRM
+      echo -ne "${YELLOW}Обновить ноду Arcium до v0.5.1? (YES/NO) ${NC}"; read -r CONFIRM
       if [ "$CONFIRM" != "YES" ]; then
         echo -e "${PURPLE}Отмена.${NC}"
         # НИЧЕГО не делаем и просто выходим из ветки case
@@ -488,7 +488,7 @@ EOF
       # --- подготовка путей/переменных ---
       [ -f "$ENV_FILE" ] && . "$ENV_FILE"
       CONTAINER_NAME="${CONTAINER_NAME:-arx-node}"
-      IMAGE_TAG="${IMAGE_TAG:-arcium/arx-node:v0.4.0}"
+      IMAGE_TAG="${IMAGE_TAG:-arcium/arx-node:v0.5.1}"
 
       echo -e "${BLUE}Отключаем старый контейнер ${CONTAINER_NAME}...${NC}"
       docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
@@ -563,7 +563,7 @@ EOF
         --ip-address "$(curl -4 -s https://ipecho.net/plain)" \
         --rpc-url "${RPC_HTTP:-https://api.devnet.solana.com}" || true
 
-      # запуск контейнера с образом v0.4.0
+      # запуск контейнера с образом v0.5.1
       echo -e "${BLUE}Запускаем контейнер ${CONTAINER_NAME} c образом ${IMAGE_TAG}…${NC}"
       docker run -d --name "$CONTAINER_NAME" --restart unless-stopped \
         -e NODE_IDENTITY_FILE=/usr/arx-node/node-keys/node_identity.pem \
