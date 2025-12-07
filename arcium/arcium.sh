@@ -16,6 +16,8 @@ SEED_CALLBACK="$WORKDIR/callback-kp.seed.txt"
 PUB_NODE_FILE="$WORKDIR/node-pubkey.txt"
 PUB_CALLBACK_FILE="$WORKDIR/callback-pubkey.txt"
 LOGS_DIR="$WORKDIR/arx-node-logs"
+BLS_JSON="$WORKDIR/bls-keypair.json"
+BLS_BIN="$WORKDIR/bls-keypair.bin"
 # ===== Утилита для чтения cluster_offset из файла =====
 CLUSTER_FILE="$WORKDIR/cluster-info.toml"
 read_cluster_offset() {
@@ -250,12 +252,67 @@ EOF
     fi
   fi
 
+    # ---------- BLS: JSON -> BIN (фикс под 0.5.1) ----------
+    # если вдруг по этому пути каталог — удаляем только каталог
+    [ -d "$BLS_JSON" ] && rm -rf "$BLS_JSON"
+  
+    # если JSON ещё нет — генерируем
+    if [[ ! -f "$BLS_JSON" || ! -s "$BLS_JSON" ]]; then
+      if arcium --help 2>/dev/null | grep -q 'gen-bls-key'; then
+        echo -e "${BLUE}Генерируем BLS-ключ (bls-keypair.json) для ноды...${NC}"
+        (
+          cd "$WORKDIR" || exit 1
+          arcium gen-bls-key "$(basename "$BLS_JSON")"
+        ) || {
+          echo -e "${RED}Не удалось сгенерировать BLS-ключ — init-arx-accs может упасть.${NC}"
+        }
+      else
+        echo -e "${PURPLE}Эта версия Arcium CLI не умеет gen-bls-key — BLS будет отключён.${NC}"
+      fi
+    else
+      echo -e "${GREEN}Найден существующий BLS-ключ (JSON): ${CYAN}$BLS_JSON${NC}"
+    fi
+  
+    # конвертируем JSON -> бинарник, если JSON существует
+    if [[ -f "$BLS_JSON" ]]; then
+      echo -e "${BLUE}Конвертирую BLS JSON → бинарный формат (32 байта) для init-arx-accs...${NC}"
+      python3 <<PY
+import json
+from pathlib import Path
+  
+src = Path("$BLS_JSON")
+dst = Path("$BLS_BIN")
+  
+data = json.loads(src.read_text().strip())
+  
+if not isinstance(data, list) or len(data) != 32:
+    raise SystemExit(f"Unexpected BLS format: need list of 32 ints, got {type(data)} len={len(data) if isinstance(data,list) else 'n/a'}")
+  
+if not all(isinstance(x, int) and 0 <= x <= 255 for x in data):
+    raise SystemExit("List elements must be ints 0..255")
+  
+dst.write_bytes(bytes(data))
+print("OK, wrote", dst, "with", len(data), "bytes")
+PY
+      if [[ -f "$BLS_BIN" ]]; then
+        size=$(stat -c '%s' "$BLS_BIN" 2>/dev/null || echo 0)
+        if [ "$size" -eq 32 ]; then
+          echo -e "${GREEN}BLS BIN готов: ${CYAN}$BLS_BIN (32 байта)${NC}"
+        else
+          echo -e "${YELLOW}BLS BIN имеет размер ${size} байт (ожидается 32).${NC}"
+        fi
+      fi
+    fi
+    # ---------- /BLS ----------
+
+  
   # Инициализация on-chain аккаунтов ноды (пути один-в-один)
   echo -e "${BLUE}Инициализируем on-chain аккаунты (arcium init-arx-accs)...${NC}"
   (cd "$WORKDIR" && arcium init-arx-accs \
     --keypair-path "$NODE_KP" \
     --callback-keypair-path "$CALLBACK_KP" \
     --peer-keypair-path "$IDENTITY_PEM" \
+    --bls-keypair-path "$BLS_BIN" \
     --node-offset "$OFFSET" \
     --ip-address "$PUBLIC_IP" \
     --rpc-url "$RPC_HTTP") || true
@@ -270,12 +327,14 @@ EOF
     -e NODE_KEYPAIR_FILE=/usr/arx-node/node-keys/node_keypair.json \
     -e OPERATOR_KEYPAIR_FILE=/usr/arx-node/node-keys/operator_keypair.json \
     -e CALLBACK_AUTHORITY_KEYPAIR_FILE=/usr/arx-node/node-keys/callback_authority_keypair.json \
+    -e BLS_PRIVATE_KEY_FILE=/usr/arx-node/node-keys/bls-keypair.json \
     -e NODE_CONFIG_PATH=/usr/arx-node/arx/node_config.toml \
     -v "$CFG_FILE:/usr/arx-node/arx/node_config.toml" \
     -v "$NODE_KP:/usr/arx-node/node-keys/node_keypair.json:ro" \
     -v "$NODE_KP:/usr/arx-node/node-keys/operator_keypair.json:ro" \
     -v "$CALLBACK_KP:/usr/arx-node/node-keys/callback_authority_keypair.json:ro" \
     -v "$IDENTITY_PEM:/usr/arx-node/node-keys/node_identity.pem:ro" \
+    -v "$BLS_JSON:/usr/arx-node/node-keys/bls-keypair.json:ro" \
     -v "$LOGS_DIR:/usr/arx-node/logs" \
     -p 8080:8080 \
     "$IMAGE_TAG"
@@ -310,12 +369,14 @@ EOF
           -e NODE_KEYPAIR_FILE=/usr/arx-node/node-keys/node_keypair.json \
           -e OPERATOR_KEYPAIR_FILE=/usr/arx-node/node-keys/operator_keypair.json \
           -e CALLBACK_AUTHORITY_KEYPAIR_FILE=/usr/arx-node/node-keys/callback_authority_keypair.json \
+          -e BLS_PRIVATE_KEY_FILE=/usr/arx-node/node-keys/bls-keypair.json \
           -e NODE_CONFIG_PATH=/usr/arx-node/arx/node_config.toml \
           -v "$CFG_FILE:/usr/arx-node/arx/node_config.toml" \
           -v "$NODE_KP:/usr/arx-node/node-keys/node_keypair.json:ro" \
           -v "$NODE_KP:/usr/arx-node/node-keys/operator_keypair.json:ro" \
           -v "$CALLBACK_KP:/usr/arx-node/node-keys/callback_authority_keypair.json:ro" \
           -v "$IDENTITY_PEM:/usr/arx-node/node-keys/node_identity.pem:ro" \
+          -v "$BLS_JSON:/usr/arx-node/node-keys/bls-keypair.json:ro" \
           -v "$LOGS_DIR:/usr/arx-node/logs" \
           -p 8080:8080 \
           "$IMAGE_TAG"
@@ -544,10 +605,7 @@ EOF
         "$HOME/.arcium/bin/arcium" --version 2>&1 || true
       fi
 
-      # ---------- BLS: JSON -> BIN фикc ----------
-      BLS_JSON="$WORKDIR/bls-keypair.json"
-      BLS_BIN="$WORKDIR/bls-keypair.bin"
-
+      # ---------- BLS: JSON -> BIN фикc ---------
       # если вдруг был каталог с таким именем — удаляем только каталог
       [ -d "$BLS_JSON" ] && rm -rf "$BLS_JSON"
 
