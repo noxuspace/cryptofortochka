@@ -482,7 +482,6 @@ EOF
       echo -ne "${YELLOW}Обновить ноду Arcium до v0.5.1? (YES/NO) ${NC}"; read -r CONFIRM
       if [ "$CONFIRM" != "YES" ]; then
         echo -e "${PURPLE}Отмена.${NC}"
-        # НИЧЕГО не делаем и просто выходим из ветки case
       else
 
       # --- подготовка путей/переменных ---
@@ -495,8 +494,13 @@ EOF
 
       echo -e "${BLUE}Скачиваем новый образ ${IMAGE_TAG}...${NC}"
       docker pull "$IMAGE_TAG"
-      grep -q '^IMAGE=' "$ENV_FILE" 2>/dev/null && sed -i "s|^IMAGE=.*|IMAGE=\"$IMAGE_TAG\"|" "$ENV_FILE" || echo "IMAGE=\"$IMAGE_TAG\"" >> "$ENV_FILE"
+      if [ -f "$ENV_FILE" ]; then
+        grep -q '^IMAGE=' "$ENV_FILE" 2>/dev/null \
+          && sed -i "s|^IMAGE=.*|IMAGE=\"$IMAGE_TAG\"|" "$ENV_FILE" \
+          || echo "IMAGE=\"$IMAGE_TAG\"" >> "$ENV_FILE"
+      fi
 
+      # PATH для arcium
       if ! grep -q 'export PATH="$HOME/.arcium/bin:$PATH"' "$HOME/.bashrc" 2>/dev/null; then
         sed -i '1iexport PATH="$HOME/.arcium/bin:$PATH"' "$HOME/.bashrc"
       fi
@@ -533,18 +537,73 @@ EOF
       fi
       export PATH="$HOME/.arcium/bin:$PATH"; hash -r
 
-      if "$HOME/.arcium/bin/arcium" --version 2>/dev/null | grep -qE '^arcium-cli 0\.4\.0$'; then
+      if "$HOME/.arcium/bin/arcium" --version 2>/dev/null | grep -qE '^arcium-cli 0\.5\.1$'; then
         echo -e "${GREEN}Версия подтверждена: arcium-cli 0.5.1${NC}"
       else
         echo -e "${YELLOW}Внимание: ожидается arcium-cli 0.5.1. Фактический вывод ниже:${NC}"
         "$HOME/.arcium/bin/arcium" --version 2>&1 || true
       fi
 
+      # ---------- BLS: JSON -> BIN фикc ----------
+      BLS_JSON="$WORKDIR/bls-keypair.json"
+      BLS_BIN="$WORKDIR/bls-keypair.bin"
+
+      # если вдруг был каталог с таким именем — удаляем только каталог
+      [ -d "$BLS_JSON" ] && rm -rf "$BLS_JSON"
+
+      # если JSON ещё нет — генерируем
+      if [[ ! -f "$BLS_JSON" || ! -s "$BLS_JSON" ]]; then
+        if arcium --help 2>/dev/null | grep -q 'gen-bls-key'; then
+          echo -e "${BLUE}Генерируем BLS-ключ (bls-keypair.json) для ноды...${NC}"
+          (
+            cd "$WORKDIR" || exit 1
+            arcium gen-bls-key "$(basename "$BLS_JSON")"
+          ) || {
+            echo -e "${PURPLE}Не удалось сгенерировать BLS-ключ. Продолжаю без BLS (если нода это позволяет).${NC}"
+          }
+        else
+          echo -e "${PURPLE}Текущая версия Arcium CLI не поддерживает gen-bls-key. Пропускаю генерацию BLS-ключа.${NC}"
+        fi
+      else
+        echo -e "${GREEN}Найден существующий BLS-ключ (JSON): ${CYAN}$BLS_JSON${NC}"
+      fi
+
+      # конвертируем JSON -> 32-байтный bin для init-arx-accs
+      if [[ -f "$BLS_JSON" ]]; then
+        echo -e "${BLUE}Конвертирую BLS JSON → бинарный формат (32 байта) для init-arx-accs...${NC}"
+        python3 <<PY
+import json
+from pathlib import Path
+
+src = Path("$BLS_JSON")
+dst = Path("$BLS_BIN")
+
+data = json.loads(src.read_text().strip())
+
+if not isinstance(data, list) or len(data) != 32:
+    raise SystemExit(f"Unexpected BLS format: need list of 32 ints, got {type(data)} len={len(data) if isinstance(data,list) else 'n/a'}")
+
+if not all(isinstance(x, int) and 0 <= x <= 255 for x in data):
+    raise SystemExit("List elements must be ints 0..255")
+
+dst.write_bytes(bytes(data))
+print("OK, wrote", dst, "with", len(data), "bytes")
+PY
+        if [[ -f "$BLS_BIN" ]]; then
+          size=$(stat -c '%s' "$BLS_BIN" 2>/dev/null || echo 0)
+          if [ "$size" -ne 32 ]; then
+            echo -e "${YELLOW}BLS BIN имеет размер ${size} байт (ожидается 32). init-arx-accs может упасть.${NC}"
+          else
+            echo -e "${GREEN}BLS BIN готов: ${CYAN}$BLS_BIN (32 байта)${NC}"
+          fi
+        fi
+      fi
+
       # OFFSET: всегда берём из .env, без вопросов
       if [ -f "$ENV_FILE" ]; then
         . "$ENV_FILE"
       fi
-      
+
       if [ -z "$OFFSET" ]; then
         echo -e "${RED}OFFSET не найден в .env — невозможно продолжить обновление.${NC}"
         echo -e "${YELLOW}Убедитесь, что нода была установлена и файл .env содержит переменную OFFSET.${NC}"
@@ -553,29 +612,32 @@ EOF
         echo -e "${PURPLE}Используется OFFSET из .env:${NC} ${CYAN}${OFFSET}${NC}"
       fi
 
-      # реинициализация on-chain аккаунтов (без генерации ключей; используем существующие пути)
+      # реинициализация on-chain аккаунтов (теперь с бинарным BLS)
       echo -e "${BLUE}Инициализируем on-chain аккаунты…${NC}"
       "$HOME/.arcium/bin/arcium" init-arx-accs \
         --keypair-path "$NODE_KP" \
         --callback-keypair-path "$CALLBACK_KP" \
         --peer-keypair-path "$IDENTITY_PEM" \
+        --bls-keypair-path "$BLS_BIN" \
         --node-offset "$OFFSET" \
         --ip-address "$(curl -4 -s https://ipecho.net/plain)" \
         --rpc-url "${RPC_HTTP:-https://api.devnet.solana.com}" || true
 
-      # запуск контейнера с образом v0.5.1
+      # запуск контейнера с образом v0.5.1 (внутри — JSON BLS)
       echo -e "${BLUE}Запускаем контейнер ${CONTAINER_NAME} c образом ${IMAGE_TAG}…${NC}"
       docker run -d --name "$CONTAINER_NAME" --restart unless-stopped \
         -e NODE_IDENTITY_FILE=/usr/arx-node/node-keys/node_identity.pem \
         -e NODE_KEYPAIR_FILE=/usr/arx-node/node-keys/node_keypair.json \
         -e OPERATOR_KEYPAIR_FILE=/usr/arx-node/node-keys/operator_keypair.json \
         -e CALLBACK_AUTHORITY_KEYPAIR_FILE=/usr/arx-node/node-keys/callback_authority_keypair.json \
+        -e BLS_PRIVATE_KEY_FILE=/usr/arx-node/node-keys/bls-keypair.json \
         -e NODE_CONFIG_PATH=/usr/arx-node/arx/node_config.toml \
         -v "$CFG_FILE:/usr/arx-node/arx/node_config.toml" \
         -v "$NODE_KP:/usr/arx-node/node-keys/node_keypair.json:ro" \
         -v "$NODE_KP:/usr/arx-node/node-keys/operator_keypair.json:ro" \
         -v "$CALLBACK_KP:/usr/arx-node/node-keys/callback_authority_keypair.json:ro" \
         -v "$IDENTITY_PEM:/usr/arx-node/node-keys/node_identity.pem:ro" \
+        -v "$BLS_JSON:/usr/arx-node/node-keys/bls-keypair.json:ro" \
         -v "$LOGS_DIR:/usr/arx-node/logs" \
         -p 8080:8080 \
         "$IMAGE_TAG"
