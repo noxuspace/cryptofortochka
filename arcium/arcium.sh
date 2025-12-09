@@ -676,7 +676,7 @@ PY
         --keypair-path "$NODE_KP" \
         --callback-keypair-path "$CALLBACK_KP" \
         --peer-keypair-path "$IDENTITY_PEM" \
-        --bls-keypair-path "$BLS_BIN" \
+        --bls-keypair-path "$BLS_JSON" \
         --node-offset "$OFFSET" \
         --ip-address "$(curl -4 -s https://ipecho.net/plain)" \
         --rpc-url "${RPC_HTTP:-https://api.devnet.solana.com}" || true
