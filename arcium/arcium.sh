@@ -312,7 +312,7 @@ PY
     --keypair-path "$NODE_KP" \
     --callback-keypair-path "$CALLBACK_KP" \
     --peer-keypair-path "$IDENTITY_PEM" \
-    --bls-keypair-path "$BLS_BIN" \
+    --bls-keypair-path "$BLS_JSON" \
     --node-offset "$OFFSET" \
     --ip-address "$PUBLIC_IP" \
     --rpc-url "$RPC_HTTP") || true
@@ -569,13 +569,13 @@ PY
       # переименуем возможный старый бинарь
       mv "$HOME/.cargo/bin/arcium" "$HOME/.cargo/bin/arcium.old" 2>/dev/null || true
 
-      # arcup 0.5.1
+      # arcup 0.5.2
       if [[ ! -x "$HOME/.cargo/bin/arcup" ]]; then
-        echo -e "${PURPLE}arcup не найден — скачиваю 0.5.1…${NC}"
+        echo -e "${PURPLE}arcup не найден — скачиваю 0.5.2…${NC}"
         mkdir -p "$HOME/.cargo/bin"
         target="x86_64_linux"; [[ $(uname -m) =~ (aarch64|arm64) ]] && target="aarch64_linux"
-        curl -fsSL "https://bin.arcium.com/download/arcup_${target}_0.5.1" -o "$HOME/.cargo/bin/arcup" || \
-        curl -fsSL "https://bin.arcium.network/download/arcup_${target}_0.5.1" -o "$HOME/.cargo/bin/arcup"
+        curl -fsSL "https://bin.arcium.com/download/arcup_${target}_0.5.2" -o "$HOME/.cargo/bin/arcup" || \
+        curl -fsSL "https://bin.arcium.network/download/arcup_${target}_0.5.2" -o "$HOME/.cargo/bin/arcup"
         chmod +x "$HOME/.cargo/bin/arcup"
       fi
 
@@ -587,8 +587,8 @@ PY
       if [[ -x "$HOME/.arcium/bin/arcium-cli" && ! -e "$HOME/.arcium/bin/arcium" ]]; then
         ln -sf "$HOME/.arcium/bin/arcium-cli" "$HOME/.arcium/bin/arcium"
       fi
-      if [[ ! -e "$HOME/.arcium/bin/arcium" && -x "$HOME/.cargo/bin/arcium-0.5.1" ]]; then
-        ln -sf "$HOME/.cargo/bin/arcium-0.5.1" "$HOME/.arcium/bin/arcium"
+      if [[ ! -e "$HOME/.arcium/bin/arcium" && -x "$HOME/.cargo/bin/arcium-0.5.2" ]]; then
+        ln -sf "$HOME/.cargo/bin/arcium-0.5.2" "$HOME/.arcium/bin/arcium"
       fi
       if [[ ! -x "$HOME/.arcium/bin/arcium" ]]; then
         FOUND="$( (command -v arcium || true; command -v arcium-cli || true; \
@@ -599,9 +599,9 @@ PY
       export PATH="$HOME/.arcium/bin:$PATH"; hash -r
 
       if "$HOME/.arcium/bin/arcium" --version 2>/dev/null | grep -qE '^arcium-cli 0\.5\.1$'; then
-        echo -e "${GREEN}Версия подтверждена: arcium-cli 0.5.1${NC}"
+        echo -e "${GREEN}Версия подтверждена: arcium-cli 0.5.2${NC}"
       else
-        echo -e "${YELLOW}Внимание: ожидается arcium-cli 0.5.1. Фактический вывод ниже:${NC}"
+        echo -e "${YELLOW}Внимание: ожидается arcium-cli 0.5.2. Фактический вывод ниже:${NC}"
         "$HOME/.arcium/bin/arcium" --version 2>&1 || true
       fi
 
