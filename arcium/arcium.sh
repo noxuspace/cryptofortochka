@@ -18,8 +18,8 @@ PUB_CALLBACK_FILE="$WORKDIR/callback-pubkey.txt"
 LOGS_DIR="$WORKDIR/arx-node-logs"
 BLS_JSON="$WORKDIR/bls-keypair.json"
 BLS_BIN="$WORKDIR/bls-keypair.bin"
-X25519_KEY="$WORKDIR/x25519-key.pem"
-X25519_PEM="${X25519_PEM:-$WORKDIR/x25519-key.pem}"
+X25519_BIN="${X25519_BIN:-$WORKDIR/x25519-key.bin}"
+X25519_JSON="${X25519_JSON:-$WORKDIR/x25519-key.json}"
 # ===== Утилита для чтения cluster_offset из файла =====
 CLUSTER_FILE="$WORKDIR/cluster-info.toml"
 read_cluster_offset() {
@@ -560,7 +560,6 @@ PY
       [ -f "$ENV_FILE" ] && . "$ENV_FILE"
       CONTAINER_NAME="${CONTAINER_NAME:-arx-node}"
       IMAGE_TAG="${IMAGE_TAG:-arcium/arx-node:v0.6.4}"
-      X25519_BIN="${X25519_BIN:-$WORKDIR/x25519-key.bin}"
 
       echo -e "${BLUE}Отключаем старый контейнер ${CONTAINER_NAME}...${NC}"
       docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
@@ -610,7 +609,7 @@ PY
       fi
       export PATH="$HOME/.arcium/bin:$PATH"; hash -r
 
-      if "$HOME/.arcium/bin/arcium" --version 2>/dev/null | grep -qE '^arcium-cli 0\.5\.1$'; then
+      if "$HOME/.arcium/bin/arcium" --version 2>/dev/null | grep -qE '^arcium-cli 0\.5\.4$'; then
         echo -e "${GREEN}Версия подтверждена!${NC}"
       else
         echo -e "${YELLOW}Внимание: ожидается arcium-cli 0.5.4. Фактический вывод ниже:${NC}"
@@ -700,15 +699,38 @@ PY
         exit 0
       fi
 
-      # X25519 PEM (для контейнера)
-      if [ -f "$X25519_PEM" ] && [ -s "$X25519_PEM" ]; then
-        echo -e "${GREEN}Найден X25519 PEM: ${CYAN}$X25519_PEM${NC}"
-      else
-        echo -e "${BLUE}Генерируем X25519 PEM для P2P...${NC}"
-        openssl genpkey -algorithm X25519 -out "$X25519_PEM"
-        chmod 600 "$X25519_PEM"
-        echo -e "${GREEN}X25519 PEM создан: ${CYAN}$X25519_PEM${NC}"
+      # ---------- X25519: BIN -> JSON (32 ints) для контейнера ----------
+      echo -e "${BLUE}Конвертирую X25519 BIN → JSON для контейнера...${NC}"
+
+python3 <<PY
+from pathlib import Path
+
+src = Path("$X25519_BIN")
+dst = Path("$X25519_JSON")
+
+b = src.read_bytes()
+if len(b) != 32:
+    raise SystemExit(f"X25519 BIN must be 32 bytes, got {len(b)}")
+
+dst.write_text(str(list(b)))
+print("OK: wrote", dst, "with", len(b), "bytes")
+PY
+
+      # быстрая валидация JSON
+      cnt=$(python3 <<PY
+      import json
+      d = json.load(open("$X25519_JSON"))
+      print(len(d) if isinstance(d, list) else 0)
+      PY
+      )
+
+      if [ "$cnt" -ne 32 ]; then
+        echo -e "${RED}X25519 JSON невалидный (ожидается 32 элемента). Остановка.${NC}"
+        exit 0
       fi
+      
+      echo -e "${GREEN}X25519 JSON готов: ${CYAN}$X25519_JSON${NC}"
+
 
       # реинициализация on-chain аккаунтов (теперь с бинарным BLS)
       echo -e "${BLUE}Инициализируем on-chain аккаунты…${NC}"
@@ -730,8 +752,8 @@ PY
         -e CALLBACK_AUTHORITY_KEYPAIR_FILE=/usr/arx-node/node-keys/callback_authority_keypair.json \
         -e BLS_PRIVATE_KEY_FILE=/usr/arx-node/node-keys/bls-keypair.json \
         -e NODE_CONFIG_PATH=/usr/arx-node/arx/node_config.toml \
-        -e X25519_PRIVATE_KEY_FILE=/usr/arx-node/node-keys/x25519-key.pem \
-        -v "$X25519_PEM:/usr/arx-node/node-keys/x25519-key.pem:ro" \
+        -e X25519_PRIVATE_KEY_FILE=/usr/arx-node/node-keys/x25519-key.json \
+        -v "$X25519_JSON:/usr/arx-node/node-keys/x25519-key.json:ro" \
         -v "$CFG_FILE:/usr/arx-node/arx/node_config.toml" \
         -v "$NODE_KP:/usr/arx-node/node-keys/node_keypair.json:ro" \
         -v "$NODE_KP:/usr/arx-node/node-keys/operator_keypair.json:ro" \
