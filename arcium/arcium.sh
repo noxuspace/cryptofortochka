@@ -18,6 +18,7 @@ PUB_CALLBACK_FILE="$WORKDIR/callback-pubkey.txt"
 LOGS_DIR="$WORKDIR/arx-node-logs"
 BLS_JSON="$WORKDIR/bls-keypair.json"
 BLS_BIN="$WORKDIR/bls-keypair.bin"
+X25519_KEY="$WORKDIR/x25519-key.pem"
 # ===== Утилита для чтения cluster_offset из файла =====
 CLUSTER_FILE="$WORKDIR/cluster-info.toml"
 read_cluster_offset() {
@@ -150,6 +151,15 @@ EOANCH
 2)
   echo -e "${BLUE}Устанавливаем и запускаем ноду...${NC}"
   mkdir -p "$WORKDIR" "$LOGS_DIR"
+
+  if [ -f "$X25519_KEY" ]; then
+  echo -e "${GREEN}Найден существующий X25519 ключ: ${CYAN}$X25519_KEY${NC}"
+  else
+    echo -e "${BLUE}Генерируем X25519 ключ для P2P...${NC}"
+    openssl genpkey -algorithm X25519 -out "$X25519_KEY"
+    chmod 600 "$X25519_KEY"
+    echo -e "${GREEN}X25519 ключ создан: ${CYAN}$X25519_KEY${NC}"
+  fi
 
   # ======================= Сбор параметров =======================
   : "${RPC_HTTP:=$RPC_DEFAULT_HTTP}"; : "${RPC_WSS:=$RPC_DEFAULT_WSS}"
@@ -670,9 +680,14 @@ PY
         echo -e "${PURPLE}Используется OFFSET из .env:${NC} ${CYAN}${OFFSET}${NC}"
       fi
 
-      cd /root/arcium-node-setup
-      openssl genpkey -algorithm X25519 -out x25519-key.pem
-      chmod 600 x25519-key.pem
+      if [ -f "$X25519_KEY" ]; then
+      echo -e "${GREEN}Найден существующий X25519 ключ: ${CYAN}$X25519_KEY${NC}"
+    else
+      echo -e "${BLUE}Генерируем X25519 ключ для P2P...${NC}"
+      openssl genpkey -algorithm X25519 -out "$X25519_KEY"
+      chmod 600 "$X25519_KEY"
+      echo -e "${GREEN}X25519 ключ создан: ${CYAN}$X25519_KEY${NC}"
+    fi
 
       # реинициализация on-chain аккаунтов (теперь с бинарным BLS)
       echo -e "${BLUE}Инициализируем on-chain аккаунты…${NC}"
