@@ -717,12 +717,12 @@ print("OK: wrote", dst, "with", len(b), "bytes")
 PY
 
       # быстрая валидация JSON
-      cnt=$(python3 <<PY
-      import json
-      d = json.load(open("$X25519_JSON"))
-      print(len(d) if isinstance(d, list) else 0)
-      PY
-      )
+cnt=$(python3 <<PY
+import json
+d = json.load(open("$X25519_JSON"))
+print(len(d) if isinstance(d, list) else 0)
+PY
+)
 
       if [ "$cnt" -ne 32 ]; then
         echo -e "${RED}X25519 JSON невалидный (ожидается 32 элемента). Остановка.${NC}"
