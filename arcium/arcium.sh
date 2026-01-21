@@ -569,13 +569,13 @@ PY
       # переименуем возможный старый бинарь
       mv "$HOME/.cargo/bin/arcium" "$HOME/.cargo/bin/arcium.old" 2>/dev/null || true
 
-      # arcup 0.5.2
+      # arcup 0.5.4
       if [[ ! -x "$HOME/.cargo/bin/arcup" ]]; then
-        echo -e "${PURPLE}arcup не найден — скачиваю 0.5.2…${NC}"
+        echo -e "${PURPLE}arcup не найден — скачиваю…${NC}"
         mkdir -p "$HOME/.cargo/bin"
         target="x86_64_linux"; [[ $(uname -m) =~ (aarch64|arm64) ]] && target="aarch64_linux"
-        curl -fsSL "https://bin.arcium.com/download/arcup_${target}_0.5.2" -o "$HOME/.cargo/bin/arcup" || \
-        curl -fsSL "https://bin.arcium.network/download/arcup_${target}_0.5.2" -o "$HOME/.cargo/bin/arcup"
+        curl -fsSL "https://bin.arcium.com/download/arcup_${target}_0.5.4" -o "$HOME/.cargo/bin/arcup" || \
+        curl -fsSL "https://bin.arcium.network/download/arcup_${target}_0.5.4" -o "$HOME/.cargo/bin/arcup"
         chmod +x "$HOME/.cargo/bin/arcup"
       fi
 
@@ -587,8 +587,8 @@ PY
       if [[ -x "$HOME/.arcium/bin/arcium-cli" && ! -e "$HOME/.arcium/bin/arcium" ]]; then
         ln -sf "$HOME/.arcium/bin/arcium-cli" "$HOME/.arcium/bin/arcium"
       fi
-      if [[ ! -e "$HOME/.arcium/bin/arcium" && -x "$HOME/.cargo/bin/arcium-0.5.2" ]]; then
-        ln -sf "$HOME/.cargo/bin/arcium-0.5.2" "$HOME/.arcium/bin/arcium"
+      if [[ ! -e "$HOME/.arcium/bin/arcium" && -x "$HOME/.cargo/bin/arcium-0.5.4" ]]; then
+        ln -sf "$HOME/.cargo/bin/arcium-0.5.4" "$HOME/.arcium/bin/arcium"
       fi
       if [[ ! -x "$HOME/.arcium/bin/arcium" ]]; then
         FOUND="$( (command -v arcium || true; command -v arcium-cli || true; \
@@ -599,9 +599,9 @@ PY
       export PATH="$HOME/.arcium/bin:$PATH"; hash -r
 
       if "$HOME/.arcium/bin/arcium" --version 2>/dev/null | grep -qE '^arcium-cli 0\.5\.1$'; then
-        echo -e "${GREEN}Версия подтверждена: arcium-cli 0.5.2${NC}"
+        echo -e "${GREEN}Версия подтверждена!${NC}"
       else
-        echo -e "${YELLOW}Внимание: ожидается arcium-cli 0.5.2. Фактический вывод ниже:${NC}"
+        echo -e "${YELLOW}Внимание: ожидается arcium-cli 0.5.4. Фактический вывод ниже:${NC}"
         "$HOME/.arcium/bin/arcium" --version 2>&1 || true
       fi
 
@@ -670,13 +670,17 @@ PY
         echo -e "${PURPLE}Используется OFFSET из .env:${NC} ${CYAN}${OFFSET}${NC}"
       fi
 
+      cd /root/arcium-node-setup
+      openssl genpkey -algorithm X25519 -out x25519-key.pem
+      chmod 600 x25519-key.pem
+
       # реинициализация on-chain аккаунтов (теперь с бинарным BLS)
       echo -e "${BLUE}Инициализируем on-chain аккаунты…${NC}"
       "$HOME/.arcium/bin/arcium" init-arx-accs \
         --keypair-path "$NODE_KP" \
         --callback-keypair-path "$CALLBACK_KP" \
         --peer-keypair-path "$IDENTITY_PEM" \
-        --bls-keypair-path "$BLS_JSON" \
+        --bls-keypair-path "$BLS_BIN" \
         --node-offset "$OFFSET" \
         --ip-address "$(curl -4 -s https://ipecho.net/plain)" \
         --rpc-url "${RPC_HTTP:-https://api.devnet.solana.com}" || true
@@ -690,12 +694,16 @@ PY
         -e CALLBACK_AUTHORITY_KEYPAIR_FILE=/usr/arx-node/node-keys/callback_authority_keypair.json \
         -e BLS_PRIVATE_KEY_FILE=/usr/arx-node/node-keys/bls-keypair.json \
         -e NODE_CONFIG_PATH=/usr/arx-node/arx/node_config.toml \
+        -e X25519_PRIVATE_KEY_FILE=/usr/arx-node/node-keys/x25519-key.pem \
+        -v "$WORKDIR/x25519-key.pem:/usr/arx-node/node-keys/x25519-key.pem:ro"
         -v "$CFG_FILE:/usr/arx-node/arx/node_config.toml" \
         -v "$NODE_KP:/usr/arx-node/node-keys/node_keypair.json:ro" \
         -v "$NODE_KP:/usr/arx-node/node-keys/operator_keypair.json:ro" \
         -v "$CALLBACK_KP:/usr/arx-node/node-keys/callback_authority_keypair.json:ro" \
         -v "$IDENTITY_PEM:/usr/arx-node/node-keys/node_identity.pem:ro" \
-        -v "$BLS_JSON:/usr/arx-node/node-keys/bls-keypair.json:ro" \
+        -v "$BLS_BIN:/usr/arx-node/node-keys/bls-keypair.bin:ro"
+        -e BLS_PRIVATE_KEY_FILE=/usr/arx-node/node-keys/bls-keypair.bin
+        #-v "$BLS_JSON:/usr/arx-node/node-keys/bls-keypair.json:ro" \
         -v "$LOGS_DIR:/usr/arx-node/logs" \
         -p 8080:8080 \
         "$IMAGE_TAG"
