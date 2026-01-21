@@ -717,7 +717,7 @@ PY
       # ---------- X25519: BIN -> JSON (32 ints) для контейнера ----------
       echo -e "${BLUE}Конвертирую X25519 BIN → JSON для контейнера...${NC}"
 
-python3 <<PY
+      python3 <<PY
 from pathlib import Path
 
 src = Path("$X25519_BIN")
@@ -732,9 +732,9 @@ print("OK: wrote", dst, "with", len(b), "bytes")
 PY
 
       # быстрая валидация JSON
-cnt=$(python3 <<PY
+      cnt=$(python3 <<PY
 import json
-d = json.load(open("$X25519_JSON"))
+    d = json.load(open("$X25519_JSON"))
 print(len(d) if isinstance(d, list) else 0)
 PY
 )
