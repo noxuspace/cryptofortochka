@@ -559,6 +559,7 @@ PY
       [ -f "$ENV_FILE" ] && . "$ENV_FILE"
       CONTAINER_NAME="${CONTAINER_NAME:-arx-node}"
       IMAGE_TAG="${IMAGE_TAG:-arcium/arx-node:v0.6.4}"
+      X25519_BIN="${X25519_BIN:-$WORKDIR/x25519-key.bin}"
 
       echo -e "${BLUE}Отключаем старый контейнер ${CONTAINER_NAME}...${NC}"
       docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
@@ -680,14 +681,24 @@ PY
         echo -e "${PURPLE}Используется OFFSET из .env:${NC} ${CYAN}${OFFSET}${NC}"
       fi
 
-      if [ -f "$X25519_KEY" ]; then
-      echo -e "${GREEN}Найден существующий X25519 ключ: ${CYAN}$X25519_KEY${NC}"
-    else
-      echo -e "${BLUE}Генерируем X25519 ключ для P2P...${NC}"
-      openssl genpkey -algorithm X25519 -out "$X25519_KEY"
-      chmod 600 "$X25519_KEY"
-      echo -e "${GREEN}X25519 ключ создан: ${CYAN}$X25519_KEY${NC}"
-    fi
+      # ---------- X25519: RAW 32 bytes (для контейнера) ----------
+      if [[ -f "$X25519_BIN" ]]; then
+        echo -e "${GREEN}Найден существующий X25519 ключ (bin): ${CYAN}$X25519_BIN${NC}"
+      else
+        echo -e "${BLUE}Генерируем X25519 ключ (32 bytes RAW) для P2P...${NC}"
+        umask 077
+        openssl rand 32 > "$X25519_BIN"
+        chmod 600 "$X25519_BIN"
+        echo -e "${GREEN}X25519 ключ создан: ${CYAN}$X25519_BIN${NC}"
+      fi
+      
+      # контроль размера
+      size=$(stat -c '%s' "$X25519_BIN" 2>/dev/null || echo 0)
+      if [[ "$size" -ne 32 ]]; then
+        echo -e "${RED}X25519 BIN имеет размер ${size} байт (нужно 32). Остановка.${NC}"
+        exit 0
+      fi
+
 
       # реинициализация on-chain аккаунтов (теперь с бинарным BLS)
       echo -e "${BLUE}Инициализируем on-chain аккаунты…${NC}"
@@ -709,8 +720,8 @@ PY
         -e CALLBACK_AUTHORITY_KEYPAIR_FILE=/usr/arx-node/node-keys/callback_authority_keypair.json \
         -e BLS_PRIVATE_KEY_FILE=/usr/arx-node/node-keys/bls-keypair.json \
         -e NODE_CONFIG_PATH=/usr/arx-node/arx/node_config.toml \
-        -e X25519_PRIVATE_KEY_FILE=/usr/arx-node/node-keys/x25519-key.pem \
-        -v "$WORKDIR/x25519-key.pem:/usr/arx-node/node-keys/x25519-key.pem:ro" \
+        -e X25519_PRIVATE_KEY_FILE=/usr/arx-node/node-keys/x25519-key.bin \
+        -v "$X25519_BIN:/usr/arx-node/node-keys/x25519-key.bin:ro" \
         -v "$CFG_FILE:/usr/arx-node/arx/node_config.toml" \
         -v "$NODE_KP:/usr/arx-node/node-keys/node_keypair.json:ro" \
         -v "$NODE_KP:/usr/arx-node/node-keys/operator_keypair.json:ro" \
