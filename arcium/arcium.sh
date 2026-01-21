@@ -734,7 +734,7 @@ PY
       # быстрая валидация JSON
       cnt=$(python3 <<PY
 import json
-    d = json.load(open("$X25519_JSON"))
+d = json.load(open("$X25519_JSON"))
 print(len(d) if isinstance(d, list) else 0)
 PY
 )
