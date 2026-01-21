@@ -540,7 +540,7 @@ PY
       fi
       ;;
     11)
-      echo -ne "${YELLOW}Обновить ноду Arcium до v0.5.1? (YES/NO) ${NC}"; read -r CONFIRM
+      echo -ne "${YELLOW}Обновить ноду Arcium до v0.6.4 Docker и v0.5.4 CLI? (YES/NO) ${NC}"; read -r CONFIRM
       if [ "$CONFIRM" != "YES" ]; then
         echo -e "${PURPLE}Отмена.${NC}"
       else
@@ -548,7 +548,7 @@ PY
       # --- подготовка путей/переменных ---
       [ -f "$ENV_FILE" ] && . "$ENV_FILE"
       CONTAINER_NAME="${CONTAINER_NAME:-arx-node}"
-      IMAGE_TAG="${IMAGE_TAG:-arcium/arx-node:v0.5.1}"
+      IMAGE_TAG="${IMAGE_TAG:-arcium/arx-node:v0.6.4}"
 
       echo -e "${BLUE}Отключаем старый контейнер ${CONTAINER_NAME}...${NC}"
       docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
@@ -681,7 +681,7 @@ PY
         --ip-address "$(curl -4 -s https://ipecho.net/plain)" \
         --rpc-url "${RPC_HTTP:-https://api.devnet.solana.com}" || true
 
-      # запуск контейнера с образом v0.5.1 (внутри — JSON BLS)
+      # запуск контейнера с образом v0.6.4 (внутри — JSON BLS)
       echo -e "${BLUE}Запускаем контейнер ${CONTAINER_NAME} c образом ${IMAGE_TAG}…${NC}"
       docker run -d --name "$CONTAINER_NAME" --restart unless-stopped \
         -e NODE_IDENTITY_FILE=/usr/arx-node/node-keys/node_identity.pem \
