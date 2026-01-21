@@ -19,6 +19,7 @@ LOGS_DIR="$WORKDIR/arx-node-logs"
 BLS_JSON="$WORKDIR/bls-keypair.json"
 BLS_BIN="$WORKDIR/bls-keypair.bin"
 X25519_KEY="$WORKDIR/x25519-key.pem"
+X25519_PEM="${X25519_PEM:-$WORKDIR/x25519-key.pem}"
 # ===== Утилита для чтения cluster_offset из файла =====
 CLUSTER_FILE="$WORKDIR/cluster-info.toml"
 read_cluster_offset() {
@@ -699,6 +700,15 @@ PY
         exit 0
       fi
 
+      # X25519 PEM (для контейнера)
+      if [ -f "$X25519_PEM" ] && [ -s "$X25519_PEM" ]; then
+        echo -e "${GREEN}Найден X25519 PEM: ${CYAN}$X25519_PEM${NC}"
+      else
+        echo -e "${BLUE}Генерируем X25519 PEM для P2P...${NC}"
+        openssl genpkey -algorithm X25519 -out "$X25519_PEM"
+        chmod 600 "$X25519_PEM"
+        echo -e "${GREEN}X25519 PEM создан: ${CYAN}$X25519_PEM${NC}"
+      fi
 
       # реинициализация on-chain аккаунтов (теперь с бинарным BLS)
       echo -e "${BLUE}Инициализируем on-chain аккаунты…${NC}"
@@ -720,8 +730,8 @@ PY
         -e CALLBACK_AUTHORITY_KEYPAIR_FILE=/usr/arx-node/node-keys/callback_authority_keypair.json \
         -e BLS_PRIVATE_KEY_FILE=/usr/arx-node/node-keys/bls-keypair.json \
         -e NODE_CONFIG_PATH=/usr/arx-node/arx/node_config.toml \
-        -e X25519_PRIVATE_KEY_FILE=/usr/arx-node/node-keys/x25519-key.bin \
-        -v "$X25519_BIN:/usr/arx-node/node-keys/x25519-key.bin:ro" \
+        -e X25519_PRIVATE_KEY_FILE=/usr/arx-node/node-keys/x25519-key.pem \
+        -v "$X25519_PEM:/usr/arx-node/node-keys/x25519-key.pem:ro" \
         -v "$CFG_FILE:/usr/arx-node/arx/node_config.toml" \
         -v "$NODE_KP:/usr/arx-node/node-keys/node_keypair.json:ro" \
         -v "$NODE_KP:/usr/arx-node/node-keys/operator_keypair.json:ro" \
