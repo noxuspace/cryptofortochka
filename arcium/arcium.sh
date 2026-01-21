@@ -708,7 +708,6 @@ PY
         -e OPERATOR_KEYPAIR_FILE=/usr/arx-node/node-keys/operator_keypair.json \
         -e CALLBACK_AUTHORITY_KEYPAIR_FILE=/usr/arx-node/node-keys/callback_authority_keypair.json \
         -e BLS_PRIVATE_KEY_FILE=/usr/arx-node/node-keys/bls-keypair.bin \
-        #-e BLS_PRIVATE_KEY_FILE=/usr/arx-node/node-keys/bls-keypair.json \
         -e NODE_CONFIG_PATH=/usr/arx-node/arx/node_config.toml \
         -e X25519_PRIVATE_KEY_FILE=/usr/arx-node/node-keys/x25519-key.pem \
         -v "$WORKDIR/x25519-key.pem:/usr/arx-node/node-keys/x25519-key.pem:ro" \
@@ -718,7 +717,6 @@ PY
         -v "$CALLBACK_KP:/usr/arx-node/node-keys/callback_authority_keypair.json:ro" \
         -v "$IDENTITY_PEM:/usr/arx-node/node-keys/node_identity.pem:ro" \
         -v "$BLS_BIN:/usr/arx-node/node-keys/bls-keypair.bin:ro" \
-        #-v "$BLS_JSON:/usr/arx-node/node-keys/bls-keypair.json:ro" \
         -v "$LOGS_DIR:/usr/arx-node/logs" \
         -p 8080:8080 \
         "$IMAGE_TAG"
