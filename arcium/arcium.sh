@@ -26,7 +26,7 @@ read_cluster_offset() {
 }
 
 CONTAINER_NAME="arx-node"
-IMAGE_TAG="arcium/arx-node:v0.5.1"
+IMAGE_TAG="arcium/arx-node:v0.6.4"
 RPC_DEFAULT_HTTP="https://api.devnet.solana.com"
 RPC_DEFAULT_WSS="wss://api.devnet.solana.com"
 
