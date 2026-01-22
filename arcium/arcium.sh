@@ -439,9 +439,14 @@ PY
           -p 8080:8080 \
           "$IMAGE_TAG"
         echo -e "${GREEN}Запущен.${NC}"
+        sleep 2
+        docker exec -it arx-node sh -lc 'tail -n +1 -f "$(ls -t /usr/arx-node/logs/arx_log_*.log 2>/dev/null | head -1)"' || true
       fi
       ;;
-    2) docker restart "$CONTAINER_NAME" && echo -e "${GREEN}Перезапущен.${NC}" || echo -e "${RED}Не запущен.${NC}" ;;
+    2) docker restart "$CONTAINER_NAME" && echo -e "${GREEN}Перезапущен.${NC}" || echo -e "${RED}Не запущен.${NC}"
+    sleep 2
+    docker exec -it arx-node sh -lc 'tail -n +1 -f "$(ls -t /usr/arx-node/logs/arx_log_*.log 2>/dev/null | head -1)"' || true
+    ;;
     3) docker stop "$CONTAINER_NAME" && echo -e "${GREEN}Остановлен.${NC}" || true ;;
     4) docker rm -f "$CONTAINER_NAME" && echo -e "${GREEN}Удалён.${NC}" || true ;;
     5) docker ps -a --filter "name=$CONTAINER_NAME" --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}' ;;
