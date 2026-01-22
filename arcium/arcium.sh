@@ -153,24 +153,19 @@ EOANCH
   echo -e "${BLUE}Устанавливаем и запускаем ноду...${NC}"
   mkdir -p "$WORKDIR" "$LOGS_DIR"
 
-  if [ -f "$X25519_KEY" ]; then
-  echo -e "${GREEN}Найден существующий X25519 ключ: ${CYAN}$X25519_KEY${NC}"
-  else
-    echo -e "${BLUE}Генерируем X25519 ключ для P2P...${NC}"
-    openssl genpkey -algorithm X25519 -out "$X25519_KEY"
-    chmod 600 "$X25519_KEY"
-    echo -e "${GREEN}X25519 ключ создан: ${CYAN}$X25519_KEY${NC}"
-  fi
-
   # ======================= Сбор параметров =======================
-  : "${RPC_HTTP:=$RPC_DEFAULT_HTTP}"; : "${RPC_WSS:=$RPC_DEFAULT_WSS}"
+  : "${RPC_HTTP:=$RPC_DEFAULT_HTTP}"
+  : "${RPC_WSS:=$RPC_DEFAULT_WSS}"
 
   echo -ne "${YELLOW}Введите Solana RPC HTTP [${RPC_HTTP}]: ${NC}"; read -r ans; RPC_HTTP=${ans:-$RPC_HTTP}
   echo -ne "${YELLOW}Введите Solana RPC WSS  [${RPC_WSS}]: ${NC}"; read -r ans; RPC_WSS=${ans:-$RPC_WSS}
 
   echo -ne "${YELLOW}Придумайте уникальный NODE OFFSET (8–10 цифр): ${NC}"; read -r OFFSET
-  OFFSET=$(printf '%s' "$OFFSET" | sed -n 's/[^0-9]*\([0-9][0-9]*\).*/\1/p')
-  if [ -z "$OFFSET" ]; then echo -e "${RED}OFFSET пустой. Отмена.${NC}"; exit 1; fi
+  OFFSET=$(printf '%s' "$OFFSET" | tr -cd '0-9')
+  if [ -z "$OFFSET" ]; then
+    echo -e "${RED}OFFSET пустой. Отмена.${NC}"
+    exit 1
+  fi
 
   # Автоопределение публичного IP (если не удалось — спросим вручную)
   PUBLIC_IP=$(curl -4 -s https://ipecho.net/plain || true)
@@ -181,9 +176,31 @@ EOANCH
   else
     echo -e "${PURPLE}Обнаружен публичный IP: ${CYAN}${PUBLIC_IP}${NC}"
   fi
-  # ===============================================================
 
-  # Сохраняем .env
+  # =================== Анти-тупик по кластерам ===================
+  # Если это НЕ первый запуск и старая нода уже "в активном кластере" — лучше пересоздать ключи/identity.
+  if [ -f "$ENV_FILE" ]; then
+    # shellcheck disable=SC1090
+    . "$ENV_FILE" 2>/dev/null || true
+  fi
+
+  if [ -f "$NODE_KP" ] && [ -n "${OFFSET:-}" ] && command -v arcium >/dev/null 2>&1; then
+    if arcium arx-info "$OFFSET" --rpc-url "${RPC_HTTP:-$RPC_DEFAULT_HTTP}" 2>/dev/null | grep -q 'Active Cluster:'; then
+      echo -e "${YELLOW}ВНИМАНИЕ: текущая нода (OFFSET=${OFFSET}) уже состоит в активном кластере.${NC}"
+      echo -e "${YELLOW}Это может быть dead-cluster и нода не стартанёт. Для “чистого” запуска нужны НОВЫЕ ключи.${NC}"
+      echo -ne "${YELLOW}Пересоздать ключи/identity и начать с чистого pubkey? (YES/NO) ${NC}"; read -r RESET_KEYS
+      if [ "$RESET_KEYS" = "YES" ]; then
+        ts=$(date +%Y%m%d_%H%M%S)
+        echo -e "${PURPLE}Бэкап старых файлов в ${WORKDIR}/backup_${ts}${NC}"
+        mkdir -p "$WORKDIR/backup_${ts}"
+        for f in "$NODE_KP" "$CALLBACK_KP" "$IDENTITY_PEM" "$SEED_NODE" "$SEED_CALLBACK"; do
+          [ -f "$f" ] && mv "$f" "$WORKDIR/backup_${ts}/" 2>/dev/null || true
+        done
+      fi
+    fi
+  fi
+
+  # ====================== Сохраняем .env =========================
   cat > "$ENV_FILE" <<EOF
 BASE_DIR="$WORKDIR"
 IMAGE="$IMAGE_TAG"
@@ -193,8 +210,9 @@ RPC_WSS="$RPC_WSS"
 OFFSET="$OFFSET"
 PUBLIC_IP="$PUBLIC_IP"
 EOF
+  chmod 600 "$ENV_FILE" 2>/dev/null || true
 
-  # Генерация ключей (+сид-фразы в файлы ПО ТАКИМ ЖЕ ПУТЯМ, КАК У АВТОРА)
+  # =================== Генерация ключей Solana ===================
   if [ ! -f "$NODE_KP" ]; then
     echo -e "${BLUE}Генерируем node-keypair.json...${NC}"
     (solana-keygen new --no-passphrase --force --outfile "$NODE_KP" | tee "$SEED_NODE") || true
@@ -208,10 +226,56 @@ EOF
   [ -f "$SEED_NODE" ] && chmod 600 "$SEED_NODE" || true
   [ -f "$SEED_CALLBACK" ] && chmod 600 "$SEED_CALLBACK" || true
 
-  # Identity PEM для p2p — туда же, в $WORKDIR
-  [ -f "$IDENTITY_PEM" ] || openssl genpkey -algorithm Ed25519 -out "$IDENTITY_PEM" >/dev/null 2>&1 || true
+  # Identity PEM для p2p
+  if [ ! -f "$IDENTITY_PEM" ]; then
+    echo -e "${BLUE}Генерируем identity.pem (Ed25519)...${NC}"
+    openssl genpkey -algorithm Ed25519 -out "$IDENTITY_PEM" >/dev/null 2>&1 || true
+    chmod 600 "$IDENTITY_PEM" 2>/dev/null || true
+  fi
 
-  # Пишем node-config.toml (как у автора: отдельная секция [solana.commitment])
+  # =================== X25519: BIN -> JSON =======================
+  # Контейнер v0.6.4 ожидает X25519 как JSON (список из 32 чисел).
+  if [[ -f "$X25519_BIN" ]]; then
+    echo -e "${GREEN}Найден существующий X25519 ключ (bin): ${CYAN}$X25519_BIN${NC}"
+  else
+    echo -e "${BLUE}Генерируем X25519 ключ (32 bytes RAW) для P2P...${NC}"
+    umask 077
+    openssl rand 32 > "$X25519_BIN"
+    chmod 600 "$X25519_BIN"
+    echo -e "${GREEN}X25519 ключ создан: ${CYAN}$X25519_BIN${NC}"
+  fi
+
+  size=$(stat -c '%s' "$X25519_BIN" 2>/dev/null || echo 0)
+  if [[ "$size" -ne 32 ]]; then
+    echo -e "${RED}X25519 BIN имеет размер ${size} байт (нужно 32). Остановка.${NC}"
+    exit 1
+  fi
+
+  echo -e "${BLUE}Конвертирую X25519 BIN → JSON для контейнера...${NC}"
+  python3 <<PY
+from pathlib import Path
+src = Path("$X25519_BIN")
+dst = Path("$X25519_JSON")
+b = src.read_bytes()
+if len(b) != 32:
+    raise SystemExit(f"X25519 BIN must be 32 bytes, got {len(b)}")
+dst.write_text(str(list(b)))
+print("OK: wrote", dst)
+PY
+
+  cnt=$(python3 <<PY
+import json
+d = json.load(open("$X25519_JSON"))
+print(len(d) if isinstance(d, list) else 0)
+PY
+)
+  if [ "$cnt" -ne 32 ]; then
+    echo -e "${RED}X25519 JSON невалидный (ожидается 32 элемента). Остановка.${NC}"
+    exit 1
+  fi
+  echo -e "${GREEN}X25519 JSON готов: ${CYAN}$X25519_JSON${NC}"
+
+  # ===================== node-config.toml =======================
   cat > "$CFG_FILE" <<EOF
 [node]
 offset = $OFFSET
@@ -230,28 +294,25 @@ cluster = "Devnet"
 [solana.commitment]
 commitment = "confirmed"
 EOF
+  chmod 600 "$CFG_FILE" 2>/dev/null || true
 
-  # На всякий: выставим RPC, чтобы баланс и airdrop шли в правильный кластер
+  # RPC для solana-cli
   solana config set --url "$RPC_HTTP" >/dev/null 2>&1 || true
-  
+
   # Адреса
   NODE_PK=$(solana address --keypair "$NODE_KP" 2>/dev/null || echo N/A)
   CB_PK=$(solana address --keypair "$CALLBACK_KP" 2>/dev/null || echo N/A)
   echo -e "${PURPLE}Адреса:${NC}\n  Node: $NODE_PK\n  Callback: $CB_PK"
-  
-  # Утилита баланса (числом)
+
+  # Балансы + airdrop
   balance_of() { solana balance -u devnet "$1" 2>/dev/null | awk '{print $1+0}' 2>/dev/null; }
-  
-  # Пробуем airdrop (не критично, могут не прийти)
   echo -e "${BLUE}Пробуем Devnet airdrop по 2 SOL на оба адреса...${NC}"
   solana airdrop 2 "$NODE_PK" -u devnet >/dev/null 2>&1 || true
   solana airdrop 2 "$CB_PK" -u devnet >/dev/null 2>&1 || true
-  
-  # Первичная проверка балансов
+
   NB=$(balance_of "$NODE_PK"); CB=$(balance_of "$CB_PK")
   echo -e "${PURPLE}Балансы (devnet):${NC}\n  Node: ${NB} SOL\n  Callback: ${CB} SOL"
-  
-  # Если 0 — даём пользователю пополнить вручную и жмём Enter
+
   if ! awk "BEGIN{exit !($NB>0 && $CB>0)}"; then
     echo -e "${YELLOW}Нужно пополнить оба адреса (Devnet). Открой: https://faucet.solana.com/${NC}"
     read -rp "Пополните кошельки и нажмите Enter для продолжения..." _
@@ -263,76 +324,55 @@ EOF
     fi
   fi
 
-    # ---------- BLS: JSON -> BIN (фикс под 0.5.1) ----------
-    # если вдруг по этому пути каталог — удаляем только каталог
-    [ -d "$BLS_JSON" ] && rm -rf "$BLS_JSON"
-  
-    # если JSON ещё нет — генерируем
-    if [[ ! -f "$BLS_JSON" || ! -s "$BLS_JSON" ]]; then
-      if arcium --help 2>/dev/null | grep -q 'gen-bls-key'; then
-        echo -e "${BLUE}Генерируем BLS-ключ (bls-keypair.json) для ноды...${NC}"
-        (
-          cd "$WORKDIR" || exit 1
-          arcium gen-bls-key "$(basename "$BLS_JSON")"
-        ) || {
-          echo -e "${RED}Не удалось сгенерировать BLS-ключ — init-arx-accs может упасть.${NC}"
-        }
-      else
-        echo -e "${PURPLE}Эта версия Arcium CLI не умеет gen-bls-key — BLS будет отключён.${NC}"
-      fi
+  # ======================= BLS: JSON -> BIN ======================
+  [ -d "$BLS_JSON" ] && rm -rf "$BLS_JSON"
+
+  if [[ ! -f "$BLS_JSON" || ! -s "$BLS_JSON" ]]; then
+    if arcium --help 2>/dev/null | grep -q 'gen-bls-key'; then
+      echo -e "${BLUE}Генерируем BLS-ключ (bls-keypair.json) для ноды...${NC}"
+      (cd "$WORKDIR" && arcium gen-bls-key "$(basename "$BLS_JSON")") || true
     else
-      echo -e "${GREEN}Найден существующий BLS-ключ (JSON): ${CYAN}$BLS_JSON${NC}"
+      echo -e "${PURPLE}Текущая Arcium CLI не умеет gen-bls-key — BLS может не работать.${NC}"
     fi
-  
-    # конвертируем JSON -> бинарник, если JSON существует
-    if [[ -f "$BLS_JSON" ]]; then
-      echo -e "${BLUE}Конвертирую BLS JSON → бинарный формат (32 байта) для init-arx-accs...${NC}"
-      python3 <<PY
+  else
+    echo -e "${GREEN}Найден существующий BLS-ключ (JSON): ${CYAN}$BLS_JSON${NC}"
+  fi
+
+  if [[ -f "$BLS_JSON" ]]; then
+    echo -e "${BLUE}Конвертирую BLS JSON → BIN (32 байта) для init-arx-accs...${NC}"
+    python3 <<PY
 import json
 from pathlib import Path
-  
 src = Path("$BLS_JSON")
 dst = Path("$BLS_BIN")
-  
 data = json.loads(src.read_text().strip())
-  
 if not isinstance(data, list) or len(data) != 32:
-    raise SystemExit(f"Unexpected BLS format: need list of 32 ints, got {type(data)} len={len(data) if isinstance(data,list) else 'n/a'}")
-  
+    raise SystemExit("Unexpected BLS format: need list of 32 ints")
 if not all(isinstance(x, int) and 0 <= x <= 255 for x in data):
     raise SystemExit("List elements must be ints 0..255")
-  
 dst.write_bytes(bytes(data))
-print("OK, wrote", dst, "with", len(data), "bytes")
+print("OK: wrote", dst, "bytes:", len(data))
 PY
-      if [[ -f "$BLS_BIN" ]]; then
-        size=$(stat -c '%s' "$BLS_BIN" 2>/dev/null || echo 0)
-        if [ "$size" -eq 32 ]; then
-          echo -e "${GREEN}BLS BIN готов: ${CYAN}$BLS_BIN (32 байта)${NC}"
-        else
-          echo -e "${YELLOW}BLS BIN имеет размер ${size} байт (ожидается 32).${NC}"
-        fi
-      fi
-    fi
-    # ---------- /BLS ----------
+    chmod 600 "$BLS_BIN" 2>/dev/null || true
+  fi
 
-  
-  # Инициализация on-chain аккаунтов ноды (пути один-в-один)
+  # ================= init-arx-accs (ВАЖНО: BLS_BIN) ==============
   echo -e "${BLUE}Инициализируем on-chain аккаунты (arcium init-arx-accs)...${NC}"
   (cd "$WORKDIR" && arcium init-arx-accs \
     --keypair-path "$NODE_KP" \
     --callback-keypair-path "$CALLBACK_KP" \
     --peer-keypair-path "$IDENTITY_PEM" \
-    --bls-keypair-path "$BLS_JSON" \
+    --bls-keypair-path "$BLS_BIN" \
     --node-offset "$OFFSET" \
     --ip-address "$PUBLIC_IP" \
     --rpc-url "$RPC_HTTP") || true
 
-  # Подтягиваем образ и запускаем контейнер (монты — как в чужом)
+  # ===================== Docker run (v0.6.4) =====================
   echo -e "${BLUE}Подтягиваем образ и запускаем контейнер...${NC}"
   docker pull "$IMAGE_TAG"
   docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
-  docker run -d \
+
+  docker run -d --restart unless-stopped \
     --name "$CONTAINER_NAME" \
     -e NODE_IDENTITY_FILE=/usr/arx-node/node-keys/node_identity.pem \
     -e NODE_KEYPAIR_FILE=/usr/arx-node/node-keys/node_keypair.json \
@@ -340,22 +380,27 @@ PY
     -e CALLBACK_AUTHORITY_KEYPAIR_FILE=/usr/arx-node/node-keys/callback_authority_keypair.json \
     -e BLS_PRIVATE_KEY_FILE=/usr/arx-node/node-keys/bls-keypair.json \
     -e NODE_CONFIG_PATH=/usr/arx-node/arx/node_config.toml \
+    -e X25519_PRIVATE_KEY_FILE=/usr/arx-node/node-keys/x25519-key.json \
     -v "$CFG_FILE:/usr/arx-node/arx/node_config.toml" \
     -v "$NODE_KP:/usr/arx-node/node-keys/node_keypair.json:ro" \
     -v "$NODE_KP:/usr/arx-node/node-keys/operator_keypair.json:ro" \
     -v "$CALLBACK_KP:/usr/arx-node/node-keys/callback_authority_keypair.json:ro" \
     -v "$IDENTITY_PEM:/usr/arx-node/node-keys/node_identity.pem:ro" \
     -v "$BLS_JSON:/usr/arx-node/node-keys/bls-keypair.json:ro" \
+    -v "$X25519_JSON:/usr/arx-node/node-keys/x25519-key.json:ro" \
     -v "$LOGS_DIR:/usr/arx-node/logs" \
     -p 8080:8080 \
     "$IMAGE_TAG"
 
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+  echo -e "${YELLOW}ВАЖНО:${NC} После init-arx-accs нужно вступить в ЖИВОЙ кластер (пункт 5 → 5/6)."
   echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
   echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+
   sleep 2
-  docker exec -it arx-node sh -lc 'tail -n +1 -f "$(ls -t /usr/arx-node/logs/arx_log_*.log 2>/dev/null | head -1)"' || true
+  echo -e "${PURPLE}Ctrl+C для выхода из логов${NC}"
+  docker exec -it "$CONTAINER_NAME" sh -lc 'tail -n +1 -f "$(ls -t /usr/arx-node/logs/arx_log_*.log 2>/dev/null | head -1)"' || true
   ;;
 
 # ========== 3) Управление контейнером (start/restart/stop/rm/status) ==========
