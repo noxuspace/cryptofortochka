@@ -362,7 +362,7 @@ PY
     --keypair-path "$NODE_KP" \
     --callback-keypair-path "$CALLBACK_KP" \
     --peer-keypair-path "$IDENTITY_PEM" \
-    --bls-keypair-path "$BLS_BIN" \
+    --bls-keypair-path "$BLS_JSON" \
     --node-offset "$OFFSET" \
     --ip-address "$PUBLIC_IP" \
     --rpc-url "$RPC_HTTP") || true
@@ -419,7 +419,7 @@ PY
       else
         echo -e "${BLUE}Контейнера нет — запускаем с нужными томами...${NC}"
         docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
-        docker run -d \
+        docker run -d --restart unless-stopped \
           --name "$CONTAINER_NAME" \
           -e NODE_IDENTITY_FILE=/usr/arx-node/node-keys/node_identity.pem \
           -e NODE_KEYPAIR_FILE=/usr/arx-node/node-keys/node_keypair.json \
@@ -427,12 +427,14 @@ PY
           -e CALLBACK_AUTHORITY_KEYPAIR_FILE=/usr/arx-node/node-keys/callback_authority_keypair.json \
           -e BLS_PRIVATE_KEY_FILE=/usr/arx-node/node-keys/bls-keypair.json \
           -e NODE_CONFIG_PATH=/usr/arx-node/arx/node_config.toml \
+          -e X25519_PRIVATE_KEY_FILE=/usr/arx-node/node-keys/x25519-key.json \
           -v "$CFG_FILE:/usr/arx-node/arx/node_config.toml" \
           -v "$NODE_KP:/usr/arx-node/node-keys/node_keypair.json:ro" \
           -v "$NODE_KP:/usr/arx-node/node-keys/operator_keypair.json:ro" \
           -v "$CALLBACK_KP:/usr/arx-node/node-keys/callback_authority_keypair.json:ro" \
           -v "$IDENTITY_PEM:/usr/arx-node/node-keys/node_identity.pem:ro" \
           -v "$BLS_JSON:/usr/arx-node/node-keys/bls-keypair.json:ro" \
+          -v "$X25519_JSON:/usr/arx-node/node-keys/x25519-key.json:ro" \
           -v "$LOGS_DIR:/usr/arx-node/logs" \
           -p 8080:8080 \
           "$IMAGE_TAG"
@@ -798,7 +800,7 @@ PY
         --keypair-path "$NODE_KP" \
         --callback-keypair-path "$CALLBACK_KP" \
         --peer-keypair-path "$IDENTITY_PEM" \
-        --bls-keypair-path "$BLS_BIN" \
+        --bls-keypair-path "$BLS_JSON" \
         --node-offset "$OFFSET" \
         --ip-address "$(curl -4 -s https://ipecho.net/plain)" \
         --rpc-url "${RPC_HTTP:-https://api.devnet.solana.com}" || true
