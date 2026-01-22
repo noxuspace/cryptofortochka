@@ -394,7 +394,7 @@ PY
     "$IMAGE_TAG"
 
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
-  echo -e "${YELLOW}ВАЖНО:${NC} После init-arx-accs нужно вступить в АКТИВНЫЙ кластер (пункт 5 → 5/6)."
+  echo -e "${YELLOW}ВАЖНО:${NC} После init-arx-accs нужно вступить в АКТИВНЫЙ кластер."
   echo -e "${GREEN}CRYPTO FORTOCHKA — вся крипта в одном месте!${NC}"
   echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
