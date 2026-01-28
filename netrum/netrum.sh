@@ -32,6 +32,11 @@ case "$choice" in
   $SUDO apt-get update -y && $SUDO apt-get upgrade -y
   $SUDO apt-get install -y curl git jq build-essential python3 make g++ wget
 
+  wget https://install.speedtest.net/app/cli/ookla-speedtest-1.2.0-linux-x86_64.tgz
+  tar -xvzf ookla-speedtest-1.2.0-linux-x86_64.tgz
+  sudo mv speedtest /usr/local/bin/
+  sudo chmod +x /usr/local/bin/speedtest
+
   $SUDO apt-get purge -y nodejs npm || true
   $SUDO apt-get autoremove -y
   $SUDO rm -f /usr/bin/node /usr/local/bin/node /usr/bin/npm /usr/local/bin/npm
