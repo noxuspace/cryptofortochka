@@ -196,7 +196,7 @@ EOF
       cat > /tmp/validator.json <<EOF
 {
   "pubkey": $PUBKEY,
-  "amount": "1000000000000000000000arai",
+  "amount": "5000000000000000000arai",
   "moniker": "${MONIKER:-my-validator}",
   "identity": "",
   "website": "",
