@@ -183,8 +183,9 @@ EOF
       docker exec -it "$CONTAINER_NAME" republicd keys add validator --home /home/republic/.republicd
       ;;
     5)
-      docker exec "$CONTAINER_NAME" republicd keys show validator -a --home /home/republic/.republicd 2>/dev/null | tr -d '\r' || \
-        docker exec -it "$CONTAINER_NAME" republicd keys show validator -a --home /home/republic/.republicd
+      # -it нужен для ввода пароля keyring; без TTY команда не выводит адрес
+      echo -e "${CYAN}Введите пароль ключа validator, если запросит.${NC}"
+      docker exec -it "$CONTAINER_NAME" republicd keys show validator -a --home /home/republic/.republicd 2>&1 | tr -d '\r'
       ;;
     6)
       echo -ne "${YELLOW}Введите MONIKER (имя валидатора): ${NC}"; read -r MONIKER
