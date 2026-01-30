@@ -216,12 +216,18 @@ EOF
         --from validator -y
       ;;
     7)
-      VALOPER=$(docker exec "$CONTAINER_NAME" republicd keys show validator -a --bech val --home /home/republic/.republicd 2>/dev/null | tr -d '\r')
+      # Адреса и баланс: keys show без -it не выводит ничего (запрос пароля)
+      echo -e "${CYAN}Введите пароль ключа validator (дважды: для адреса и для VALOPER).${NC}"
+      VALADDR=$(docker exec -it "$CONTAINER_NAME" republicd keys show validator -a --home /home/republic/.republicd 2>&1 | tr -d '\r' | grep -oE 'rai1[a-z0-9]+' | head -1)
+      VALOPER=$(docker exec -it "$CONTAINER_NAME" republicd keys show validator -a --bech val --home /home/republic/.republicd 2>&1 | tr -d '\r' | grep -oE 'raivaloper1[a-z0-9]+' | head -1)
       if [ -z "$VALOPER" ]; then
         echo -e "${YELLOW}Введите VALOPER адрес вручную: ${NC}"; read -r VALOPER
       fi
-      VALADDR=$(docker exec "$CONTAINER_NAME" republicd keys show validator -a --home /home/republic/.republicd 2>/dev/null | tr -d '\r')
-      BALANCE=$(docker exec "$CONTAINER_NAME" republicd query bank balances "$VALADDR" --home /home/republic/.republicd --output json 2>/dev/null | jq -r '.balances[] | select(.denom=="arai") | .amount // empty')
+      if [ -z "$VALADDR" ]; then
+        echo -e "${RED}Не удалось получить адрес validator. Проверьте пароль.${NC}"
+      else
+      BALANCE_JSON=$(docker exec "$CONTAINER_NAME" republicd query bank balances "$VALADDR" --home /home/republic/.republicd --output json 2>/dev/null)
+      BALANCE=$(echo "$BALANCE_JSON" | jq -r '.balances[] | select(.denom=="arai" or .denom=="urai") | .amount // empty' | head -1)
       BALANCE=${BALANCE:-0}
       LEAVE_ONE=1000000000000000000
       if command -v bc >/dev/null 2>&1; then
@@ -241,6 +247,7 @@ EOF
           --home /home/republic/.republicd \
           --chain-id "$CHAIN_ID" \
           --gas auto --gas-adjustment 1.5 --gas-prices 1000000000arai -y
+      fi
       fi
       ;;
     8)
