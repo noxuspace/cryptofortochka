@@ -116,7 +116,7 @@ EOF
   echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
 
-  sleep 2
+  sleep 5
   echo -e "${PURPLE}Ctrl+C для выхода из логов${NC}"
   docker logs -f "$CONTAINER_NAME"
   ;;
