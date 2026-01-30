@@ -242,10 +242,12 @@ else:
     print('0')
 " 2>/dev/null)
       DELEGATE_AMOUNT=${DELEGATE_RESULT:-0}
+      BALANCE_HUMAN=$(python3 -c "print(round(int('$BALANCE')/1e18, 2))" 2>/dev/null || echo "0")
+      DELEGATE_HUMAN=$(python3 -c "print(round(int('${DELEGATE_AMOUNT:-0}')/1e18, 2))" 2>/dev/null || echo "0")
       if [ -z "$DELEGATE_AMOUNT" ] || [ "$DELEGATE_AMOUNT" = "0" ]; then
-        echo -e "${RED}Недостаточно токенов для делегирования (баланс: ${BALANCE} base, нужно больше 1 arai для комиссии).${NC}"
+        echo -e "${RED}Недостаточно токенов для делегирования (баланс: ${BALANCE_HUMAN} arai, нужно больше 1 arai для комиссии).${NC}"
       else
-        echo -e "${CYAN}Баланс: ${BALANCE} base. Делегируем всё кроме 1 arai (${DELEGATE_AMOUNT} base) на $VALOPER${NC}"
+        echo -e "${CYAN}Баланс: ${BALANCE_HUMAN} arai. Делегируем всё кроме 1 arai (${DELEGATE_HUMAN} arai) на $VALOPER${NC}"
         echo -e "${YELLOW}Введите пароль ключа validator для подтверждения транзакции.${NC}"
         docker exec -it "$CONTAINER_NAME" republicd tx staking delegate \
           "$VALOPER" \
