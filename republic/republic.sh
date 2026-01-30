@@ -196,7 +196,7 @@ EOF
       cat > /tmp/validator.json <<EOF
 {
   "pubkey": $PUBKEY,
-  "amount": "5000000000000000000arai",
+  "amount": "1000000000000000000arai",
   "moniker": "${MONIKER:-my-validator}",
   "identity": "",
   "website": "",
@@ -219,14 +219,28 @@ EOF
       if [ -z "$VALOPER" ]; then
         echo -e "${YELLOW}Введите VALOPER адрес вручную: ${NC}"; read -r VALOPER
       fi
-      echo -e "${CYAN}Делегируем 50 arai на $VALOPER${NC}"
-      docker exec -it "$CONTAINER_NAME" republicd tx staking delegate \
-        "$VALOPER" \
-        50000000000000000000arai \
-        --from validator \
-        --home /home/republic/.republicd \
-        --chain-id "$CHAIN_ID" \
-        --gas auto --gas-adjustment 1.5 --gas-prices 1000000000arai -y
+      VALADDR=$(docker exec "$CONTAINER_NAME" republicd keys show validator -a --home /home/republic/.republicd 2>/dev/null | tr -d '\r')
+      BALANCE=$(docker exec "$CONTAINER_NAME" republicd query bank balances "$VALADDR" --home /home/republic/.republicd --output json 2>/dev/null | jq -r '.balances[] | select(.denom=="arai") | .amount // empty')
+      BALANCE=${BALANCE:-0}
+      LEAVE_ONE=1000000000000000000
+      if command -v bc >/dev/null 2>&1; then
+        DELEGATE_AMOUNT=$(echo "$BALANCE - $LEAVE_ONE" | bc 2>/dev/null || echo "0")
+      else
+        DELEGATE_AMOUNT=$(awk "BEGIN{print $BALANCE - $LEAVE_ONE}" 2>/dev/null || echo "0")
+      fi
+      CAN_DELEGATE=$(echo "$DELEGATE_AMOUNT > 0" | bc 2>/dev/null || echo "0")
+      if [ -z "$DELEGATE_AMOUNT" ] || [ "$CAN_DELEGATE" -ne 1 ]; then
+        echo -e "${RED}Недостаточно токенов для делегирования (баланс: ${BALANCE} base, нужно больше 1 arai для комиссии).${NC}"
+      else
+        echo -e "${CYAN}Баланс: ${BALANCE} base. Делегируем всё кроме 1 arai (${DELEGATE_AMOUNT} base) на $VALOPER${NC}"
+        docker exec -it "$CONTAINER_NAME" republicd tx staking delegate \
+          "$VALOPER" \
+          "${DELEGATE_AMOUNT}arai" \
+          --from validator \
+          --home /home/republic/.republicd \
+          --chain-id "$CHAIN_ID" \
+          --gas auto --gas-adjustment 1.5 --gas-prices 1000000000arai -y
+      fi
       ;;
     8)
       VALOPER=$(docker exec "$CONTAINER_NAME" republicd keys show validator -a --bech val --home /home/republic/.republicd 2>/dev/null | tr -d '\r')
