@@ -116,7 +116,7 @@ EOF
   echo -e "${CYAN}Наш Telegram https://t.me/cryptoforto${NC}"
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
 
-  sleep 5
+  sleep 2
   echo -e "${PURPLE}Ctrl+C для выхода из логов${NC}"
   docker logs -f "$CONTAINER_NAME"
   ;;
@@ -184,7 +184,7 @@ EOF
       ;;
     5)
       # -it нужен для ввода пароля keyring; без TTY команда не выводит адрес
-      echo -e "${CYAN}Введите пароль ключа validator, если запросит.${NC}"
+      echo -e "${YELLOW}Введите пароль ключа validator, если запросит.${NC}"
       docker exec -it "$CONTAINER_NAME" republicd keys show validator -a --home /home/republic/.republicd 2>&1 | tr -d '\r'
       ;;
     6)
@@ -197,7 +197,7 @@ EOF
       cat > /tmp/validator.json <<EOF
 {
   "pubkey": $PUBKEY,
-  "amount": "1000000000000000000arai",
+  "amount": "1000000000000000000000arai",
   "moniker": "${MONIKER:-my-validator}",
   "identity": "",
   "website": "",
@@ -209,6 +209,7 @@ EOF
 }
 EOF
       docker cp /tmp/validator.json "$CONTAINER_NAME:/tmp/validator.json"
+      echo -e "${YELLOW}Введите пароль ключа validator, если запросит.${NC}"
       docker exec -it "$CONTAINER_NAME" republicd tx staking create-validator /tmp/validator.json \
         --home /home/republic/.republicd \
         --chain-id "$CHAIN_ID" \
@@ -217,8 +218,9 @@ EOF
       ;;
     7)
       # Адреса и баланс: keys show без -it не выводит ничего (запрос пароля)
-      echo -e "${CYAN}Введите пароль ключа validator (дважды: для адреса и для VALOPER).${NC}"
+      echo -e "${YELLOW}Введите пароль ключа validator (первый раз — для адреса).${NC}"
       VALADDR=$(docker exec -it "$CONTAINER_NAME" republicd keys show validator -a --home /home/republic/.republicd 2>&1 | tr -d '\r' | grep -oE 'rai1[a-z0-9]+' | head -1)
+      echo -e "${YELLOW}Пароль принят. Введите пароль ещё раз (для VALOPER).${NC}"
       VALOPER=$(docker exec -it "$CONTAINER_NAME" republicd keys show validator -a --bech val --home /home/republic/.republicd 2>&1 | tr -d '\r' | grep -oE 'raivaloper1[a-z0-9]+' | head -1)
       if [ -z "$VALOPER" ]; then
         echo -e "${YELLOW}Введите VALOPER адрес вручную: ${NC}"; read -r VALOPER
@@ -230,16 +232,21 @@ EOF
       BALANCE=$(echo "$BALANCE_JSON" | jq -r '.balances[] | select(.denom=="arai" or .denom=="urai") | .amount // empty' | head -1)
       BALANCE=${BALANCE:-0}
       LEAVE_ONE=1000000000000000000
-      if command -v bc >/dev/null 2>&1; then
-        DELEGATE_AMOUNT=$(echo "$BALANCE - $LEAVE_ONE" | bc 2>/dev/null || echo "0")
-      else
-        DELEGATE_AMOUNT=$(awk "BEGIN{print $BALANCE - $LEAVE_ONE}" 2>/dev/null || echo "0")
-      fi
-      CAN_DELEGATE=$(echo "$DELEGATE_AMOUNT > 0" | bc 2>/dev/null || echo "0")
-      if [ -z "$DELEGATE_AMOUNT" ] || [ "$CAN_DELEGATE" -ne 1 ]; then
+      DELEGATE_RESULT=$(python3 -c "
+b = int('$BALANCE')
+leave = int('$LEAVE_ONE')
+d = b - leave
+if d > 0:
+    print(d)
+else:
+    print('0')
+" 2>/dev/null)
+      DELEGATE_AMOUNT=${DELEGATE_RESULT:-0}
+      if [ -z "$DELEGATE_AMOUNT" ] || [ "$DELEGATE_AMOUNT" = "0" ]; then
         echo -e "${RED}Недостаточно токенов для делегирования (баланс: ${BALANCE} base, нужно больше 1 arai для комиссии).${NC}"
       else
         echo -e "${CYAN}Баланс: ${BALANCE} base. Делегируем всё кроме 1 arai (${DELEGATE_AMOUNT} base) на $VALOPER${NC}"
+        echo -e "${YELLOW}Введите пароль ключа validator для подтверждения транзакции.${NC}"
         docker exec -it "$CONTAINER_NAME" republicd tx staking delegate \
           "$VALOPER" \
           "${DELEGATE_AMOUNT}arai" \
@@ -255,6 +262,7 @@ EOF
       if [ -z "$VALOPER" ]; then
         echo -e "${YELLOW}Введите VALOPER адрес: ${NC}"; read -r VALOPER
       fi
+      echo -e "${YELLOW}Введите пароль ключа validator, если запросит.${NC}"
       docker exec -it "$CONTAINER_NAME" republicd tx distribution withdraw-rewards \
         "$VALOPER" \
         --from validator --commission \
@@ -286,4 +294,3 @@ EOF
   echo -e "${RED}Неверный выбор. Пожалуйста, выберите пункт из меню.${NC}" ;;
 
 esac
-
