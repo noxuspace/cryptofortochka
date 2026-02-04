@@ -31,6 +31,7 @@ echo -e "${CYAN}1) Установка ноды${NC}"
 echo -e "${CYAN}2) Управление контейнером Docker${NC}"
 echo -e "${CYAN}3) Информация о ноде и валидатор${NC}"
 echo -e "${CYAN}4) Удаление ноды${NC}"
+echo -e "${CYAN}5) Обновление ноды${NC}"
 echo -ne "${YELLOW}Введите номер: ${NC}"; read choice
 
 case "$choice" in
@@ -290,6 +291,95 @@ else:
   else
     echo -e "${PURPLE}Отмена. Ничего не изменено.${NC}"
   fi
+  ;;
+# ===================== 5) Обновление ноды ===================
+5)
+  echo -e "${BLUE}Обновление ноды Republic до v0.2.1 (через свой Docker image)...${NC}"
+  SUDO=$(command -v sudo >/dev/null 2>&1 && echo sudo || "")
+
+  # Проверки
+  if ! command -v docker >/dev/null 2>&1; then
+    echo -e "${RED}Docker не найден. Сначала выполните пункт 1) Установка ноды.${NC}"
+    exit 1
+  fi
+
+  if ! docker image inspect "$IMAGE_TAG" >/dev/null 2>&1; then
+    echo -e "${YELLOW}Базовый образ $IMAGE_TAG не найден локально — скачиваю...${NC}"
+    docker pull "$IMAGE_TAG" || { echo -e "${RED}Не удалось скачать $IMAGE_TAG${NC}"; exit 1; }
+  fi
+
+  # Определяем архитектуру
+  ARCH=$(uname -m)
+  case "$ARCH" in
+    x86_64|amd64) BIN_NAME="republicd-linux-amd64" ;;
+    aarch64|arm64) BIN_NAME="republicd-linux-arm64" ;;
+    *)
+      echo -e "${RED}Неизвестная архитектура: $ARCH${NC}"
+      exit 1
+      ;;
+  esac
+
+  VERSION_TAG="v0.2.1"
+  DL_URL="https://github.com/RepublicAI/networks/releases/download/${VERSION_TAG}/${BIN_NAME}"
+  NEW_IMAGE_TAG="republicd:0.2.1"
+
+  echo -e "${BLUE}1) Останавливаю контейнер...${NC}"
+  docker stop "$CONTAINER_NAME" >/dev/null 2>&1 || true
+
+  echo -e "${BLUE}2) Скачиваю новый бинарник: ${BIN_NAME}${NC}"
+  TMPDIR=$(mktemp -d)
+  cd "$TMPDIR" || exit 1
+
+  # Качаем
+  curl -LfsS "$DL_URL" -o republicd || { echo -e "${RED}Не удалось скачать: $DL_URL${NC}"; rm -rf "$TMPDIR"; exit 1; }
+  chmod +x republicd
+
+  echo -e "${BLUE}3) Собираю свой образ ${NEW_IMAGE_TAG} (base: ${IMAGE_TAG})...${NC}"
+  cat > Dockerfile <<EOF
+FROM ${IMAGE_TAG}
+USER root
+COPY republicd /usr/local/bin/republicd
+RUN chmod 755 /usr/local/bin/republicd && chown root:root /usr/local/bin/republicd
+USER republic
+WORKDIR /home/republic
+ENTRYPOINT ["republicd"]
+EOF
+
+  docker build -t "$NEW_IMAGE_TAG" . || { echo -e "${RED}Сборка образа не удалась${NC}"; rm -rf "$TMPDIR"; exit 1; }
+
+  echo -e "${BLUE}4) Проверяю версию в новом образе...${NC}"
+  docker run --rm --entrypoint sh "$NEW_IMAGE_TAG" -lc 'republicd version 2>/dev/null || true'
+
+  echo -e "${BLUE}5) Перезапускаю контейнер на новом образе...${NC}"
+  docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
+  docker run -d --name "$CONTAINER_NAME" \
+    --network host \
+    -v "$REPUBLIC_HOME:/home/republic/.republicd" \
+    "$NEW_IMAGE_TAG" \
+    start --home /home/republic/.republicd --chain-id "$CHAIN_ID" || { echo -e "${RED}Не удалось запустить контейнер${NC}"; rm -rf "$TMPDIR"; exit 1; }
+
+  # Обновляем .env, чтобы дальше в скрипте использовался новый образ
+  echo -e "${BLUE}6) Обновляю $ENV_FILE (IMAGE_TAG -> $NEW_IMAGE_TAG)...${NC}"
+  mkdir -p "$REPUBLIC_HOME"
+  cat > "$ENV_FILE" <<EOF
+REPUBLIC_HOME="$REPUBLIC_HOME"
+CONTAINER_NAME="$CONTAINER_NAME"
+IMAGE_TAG="$NEW_IMAGE_TAG"
+CHAIN_ID="$CHAIN_ID"
+SNAP_RPC="$SNAP_RPC"
+PEERS="$PEERS_DEFAULT"
+EOF
+  chmod 600 "$ENV_FILE" 2>/dev/null || true
+
+  rm -rf "$TMPDIR"
+
+  echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+  echo -e "${GREEN}Готово. Нода запущена на образе: $NEW_IMAGE_TAG${NC}"
+  echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
+
+  sleep 5
+  echo -e "${PURPLE}Ctrl+C для выхода из логов${NC}"
+  docker logs -f "$CONTAINER_NAME"
   ;;
 
 *)
