@@ -232,7 +232,7 @@ EOF
       BALANCE_JSON=$(docker exec "$CONTAINER_NAME" republicd query bank balances "$VALADDR" --home /home/republic/.republicd --output json 2>/dev/null)
       BALANCE=$(echo "$BALANCE_JSON" | jq -r '.balances[] | select(.denom=="arai" or .denom=="urai") | .amount // empty' | head -1)
       BALANCE=${BALANCE:-0}
-      LEAVE_ONE=1000000000000000000
+      LEAVE_ONE=50000000000000000
       DELEGATE_RESULT=$(python3 -c "
 b = int('$BALANCE')
 leave = int('$LEAVE_ONE')
@@ -246,9 +246,9 @@ else:
       BALANCE_HUMAN=$(python3 -c "print(round(int('$BALANCE')/1e18, 2))" 2>/dev/null || echo "0")
       DELEGATE_HUMAN=$(python3 -c "print(round(int('${DELEGATE_AMOUNT:-0}')/1e18, 2))" 2>/dev/null || echo "0")
       if [ -z "$DELEGATE_AMOUNT" ] || [ "$DELEGATE_AMOUNT" = "0" ]; then
-        echo -e "${RED}Недостаточно токенов для делегирования (баланс: ${BALANCE_HUMAN} arai, нужно больше 1 arai для комиссии).${NC}"
+        echo -e "${RED}Недостаточно токенов для делегирования (баланс: ${BALANCE_HUMAN} arai, нужно больше 0.05 arai для комиссии).${NC}"
       else
-        echo -e "${CYAN}Баланс: ${BALANCE_HUMAN} arai. Делегируем всё кроме 1 arai (${DELEGATE_HUMAN} arai) на $VALOPER${NC}"
+        echo -e "${CYAN}Баланс: ${BALANCE_HUMAN} arai. Делегируем всё кроме 0.05 arai (${DELEGATE_HUMAN} arai) на $VALOPER${NC}"
         echo -e "${YELLOW}Введите пароль ключа validator для подтверждения транзакции.${NC}"
         docker exec -it "$CONTAINER_NAME" republicd tx staking delegate \
           "$VALOPER" \
