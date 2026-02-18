@@ -321,7 +321,7 @@ else:
 
   VERSION_TAG="v0.3.0"
   DL_URL="https://github.com/RepublicAI/networks/releases/download/${VERSION_TAG}/${BIN_NAME}"
-  NEW_IMAGE_TAG="republicd:0.2.1"
+  NEW_IMAGE_TAG="republicd:0.3.0"
 
   echo -e "${BLUE}1) Останавливаю контейнер...${NC}"
   docker stop "$CONTAINER_NAME" >/dev/null 2>&1 || true
