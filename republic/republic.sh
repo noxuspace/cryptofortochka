@@ -294,7 +294,7 @@ else:
   ;;
 # ===================== 5) Обновление ноды ===================
 5)
-  echo -e "${BLUE}Обновление ноды Republic до v0.2.1 (через свой Docker image)...${NC}"
+  echo -e "${BLUE}Обновление ноды Republic до v0.3.0 (через свой Docker image)...${NC}"
   SUDO=$(command -v sudo >/dev/null 2>&1 && echo sudo || "")
 
   # Проверки
@@ -319,7 +319,7 @@ else:
       ;;
   esac
 
-  VERSION_TAG="v0.2.1"
+  VERSION_TAG="v0.3.0"
   DL_URL="https://github.com/RepublicAI/networks/releases/download/${VERSION_TAG}/${BIN_NAME}"
   NEW_IMAGE_TAG="republicd:0.2.1"
 
