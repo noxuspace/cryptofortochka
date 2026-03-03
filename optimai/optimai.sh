@@ -6,7 +6,7 @@ PURPLE='\033[0;35m'; CYAN='\033[0;36m'; NC='\033[0m'
 
 # ======================= Базовые переменные ==================
 CLI_BINARY="/usr/local/bin/optimai-cli"
-CLI_DOWNLOAD_URL="https://optimai.network/download/cli-node/linux"
+CLI_DOWNLOAD_URL="https://cli-node.optimai.network/optimai_cli_ubuntu"
 
 # ===================== Проверка curl + лого ===================
 if ! command -v curl >/dev/null 2>&1; then
@@ -66,7 +66,7 @@ case "$choice" in
 
   # Вход в аккаунт
   echo -e "${BLUE}Войдите в свой аккаунт OptimAI (email и пароль):${NC}"
-  $CLI_BINARY auth login
+  $CLI_BINARY auth login --legacy
 
   echo -e "${PURPLE}-----------------------------------------------------------------------${NC}"
   echo -e "${GREEN}Установка завершена!${NC}"
